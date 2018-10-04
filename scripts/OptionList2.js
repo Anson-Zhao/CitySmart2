@@ -1,12 +1,11 @@
 let Continentlevel, Countrylevel,continentObj1,continentObj2,continentObj3;
 
 $(document).ready(function() {
-    let x = document.getElementById("myListCountry");
+    let x = document.getElementById("myListContinent");
     $.ajax({
-        url: "CountryList",
+        url: "ContinentList",
         dataType: 'json',
         success: function (results) {
-            console.log(results);
             let option;
             for (let i = 0; i < results.length; i++) {
                 option = new Option(results[i].ContinentName, results[i].ContinentName);
@@ -15,26 +14,6 @@ $(document).ready(function() {
             }
         }
     });
-//     // let x = document.getElementById("myListCountry");
-//     // $.ajax({
-//     //     url: "CountryList",
-//     //     dataType: 'json',
-//     //     success: function (results) {
-//     //         let option;
-//     //         for (let i = 0; i < results.length; i++) {
-//     //             option = new Option(results[i].ContinentName, results[i].ContinentName);
-//     //             x.add(option);
-//     //             console.log(option);
-//     //         }
-//     //         console.log(results);
-//     //         // for (let i = 0; i < results.length; i++) {
-//     //         //     option = new Option(results[i].CountryName, results[i].CountryName);
-//     //         //     x.add(option);
-//     //         //
-//     //         //     console.log(option);
-//     //         // }
-//     //     }
-//     // });
 });
 
 function getObjects(obj, key, val) {
@@ -57,63 +36,63 @@ function getObjects(obj, key, val) {
     return objects;
 }
 
-// function ChangeSelectList(continentlevel) {
-//     console.log(continentlevel);
-//     Continentlevel = continentlevel;
-//     $('.Menu').hide();
-//     $('.State').hide();
-//     var countryList = document.getElementById("myListCountry");
-//     while (countryList.options.length) {
-//         countryList.remove(0);
-//     }
-//
-//     if (continentlevel === "AL"){
-//         $("#myListCountry").html("<option value='AL'> All Layer </option>");
-//         $("#myListState").html("<option value= 'AL'> All Layer </option>");
-//         document.getElementById("myListCountry").disabled = true;
-//         document.getElementById("myListCountry").style.backgroundColor = "lightgray";
-//         document.getElementById("myListState").disabled = true;
-//         document.getElementById("myListState").style.backgroundColor = "lightgray";
-//         $('.Menu').show();
-//         $('.State').show();
-//     } else{
-//         $("#myListCountry").html("<option value = 'SAS'> -Select a Country- </option>");
-//         $("#myListState").html("<option> -Select a State- </option>");
-//         document.getElementById("myListCountry").disabled = false;
-//         document.getElementById("myListCountry").style.backgroundColor = "white";
-//         $('.Menu').hide();
-//     }
-//
-//     $.ajax({
-//         url: "CountryList",
-//         dataType: 'json',
-//         success: function (results) {
-//             var option;
-//             for (var i = 0; i < results.length; i++) {
-//                 if (continentlevel === results[i].ContinentName) {
-//                     option = new Option(results[i].CountryName, results[i].CountryName);
-//                     countryList.add(option);
-//                     if(continentlevel === "All Continents"){
-//                         $.ajax({
-//                             url: "ClassName",
-//                             success: function (res) {
-//                                 continentObj1 = res;
-//                             }
-//                         })
-//                     }else{
-//                         $.ajax({
-//                             url: "ClassName",
-//                             success: function (res) {
-//                                 continentObj1 = getObjects(res, 'ContinentName', continentlevel);
-//                                 console.log(continentObj1);
-//                             }
-//                         });
-//                     }
-//                 }
-//             }
-//         }
-//     });
-// }
+function ChangeSelectList(continentlevel) {
+    console.log(continentlevel);
+    Continentlevel = continentlevel;
+    $('.Menu').hide();
+    $('.State').hide();
+    var countryList = document.getElementById("myListCountry");
+    while (countryList.options.length) {
+        countryList.remove(0);
+    }
+
+    if (continentlevel === "AL"){
+        $("#myListCountry").html("<option value='AL'> All Layer </option>");
+        $("#myListState").html("<option value= 'AL'> All Layer </option>");
+        document.getElementById("myListCountry").disabled = true;
+        document.getElementById("myListCountry").style.backgroundColor = "lightgray";
+        document.getElementById("myListState").disabled = true;
+        document.getElementById("myListState").style.backgroundColor = "lightgray";
+        $('.Menu').show();
+        $('.State').show();
+    } else{
+        $("#myListCountry").html("<option value = 'SAS'> -Select a Country- </option>");
+        $("#myListState").html("<option> -Select a State- </option>");
+        document.getElementById("myListCountry").disabled = false;
+        document.getElementById("myListCountry").style.backgroundColor = "white";
+        $('.Menu').hide();
+    }
+
+    $.ajax({
+        url: "CountryList",
+        dataType: 'json',
+        success: function (results) {
+            var option;
+            for (var i = 0; i < results.length; i++) {
+                if (continentlevel === results[i].ContinentName) {
+                    option = new Option(results[i].CountryName, results[i].CountryName);
+                    countryList.add(option);
+                    if(continentlevel === "All Continents"){
+                        $.ajax({
+                            url: "ClassName",
+                            success: function (res) {
+                                continentObj1 = res;
+                            }
+                        })
+                    }else{
+                        $.ajax({
+                            url: "ClassName",
+                            success: function (res) {
+                                continentObj1 = getObjects(res, 'ContinentName', continentlevel);
+                                console.log(continentObj1);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    });
+}
 
 function ChangeStateList(countrylevel) {
     Countrylevel = countrylevel;
@@ -133,20 +112,12 @@ function ChangeStateList(countrylevel) {
     $.ajax({
         url: "StateList",
         dataType: 'json',
-        // success: function (results) {
-        //     for(var j = 0; j < results.length; j++){
-        //         if(countrylevel === results[j].CountryName && Continentlevel === results[j].ContinentName){
-        //             var option = new Option(results[j].StateName, results[j].StateName);
-        //             stateList.add(option);
-        //             console.log(results);
-        //         }
-        //     }
-        // }
         success: function (results) {
             for(var j = 0; j < results.length; j++){
-                if(countrylevel === results[j].CountryName ){
+                if(countrylevel === results[j].CountryName && Continentlevel === results[j].ContinentName){
                     var option = new Option(results[j].StateName, results[j].StateName);
                     stateList.add(option);
+
                     console.log(results);
                 }
             }
@@ -156,6 +127,7 @@ function ChangeStateList(countrylevel) {
     for(var i = 0; i < continentObj1.length; i++){
         if(countrylevel === "All Countries"){
             continentObj2 = continentObj1;
+            console.log(continentObj1);
         }else{
             continentObj2 = getObjects(continentObj1, 'CountryName', countrylevel);
         }
@@ -163,7 +135,6 @@ function ChangeStateList(countrylevel) {
 }
 
 function ChangeLayerList(statelevel) {
-    console.log(statelevel);
     $('.Menu').hide();
     $('.State').hide();
 

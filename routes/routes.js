@@ -1433,6 +1433,7 @@ module.exports = function (app, passport) {
     // =====================================
 
     //Continent level
+
     app.get('/ContinentList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         con_CS.query("SELECT ContinentName FROM optionList GROUP BY ContinentName", function (err, results) {
@@ -1440,14 +1441,27 @@ module.exports = function (app, passport) {
             res.json(results);
         });
     });
+
     //Country level
+    //app.get('/CountryList', function (req, res) {
+        //     res.setHeader("Access-Control-Allow-Origin", "*");
+        //     con_CS.query('SELECT CountryName, ContinentName, COUNT (*) AS count FROM optionList GROUP BY CountryName, ContinentName', function (err, results, fields) {
+        //         if (err) throw err;
+        //         res.json(results);
+        //         // console.log(results);
+        //     });
+        // });
     app.get('/CountryList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query('SELECT CountryName, ContinentName, COUNT (*) AS count FROM optionList GROUP BY CountryName, ContinentName', function (err, results, fields) {
+        con_CS.query('SELECT CountryName, ContinentName FROM optionList GROUP BY CountryName, ContinentName', function (err, results, fields) {
             if (err) throw err;
             res.json(results);
+            // console.log(results);
         });
     });
+
+
+
     //Depend on continent value to get the country and state value
     app.get('/ClassName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
@@ -1460,6 +1474,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         con_CS.query('SELECT StateName, CountryName, ContinentName, COUNT (*) AS count FROM optionList GROUP BY StateName, CountryName, ContinentName', function (err, results, fields) {
             res.json(results);
+            // console.log(results);
         });
     });
 
@@ -1569,7 +1584,7 @@ module.exports = function (app, passport) {
     app.get('/createlayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT * From USGS.MapLayerMenu WHERE Status = 'Approved'", function (err, result) {
+        con_CS.query("SELECT * From MapLayerMenu WHERE Status = 'Approved'", function (err, result) {
             // console.log("recive and processing");
 
             let JSONresult = JSON.stringify(result, null, "\t");
