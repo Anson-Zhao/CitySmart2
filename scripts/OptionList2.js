@@ -108,10 +108,10 @@ function ChangeStateList(countrylevel) {
         document.getElementById("myListState").disabled = false;
         document.getElementById("myListState").style.backgroundColor = "white";
     }
-
     $.ajax({
         url: "StateList",
         dataType: 'json',
+
         success: function (results) {
             for(var j = 0; j < results.length; j++){
                 if(countrylevel === results[j].CountryName && Continentlevel === results[j].ContinentName){

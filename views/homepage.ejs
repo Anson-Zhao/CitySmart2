@@ -371,19 +371,26 @@
                 <!--</div>-->
                 <div>
                     <p>
-                        <select id="myListCountry"  style="width:320px; height:50px; background:white; padding-left: 15px" onchange="ChangeStateList(this.value)">
-                            <option selected="selected" value="AL">All Layers</option>
+                        <select id="myListCountry"  style="width:320px; height:50px; background:white; padding-left: 15px" onchange="ChangeCountryList(this.value)">
+                            <option selected="selected" value="AL">-Select a country-</option>
                             <!--<option>-Select a State-</option>-->
                         </select>
                     </p>
                 </div>
                 <div>
                     <p>
-                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeLayerList(this.value)" disabled>
-                            <option selected="selected" value="AL">All Layers</option>
+                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeStateList(this.value)" disabled>
+                            <option selected="selected" value="AL">-Select a State-</option>
                         </select>
                     </p>
                 </div>
+                    <div>
+                        <p>
+                            <select id="myListCity"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeCityList(this.value)" disabled>
+                                <option selected="selected" value="AL">-Select a City-</option>
+                            </select>
+                        </p>
+                    </div>
                 </div>
             <br>
             <div style="margin-left: 15px;">

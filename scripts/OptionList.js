@@ -9,7 +9,7 @@ $(document).ready(function() {
             console.log(results);
             let option;
             for (let i = 0; i < results.length; i++) {
-                option = new Option(results[i].ContinentName, results[i].ContinentName);
+                option = new Option(results[i].CountryName, results[i].CountryName);
                 x.add(option);
                 console.log(option);
             }
@@ -115,7 +115,7 @@ function getObjects(obj, key, val) {
 //     });
 // }
 
-function ChangeStateList(countrylevel) {
+function ChangeCountryList(countrylevel) {
     Countrylevel = countrylevel;
     $('.Menu').hide();
     $('.State').hide();
@@ -129,10 +129,16 @@ function ChangeStateList(countrylevel) {
         document.getElementById("myListState").disabled = false;
         document.getElementById("myListState").style.backgroundColor = "white";
     }
+    var conlevel = "countrylevel="+ countrylevel;
 
+    // console.log(conlevel);
+    //
+    // console.log(countrylevel);
     $.ajax({
         url: "StateList",
+        method: 'GET',
         dataType: 'json',
+        data: conlevel,
         // success: function (results) {
         //     for(var j = 0; j < results.length; j++){
         //         if(countrylevel === results[j].CountryName && Continentlevel === results[j].ContinentName){
@@ -143,26 +149,27 @@ function ChangeStateList(countrylevel) {
         //     }
         // }
         success: function (results) {
+            console.log(results);
             for(var j = 0; j < results.length; j++){
-                if(countrylevel === results[j].CountryName ){
+                // if(countrylevel === results[j].StateName ){
                     var option = new Option(results[j].StateName, results[j].StateName);
                     stateList.add(option);
-                    console.log(results);
-                }
+
+                //}
             }
         }
     });
 
-    for(var i = 0; i < continentObj1.length; i++){
-        if(countrylevel === "All Countries"){
-            continentObj2 = continentObj1;
-        }else{
-            continentObj2 = getObjects(continentObj1, 'CountryName', countrylevel);
-        }
-    }
+    // for(var i = 0; i < continentObj1.length; i++){
+    //     if(countrylevel === "All Countries"){
+    //         continentObj2 = continentObj1;
+    //     }else{
+    //         continentObj2 = getObjects(continentObj1, 'CountryName', countrylevel);
+    //     }
+    // }
 }
 
-function ChangeLayerList(statelevel) {
+function ChangeStateList(statelevel) {
     console.log(statelevel);
     $('.Menu').hide();
     $('.State').hide();
