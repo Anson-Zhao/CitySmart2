@@ -25,8 +25,8 @@
         }
 
         .button1 {
-            width: 130px;
-            height: 35px;
+            width: 300px;
+            height: 70px;
             border-radius: 30px;
             -webkit-transition-duration: 0.4s;
             transition-duration: 0.4s;
@@ -35,16 +35,12 @@
             color: #337ab7;
             border: 1px solid #337ab7;
             font-size: 18px;
-            margin-left: 18px;
+            margin-left: 25px;
         }
 
         .button1:hover {
             background-color: #337ab7;
             color: white;
-        }
-
-        .log-form {
-            font-size : 18px;
         }
 
         .box1 {
@@ -69,7 +65,7 @@
         #accordion::-webkit-scrollbar-corner  {
             display: block;
         }
-
+        
         .previous {
             background-color: #0fbad6;
             color: white;
@@ -91,7 +87,7 @@
             background-color: #66ccff;
             color:white;
             border-radius: 10px;
-            font-family: 'Lato','cursive';
+            font-family: 'Lato';
             font-size: 15px;
             font-weight: 500;
         }
@@ -141,14 +137,10 @@
 <div class="container">
     <div class="page-header text-center header">
         <h1><span class="fa fa-globe"></span> City Smart V2 </h1>
-        <div class="log-form">
-            <form>
-                <input type="text" title="Username" placeholder="Username" />
-                <input type="Password" title="Username" placeholder="Password" />
-                <button type="submit" class="button1">Login>></button>
-                <button class="button1">Signup>></button>
-            </form>
-        </div>
+        <a href="/" id="homepage">
+            <button class="button1">Login/Singup>>  </button>
+        </a>
+        <br>
     </div>
 
     <div>
@@ -379,26 +371,19 @@
                 <!--</div>-->
                 <div>
                     <p>
-                        <select id="myListCountry"  style="width:320px; height:50px; background:white; padding-left: 15px" onchange="ChangeCountryList(this.value)">
-                            <option selected="selected" value="AL">-Select a country-</option>
+                        <select id="myListCountry"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeStateList(this.value)" disabled>
+                            <option selected="selected" value="AL">All Layers</option>
                             <!--<option>-Select a State-</option>-->
                         </select>
                     </p>
                 </div>
                 <div>
                     <p>
-                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeStateList(this.value)" disabled>
-                            <option selected="selected" value="AL">-Select a State-</option>
+                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeLayerList(this.value)" disabled>
+                            <option selected="selected" value="AL">All Layers</option>
                         </select>
                     </p>
                 </div>
-                    <div>
-                        <p>
-                            <select id="myListCity"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeCityList(this.value)" disabled>
-                                <option selected="selected" value="AL">-Select a City-</option>
-                            </select>
-                        </p>
-                    </div>
                 </div>
             <br>
             <div style="margin-left: 15px;">
@@ -422,7 +407,6 @@
             <canvas id="canvasOne" width="1000" height="1000" style="width:100%; height:auto">
                 Your browser does not support HTML5 Canvas.
             </canvas>
-
         </div>
     </div>
 </div>
