@@ -1434,13 +1434,13 @@ module.exports = function (app, passport) {
 
     //Continent level
 
-    app.get('/ContinentList', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT ContinentName FROM optionList GROUP BY ContinentName", function (err, results) {
-            if (err) throw err;
-            res.json(results);
-        });
-    });
+    // app.get('/ContinentList', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     con_CS.query("SELECT ContinentName FROM optionList GROUP BY ContinentName", function (err, results) {
+    //         if (err) throw err;
+    //         res.json(results);
+    //     });
+    // });
 
     //Country level
     //app.get('/CountryList', function (req, res) {
@@ -1477,6 +1477,16 @@ module.exports = function (app, passport) {
             res.json(results);
         });
     });
+    app.get('/CityList', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var recieveCitylist = req.query.statelevel;
+        console.log(recieveCitylist);
+        con_CS.query("SELECT CityName FROM  CitySmart2.optionList  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
+            res.json(results);
+            console.log(results);
+        });
+    });
+
 
 //AddData in table
     app.get('/AddData', function (req, res) {

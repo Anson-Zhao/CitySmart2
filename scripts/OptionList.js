@@ -15,26 +15,6 @@ $(document).ready(function() {
             }
         }
     });
-//     // let x = document.getElementById("myListCountry");
-//     // $.ajax({
-//     //     url: "CountryList",
-//     //     dataType: 'json',
-//     //     success: function (results) {
-//     //         let option;
-//     //         for (let i = 0; i < results.length; i++) {
-//     //             option = new Option(results[i].ContinentName, results[i].ContinentName);
-//     //             x.add(option);
-//     //             console.log(option);
-//     //         }
-//     //         console.log(results);
-//     //         // for (let i = 0; i < results.length; i++) {
-//     //         //     option = new Option(results[i].CountryName, results[i].CountryName);
-//     //         //     x.add(option);
-//     //         //
-//     //         //     console.log(option);
-//     //         // }
-//     //     }
-//     // });
 });
 
 function getObjects(obj, key, val) {
@@ -125,29 +105,28 @@ function ChangeCountryList(countrylevel) {
     }
 
     if(countrylevel !== "SAS"){
-        $("#myListState").html("<option> -Select a State- </option>");
+        $("#myListState").html("<option>All Layer</option>");
         document.getElementById("myListState").disabled = false;
         document.getElementById("myListState").style.backgroundColor = "white";
     }
-    var conlevel = "countrylevel="+ countrylevel;
+    if(countrylevel === "All Layer"){
+        $("#myListState").html("<option>All Layer</option>");
+        document.getElementById("myListState").disabled = true;
+        document.getElementById("myListState").style.backgroundColor = "lightgray";
+        $("#myListCity").html("<option>All Layer</option>");
+        document.getElementById("myListCity").disabled = true;
+        document.getElementById("myListCity").style.backgroundColor = "lightgray";
+    }
 
+    var conlevel = "countrylevel="+ countrylevel;
     // console.log(conlevel);
-    //
     // console.log(countrylevel);
+
     $.ajax({
         url: "StateList",
         method: 'GET',
         dataType: 'json',
         data: conlevel,
-        // success: function (results) {
-        //     for(var j = 0; j < results.length; j++){
-        //         if(countrylevel === results[j].CountryName && Continentlevel === results[j].ContinentName){
-        //             var option = new Option(results[j].StateName, results[j].StateName);
-        //             stateList.add(option);
-        //             console.log(results);
-        //         }
-        //     }
-        // }
         success: function (results) {
             console.log(results);
             for(var j = 0; j < results.length; j++){
@@ -159,7 +138,6 @@ function ChangeCountryList(countrylevel) {
             }
         }
     });
-
     // for(var i = 0; i < continentObj1.length; i++){
     //     if(countrylevel === "All Countries"){
     //         continentObj2 = continentObj1;
@@ -168,41 +146,74 @@ function ChangeCountryList(countrylevel) {
     //     }
     // }
 }
+// function ChangeCityList(citylevel) {
+//     $('.Menu').hide();
+//     $('.State').hide();
+
+// }
 
 function ChangeStateList(statelevel) {
+    var cityList = document.getElementById("myListCity");
+    while (cityList.options.length) {
+        cityList.remove(0);
+    }
     console.log(statelevel);
     $('.Menu').hide();
     $('.State').hide();
-
-    for(var i = 0; i < continentObj2.length; i++) {
-        if(Countrylevel === "All Countries" && Continentlevel === "All Continents" && statelevel === "All States") {
-            $('.Menu').show();
-            $('.State').show();
-        }else if(Countrylevel === "All Countries" && Continentlevel === "All Continents" && statelevel !== "All States"){
-            continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
-            myFunction(i);
-            console.log(continentObj3);
-        }else if(Continentlevel === "All Continents" && Countrylevel !== "All Countries" && statelevel !== "All States"){
-            continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
-            console.log(continentObj3);
-            myFunction(i);
-        }else if(Continentlevel !== "All Continents" && Countrylevel === "All Countries" && statelevel === "All States"){
-            continentObj3 = continentObj1;
-            console.log(continentObj3);
-            myFunction(i);
-        }else if(Continentlevel !== "All Continents" && Countrylevel !== "All Countries" && statelevel === "All States"){
-            continentObj3 = continentObj2;
-            myFunction(i);
-            console.log(continentObj3);
-        }else{
-            continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
-            console.log(continentObj3);
-            myFunction(i);
-        }
-
+    // for(var i = 0; i < continentObj2.length; i++) {
+    //     if(Countrylevel === "All Countries" && Continentlevel === "All Continents" && statelevel === "All States") {
+    //         $('.Menu').show();
+    //         $('.State').show();
+    //     }else if(Countrylevel === "All Countries" && Continentlevel === "All Continents" && statelevel !== "All States"){
+    //         continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
+    //         myFunction(i);
+    //         console.log(continentObj3);
+    //     }else if(Continentlevel === "All Continents" && Countrylevel !== "All Countries" && statelevel !== "All States"){
+    //         continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
+    //         console.log(continentObj3);
+    //         myFunction(i);
+    //     }else if(Continentlevel !== "All Continents" && Countrylevel === "All Countries" && statelevel === "All States"){
+    //         continentObj3 = continentObj1;
+    //         console.log(continentObj3);
+    //         myFunction(i);
+    //     }else if(Continentlevel !== "All Continents" && Countrylevel !== "All Countries" && statelevel === "All States"){
+    //         continentObj3 = continentObj2;
+    //         myFunction(i);
+    //         console.log(continentObj3);
+    //     }else{
+    //         continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
+    //         console.log(continentObj3);
+    //         myFunction(i);
+    //     }
+    //
+    // }
+    if(statelevel!== "SAS"){
+        $("myListCity").html("<option> -Select a City- </option>");
+        document.getElementById("myListCity").disabled = false;
+        document.getElementById("myListCity").style.backgroundColor = "white";
     }
-}
+    var Statelevel = "statelevel="+ statelevel;
 
+    console.log(Statelevel);
+
+    $.ajax({
+        url: "CityList",
+        method: 'GET',
+        dataType: 'json',
+        data:Statelevel,
+        success: function (results) {
+            console.log(results);
+            for(var j = 0; j < results.length; j++){
+                // if(countrylevel === results[j].StateName ){
+                var option = new Option(results[j].CityName, results[j].CityName);
+                cityList.add(option);
+
+                //}
+            }
+        }
+    });
+
+}
 function myFunction(index) {
     var obj1 = continentObj3[index].FirstLayer;
     var obj2 = continentObj3[index].SecondLayer;
