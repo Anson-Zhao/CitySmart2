@@ -69,7 +69,7 @@ requirejs(['./WorldWindShim',
             document.getElementById("previousL").disabled = true;
             document.getElementById("nextL").disabled = true;
 
-            $(".wmsLayer").each(function (i) {
+            $(".Wmslayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
             });
 
@@ -104,7 +104,7 @@ requirejs(['./WorldWindShim',
             layerName = strs.split(",");
             var checkedCount = 0;
             var currentCheckedArray;
-            $('.wmsLayer').click(function () {
+            $('.Wmslayer').click(function () {
                 var layer1 = $(this).val();
                 currentCheckedArray = $(':checkbox:checked');
 
@@ -229,19 +229,19 @@ requirejs(['./WorldWindShim',
                 // Retrieve a WmsLayerCapabilities object by the desired layer name
                 for (var n = 0; n < layerName.length; n++) {
 
-                    var wmsLayerCapability = wms.getNamedLayer(layerName[n]);
+                    var WmslayerCapability = wms.getNamedLayer(layerName[n]);
 
                     // Form a configuration object from the WmsLayerCapability object
-                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
+                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(WmslayerCapability);
 
                     // Modify the configuration objects title property to a more user friendly title
                     wmsConfig.title = layerName[n];
 
                     // Create the WMS Layer from the configuration object
-                    var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
-
+                    var Wmslayer = new WorldWind.WmsLayer(wmsConfig);
+                    console.log(Wmslayer);
                     // Add the layers to WorldWind and update the layer manager
-                    globe.addLayer(wmsLayer);
+                    globe.addLayer(Wmslayer);
                     layerManager.synchronizeLayerList();
                 }
             };
