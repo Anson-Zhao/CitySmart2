@@ -214,6 +214,26 @@ function ChangeStateList(statelevel) {
     });
 
 }
+function ChangeCityList(citylevel){
+    console.log(citylevel);
+    $.ajax({
+        url: "ClassName",
+        method: 'GET',
+        dataType: 'json',
+        // data:Statelevel,
+        success: function (results) {
+            console.log(results);
+            // for(var j = 0; j < results.length; j++){
+            //     // if(countrylevel === results[j].StateName ){
+            //     var option = new Option(results[j].CityName, results[j].CityName);
+            //     cityList.add(option);
+            //
+            //     //}
+            // }
+        }
+    });
+
+}
 function myFunction(index) {
     var obj1 = continentObj3[index].FirstLayer;
     var obj2 = continentObj3[index].SecondLayer;
