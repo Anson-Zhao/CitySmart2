@@ -6,12 +6,12 @@ $(document).ready(function() {
         url: "CountryList",
         dataType: 'json',
         success: function (results) {
-            console.log(results);
+            // console.log(results);
             let option;
             for (let i = 0; i < results.length; i++) {
                 option = new Option(results[i].CountryName, results[i].CountryName);
                 x.add(option);
-                console.log(option);
+                // console.log(option);
             }
         }
     });
@@ -110,6 +110,8 @@ function ChangeCountryList(countrylevel) {
         document.getElementById("myListState").style.backgroundColor = "white";
     }
     if(countrylevel === "All Layer"){
+        $('.Menu').show();
+        $('.State').show();
         $("#myListState").html("<option>All Layer</option>");
         document.getElementById("myListState").disabled = true;
         document.getElementById("myListState").style.backgroundColor = "lightgray";
@@ -118,131 +120,102 @@ function ChangeCountryList(countrylevel) {
         document.getElementById("myListCity").style.backgroundColor = "lightgray";
     }
 
-    var conlevel = "countrylevel="+ countrylevel;
-    // console.log(conlevel);
-    // console.log(countrylevel);
+    var country = "countrylevel="+ countrylevel;
 
     $.ajax({
         url: "StateList",
         method: 'GET',
         dataType: 'json',
-        data: conlevel,
+        data: country,
         success: function (results) {
-            console.log(results);
+            // console.log(results);
+            stateList.add(new Option("-Select a State-", "Select a state"));
             for(var j = 0; j < results.length; j++){
                 // if(countrylevel === results[j].StateName ){
                     var option = new Option(results[j].StateName, results[j].StateName);
                     stateList.add(option);
-
+                    console.log (stateList)
                 //}
             }
         }
     });
-    // for(var i = 0; i < continentObj1.length; i++){
-    //     if(countrylevel === "All Countries"){
-    //         continentObj2 = continentObj1;
-    //     }else{
-    //         continentObj2 = getObjects(continentObj1, 'CountryName', countrylevel);
-    //     }
-    // }
 }
-// function ChangeCityList(citylevel) {
-//     $('.Menu').hide();
-//     $('.State').hide();
 
-// }
 
 function ChangeStateList(statelevel) {
     var cityList = document.getElementById("myListCity");
     while (cityList.options.length) {
         cityList.remove(0);
     }
-    console.log(statelevel);
     $('.Menu').hide();
     $('.State').hide();
-    // for(var i = 0; i < continentObj2.length; i++) {
-    //     if(Countrylevel === "All Countries" && Continentlevel === "All Continents" && statelevel === "All States") {
-    //         $('.Menu').show();
-    //         $('.State').show();
-    //     }else if(Countrylevel === "All Countries" && Continentlevel === "All Continents" && statelevel !== "All States"){
-    //         continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
-    //         myFunction(i);
-    //         console.log(continentObj3);
-    //     }else if(Continentlevel === "All Continents" && Countrylevel !== "All Countries" && statelevel !== "All States"){
-    //         continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
-    //         console.log(continentObj3);
-    //         myFunction(i);
-    //     }else if(Continentlevel !== "All Continents" && Countrylevel === "All Countries" && statelevel === "All States"){
-    //         continentObj3 = continentObj1;
-    //         console.log(continentObj3);
-    //         myFunction(i);
-    //     }else if(Continentlevel !== "All Continents" && Countrylevel !== "All Countries" && statelevel === "All States"){
-    //         continentObj3 = continentObj2;
-    //         myFunction(i);
-    //         console.log(continentObj3);
-    //     }else{
-    //         continentObj3 = getObjects(continentObj2, 'StateName', statelevel);
-    //         console.log(continentObj3);
-    //         myFunction(i);
-    //     }
-    //
-    // }
+
     if(statelevel!== "SAS"){
         $("myListCity").html("<option> -Select a City- </option>");
         document.getElementById("myListCity").disabled = false;
         document.getElementById("myListCity").style.backgroundColor = "white";
     }
-    var Statelevel = "statelevel="+ statelevel;
-
-    console.log(Statelevel);
+    var state = "statelevel="+ statelevel;
 
     $.ajax({
         url: "CityList",
         method: 'GET',
         dataType: 'json',
-        data:Statelevel,
+        data:state,
         success: function (results) {
             console.log(results);
+            cityList.add(new Option("-Select a City-", "Select a City"));
             for(var j = 0; j < results.length; j++){
-                // if(countrylevel === results[j].StateName ){
                 var option = new Option(results[j].CityName, results[j].CityName);
                 cityList.add(option);
-
-                //}
+                console.log (results[j].CityName);
+                console.log (cityList)
             }
         }
     });
-
 }
+
 function ChangeCityList(citylevel){
     console.log(citylevel);
+    var city = "citylevel="+ citylevel;
+    console.log(city);
+
     $.ajax({
         url: "ClassName",
         method: 'GET',
         dataType: 'json',
-        // data:Statelevel,
+        data:city,
         success: function (results) {
             console.log(results);
-            // for(var j = 0; j < results.length; j++){
-            //     // if(countrylevel === results[j].StateName ){
-            //     var option = new Option(results[j].CityName, results[j].CityName);
-            //     cityList.add(option);
-            //
-            //     //}
-            // }
-        }
+            // for (var i= 0; i<results.length; i++ ) {
+                if (citylevel !== "SAS") {
+                    myFunction();
+                }
+            }
+        // }
     });
 
 }
-function myFunction(index) {
-    var obj1 = continentObj3[index].FirstLayer;
-    var obj2 = continentObj3[index].SecondLayer;
-    var obj3 = continentObj3[index].ThirdLayer;
+// function myFunction(index) {
+//     var obj1 = continentObj3[index].FirstLayer;
+//     var obj2 = continentObj3[index].SecondLayer;
+//     var obj3 = continentObj3[index].ThirdLayer;
+//     var className1 = "." + obj1;
+//     var className2 = "." + obj2;
+//     var className3 = "." + obj3;
+//     $(className1).show();
+//     $(className2).show();
+//     $(className3).show();
+//     console.log(className1)
+// }
+function myFunction() {
+    var obj1 = cityName.FirstLayer;
+    var obj2 = cityName.SecondLayer;
+    var obj3 = cityName.ThirdLayer;
     var className1 = "." + obj1;
     var className2 = "." + obj2;
     var className3 = "." + obj3;
     $(className1).show();
     $(className2).show();
     $(className3).show();
-    console.log(className1)
 }

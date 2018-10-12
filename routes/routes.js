@@ -1463,10 +1463,19 @@ module.exports = function (app, passport) {
 
 
     //Depend on continent value to get the country and state value
+    // app.get('/ClassName', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     con_CS.query('SELECT CountryName, FirstLayer, SecondLayer, ThirdLayer, StateName, ContinentName FROM MapLayerMenu', function (err, results) {
+    //         res.json(results);
+    //     });
+    // });
     app.get('/ClassName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query('SELECT CountryName, FirstLayer, SecondLayer, ThirdLayer, StateName, ContinentName FROM MapLayerMenu', function (err, results) {
+        var recieveCitylist = req.query.citylevel;
+        console.log(recieveCitylist);
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer ,CityName FROM CitySmart2.MapLayerMenu WHERE CityName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results) {
             res.json(results);
+            console.log(results)
         });
     });
     //state level
@@ -1475,15 +1484,14 @@ module.exports = function (app, passport) {
         var recieveCountrylist = req.query.countrylevel;
         con_CS.query("SELECT StateName FROM  CitySmart2.optionList  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
             res.json(results);
+            console.log(results)
         });
     });
     app.get('/CityList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.statelevel;
-        console.log(recieveCitylist);
-        con_CS.query("SELECT CityName FROM  CitySmart2.optionList  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
+        con_CS.query("SELECT CityName FROM optionList  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
             res.json(results);
-            console.log(results);
         });
     });
 
