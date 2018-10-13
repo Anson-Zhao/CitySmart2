@@ -441,6 +441,7 @@
                 var comparing3 = [];
                 var classname = [];
                 var removefirstlayer = unpack(res, 'FirstLayer');
+                console.log(removefirstlayer)
                 var removesecondlayer = unpack(res, 'SecondLayer');
                 var removethirdlayer = unpack(res,"ThirdLayer");
                 var Layerinfo = unpack(res,"LayerName");
@@ -472,6 +473,7 @@
 
 
                     $.each(firstlayer, function (i) {
+                        console.log(firstlayer)
 
                         var paneldefault1 = document.createElement("div");
                         paneldefault1.className = "Menu panel panel-info " + firstlayer[i] ;

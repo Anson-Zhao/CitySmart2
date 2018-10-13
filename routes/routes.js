@@ -1473,7 +1473,16 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.citylevel;
         console.log(recieveCitylist);
-        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer ,CityName FROM CitySmart2.MapLayerMenu WHERE CityName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results) {
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CityName = '" + recieveCitylist + "'", function (err, results) {
+            res.json(results);
+            console.log(results)
+        });
+    });
+    app.get('/CountryClassName', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var recieveCountrylist = req.query.countrylevel;
+        console.log(recieveCountrylist);
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CountryName = '" + recieveCountrylist + "'", function (err, results) {
             res.json(results);
             console.log(results)
         });
@@ -1482,7 +1491,7 @@ module.exports = function (app, passport) {
     app.get('/StateList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCountrylist = req.query.countrylevel;
-        con_CS.query("SELECT StateName FROM  CitySmart2.optionList  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
+        con_CS.query("SELECT StateName FROM optionList  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
             res.json(results);
             console.log(results)
         });
