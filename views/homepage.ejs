@@ -447,29 +447,43 @@
 
                 $.each(removefirstlayer, function (index, value) {
                     if($.inArray(value, firstlayer) === -1) firstlayer.push(value);
+                    if (index === removefirstlayer.length - 1) {
+                        console.log (firstlayer);
+                    }
                 });
                 $.each(removesecondlayer, function (index, value) {
                     if($.inArray(value, secondlayer) === -1) secondlayer.push(value);
+                    if (index === removefirstlayer.length - 1) {
+                        console.log (secondlayer);
+                    }
                 });
                 $.each(removethirdlayer, function (index, value) {
                     if($.inArray(value, thirdlayer) === -1) thirdlayer.push(value);
+                    if (index === removefirstlayer.length - 1) {
+                        console.log (thirdlayer);
+                    }
                 });
                 $.each(Layerinfo, function (index, value) {
                     layervalue.push(value);
+                    if (index === removefirstlayer.length - 1) {
+                        console.log (layervalue);
+                    }
                 });
 
                 if(comparing.length === 0){
                     comparing.push(["firstlayer","secondlayer"]);
+                    // console.log (comparing);
                 }
                 if(comparing3.length === 0){
                     comparing3.push(["thirdlayer","layermenu"]);
+                    // console.log (comparing3);
                 }
                 if(classname.length === 0){
                     classname.push("classname");
+                    // console.log (classname);
                 }
 
                 var createfirstlayer = function() {
-
 
                     $.each(firstlayer, function (i) {
 
@@ -586,7 +600,7 @@
                                         var checkboxinputG = document.createElement("input");
                                         checkboxinputG.type = "checkbox";
                                         checkboxinputG.className = "Wmslayer input" + Thirdreplace;
-                                        checkboxinputG.id = res[i].LayerType;
+                                        // checkboxinputG.id = res[i].LayerType;
                                         checkboxinputG.setAttribute("value", res[i].LayerName);
                                         var checkboxspanG = document.createElement("span");
                                         checkboxspanG.className = "slider round";
@@ -598,10 +612,16 @@
                                         checkboxlabelG.appendChild(checkboxspanG);
                                         document.getElementsByClassName("panel-body " + res[i].SecondLayer)[0].appendChild(checkboxdivG);
                                         comparing3.push([res[i].ThirdLayer, res[i].LayerName]);
+                                        if (i === res.length - 1) {
+                                            console.log (comparing3.length)
+                                        }
                                         classname.push([Thirdreplace +" " + continentnamestr + countrynamestr + statenamestr, statenamestr]);
                                     }
 
                                 } else {
+                                    if (i === res.length - 1) {
+                                        console.log (comparing3.length)
+                                    }
                                     if (comparing3[c][1] !== res[i].LayerName) {
                                         document.getElementsByClassName("input" + Thirdreplace)[0].removeAttribute("value");
                                         comparing3[c][1] += "," + res[i].LayerName;

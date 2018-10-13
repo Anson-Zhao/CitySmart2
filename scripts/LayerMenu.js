@@ -106,6 +106,7 @@ requirejs(['./WorldWindShim',
             var currentCheckedArray;
             $('.Wmslayer').click(function () {
                 var layer1 = $(this).val();
+                console.log (layer1);
                 currentCheckedArray = $(':checkbox:checked');
 
                 if (currentCheckedArray.length > 0 && alertVal){
@@ -116,10 +117,11 @@ requirejs(['./WorldWindShim',
                 $.ajax({
                     url: 'position',
                     type: 'GET',
-                    dataType: 'json',
+                    // dataType: 'json',
                     data:layername,
                     async: false,
                     success: function (results) {
+                        console.log (results);
                         LayerSelected = results;
                         Altitude = LayerSelected.Altitude * 1000;
                         globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude));
@@ -228,7 +230,7 @@ requirejs(['./WorldWindShim',
 
                 // Retrieve a WmsLayerCapabilities object by the desired layer name
                 for (var n = 0; n < layerName.length; n++) {
-
+                    console.log (layerName[n]);
                     var WmslayerCapability = wms.getNamedLayer(layerName[n]);
 
                     // Form a configuration object from the WmsLayerCapability object
