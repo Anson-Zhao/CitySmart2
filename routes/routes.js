@@ -151,13 +151,41 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
-        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu', function (err, results) {
-           for(var i =0; i< results.length; i++) {
-               if (layername === results[i].LayerName) {
-                   res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
-               }
-           }
-        });
+        var parsedLayers = layername.split(",");
+        console.log (parsedLayers);
+        var returnRes = [];
+        con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu Where LayerName = ?", parsedLayers[0], function (err, results) {
+            console.log (results);
+            res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
+        })
+            //
+            //         returnRes.push(results);
+            //         if (j === parsedLayers.length - 1) {
+            //             console.log (returnRes);
+            //             res.json(returnRes);
+            //         }
+            //         // res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
+            //         // for(var i =0; i< results.length; i++) {
+            //         //     if (layername === results[i].LayerName) {
+            //         //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
+            //         //     }
+            //         // }
+        // for (var j = 0; j < parsedLayers.length; j++) {
+        //     con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu Where LayerName = ?", parsedLayers[j], function (err, results) {
+        //
+        //         returnRes.push(results);
+        //         if (j === parsedLayers.length - 1) {
+        //             console.log (returnRes);
+        //             res.json(returnRes);
+        //         }
+        //         // res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
+        //         // for(var i =0; i< results.length; i++) {
+        //         //     if (layername === results[i].LayerName) {
+        //         //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
+        //         //     }
+        //         // }
+        //     });
+        // }
     });
 
     app.get('/thirdL',function (req,res) {
@@ -1435,13 +1463,13 @@ module.exports = function (app, passport) {
 
     //Continent level
 
-    app.get('/ContinentList', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT ContinentName FROM optionList GROUP BY ContinentName", function (err, results) {
-            if (err) throw err;
-            res.json(results);
-        });
-    });
+    // app.get('/ContinentList', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     con_CS.query("SELECT ContinentName FROM optionList GROUP BY ContinentName", function (err, results) {
+    //         if (err) throw err;
+    //         res.json(results);
+    //     });
+    // });
 
     //Country level
     //app.get('/CountryList', function (req, res) {
@@ -1464,20 +1492,47 @@ module.exports = function (app, passport) {
 
 
     //Depend on continent value to get the country and state value
+    // app.get('/ClassName', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     con_CS.query('SELECT CountryName, FirstLayer, SecondLayer, ThirdLayer, StateName, ContinentName FROM MapLayerMenu', function (err, results) {
+    //         res.json(results);
+    //     });
+    // });
     app.get('/ClassName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query('SELECT CountryName, FirstLayer, SecondLayer, ThirdLayer, StateName, ContinentName FROM MapLayerMenu', function (err, results) {
+        var recieveCitylist = req.query.citylevel;
+        console.log(recieveCitylist);
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CityName = '" + recieveCitylist + "'", function (err, results) {
             res.json(results);
+            console.log(results)
+        });
+    });
+    app.get('/CountryClassName', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var recieveCountrylist = req.query.countrylevel;
+        console.log(recieveCountrylist);
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CountryName = '" + recieveCountrylist + "'", function (err, results) {
+            res.json(results);
+            console.log(results)
         });
     });
     //state level
     app.get('/StateList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCountrylist = req.query.countrylevel;
-        con_CS.query("SELECT StateName FROM  CitySmart2.optionList  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
+        con_CS.query("SELECT StateName FROM optionList  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
+            res.json(results);
+            console.log(results)
+        });
+    });
+    app.get('/CityList', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var recieveCitylist = req.query.statelevel;
+        con_CS.query("SELECT CityName FROM optionList  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
             res.json(results);
         });
     });
+
 
 //AddData in table
     app.get('/AddData', function (req, res) {
