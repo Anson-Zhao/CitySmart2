@@ -25,9 +25,9 @@
         }
 
         .button1 {
-            width: 130px;
-            height: 35px;
-            border-radius: 30px;
+            width: 100px;
+            height: 30px;
+            border-radius: 100px;
             -webkit-transition-duration: 0.4s;
             transition-duration: 0.4s;
             cursor: pointer;
@@ -35,7 +35,7 @@
             color: #337ab7;
             border: 1px solid #337ab7;
             font-size: 18px;
-            margin-left: 18px;
+            margin-left: 5px;
         }
 
         .button1:hover {
@@ -129,6 +129,11 @@
                 height:auto;
             }
         }
+
+        .egg {
+            border: 1px solid blue;
+        }
+
     </style>
 
 </head>
@@ -142,11 +147,11 @@
     <div class="page-header text-center header">
         <h1><span class="fa fa-globe"></span> City Smart V2 </h1>
         <div class="log-form">
-            <form>
-                <input type="text" title="Username" placeholder="Username" />
-                <input type="Password" title="Username" placeholder="Password" />
-                <button type="submit" class="button1">Login>></button>
-                <button class="button1">Signup>></button>
+            <form action="/login" method="post">
+                <input type="text" class="egg" name="username" title="Username" placeholder="Username" />
+                <input type="Password" class="egg" name="password" title="Username" placeholder="Password" />
+                <button type="submit" class="button1">Login>></button>  <!--Temporary link to login page, supposed to work automatically-->
+                <!--<button type="button" class="button1" onClick="window.location='/signup'" >Signup>></button>-->
             </form>
         </div>
     </div>
@@ -430,6 +435,8 @@
 <script>
     //producer
     $(document).ready(function() {
+
+
 
         var parentmenu = document.getElementById("accordion");
 

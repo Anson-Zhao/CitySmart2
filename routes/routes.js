@@ -185,6 +185,7 @@ module.exports = function (app, passport) {
     // LOGIN Section =======================
     // =====================================
     // show the login form
+
     app.get('/login', function (req, res) {
         // render the page and pass in any flash data if it exists
         res.render('login.ejs', {
@@ -572,7 +573,7 @@ module.exports = function (app, passport) {
                     let newname = req.body.username;
 
                     if (newname !== oldname) {
-                        let statement = "UPDATE USGS.UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
+                        let statement = "UPDATE UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
                         con_CS.query(statement, function (err,result) {
                             if (err) {
                                 console.log(err);
@@ -695,8 +696,8 @@ module.exports = function (app, passport) {
             status: req.body.status
         };
         // console.log(newUser);
-        myStat = "INSERT INTO USGS.UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
-        mylogin = "INSERT INTO USGS.UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
+        myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
+        mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
             //newUser.id = rows.insertId;
             if (err) {
@@ -739,8 +740,8 @@ module.exports = function (app, passport) {
             status: req.body.status
         };
 
-        myStat = "INSERT INTO USGS.UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
-        mylogin = "INSERT INTO USGS.UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
+        myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
+        mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
             //newUser.id = rows.insertId;
             if (err) {
@@ -992,8 +993,8 @@ module.exports = function (app, passport) {
             });
 
             // var update3 = " WHERE username = '" + req.user.username + "'";
-            let statement1 = "UPDATE USGS.UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
-            let statement2 = "UPDATE USGS.UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
+            let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
+            let statement2 = "UPDATE UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
             con_CS.query(statement1 + statement2, function (err, result) {
                 if (err) throw err;
                 res.json(result);
@@ -1122,7 +1123,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");//
         let oldname = req.user.username;
         let newname = req.query.UNS;
-        let statement = "UPDATE USGS.UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
+        let statement = "UPDATE UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
         con_CS.query(statement, function (err,result) {
             if (err) {
                 console.log(err);
