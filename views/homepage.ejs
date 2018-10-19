@@ -379,7 +379,7 @@
                 </div>
                 <div>
                     <p>
-                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeStateList(this.value)" disabled>
+                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeStateqList(this.value)" disabled>
                             <option selected="selected" value="AL">-Select A State List-</option>
                         </select>
                     </p>
@@ -433,15 +433,14 @@
             url: "createlayer",
             dataType: "json",
             success: function (res) {
-                var firstlayer = [];
+                var firstlayer = [];//all first layer values without repeat?
                 var secondlayer = [];
                 var thirdlayer = [];
                 var layervalue =[];
                 var comparing = [];
                 var comparing3 = [];
                 var classname = [];
-                var removefirstlayer = unpack(res, 'FirstLayer');
-                console.log(removefirstlayer)
+                var removefirstlayer = unpack(res, 'FirstLayer');// all first layer values
                 var removesecondlayer = unpack(res, 'SecondLayer');
                 var removethirdlayer = unpack(res,"ThirdLayer");
                 var Layerinfo = unpack(res,"LayerName");
@@ -473,7 +472,6 @@
 
 
                     $.each(firstlayer, function (i) {
-                        console.log(firstlayer)
 
                         var paneldefault1 = document.createElement("div");
                         paneldefault1.className = "Menu panel panel-info " + firstlayer[i] ;
@@ -567,6 +565,7 @@
                             let continentnamestr = res[i].ContinentName.replace(/\s+/g, '');
                             let countrynamestr = res[i].CountryName.replace(/\s+/g, '');
                             let statenamestr = res[i].StateName.replace(/\s+/g, '');
+
 
                             for (var c = 0; c < comparing3.length; c++) {
 

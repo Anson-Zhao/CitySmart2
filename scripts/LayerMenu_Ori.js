@@ -50,51 +50,74 @@ requirejs(['./WorldWindShim',
         var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
 
         var layerName = [];
-        var preloadLayer = []; //preload entire layer name
+        var preloadLayer = [];
         var layers = globe.layers;
         var checked = [];
         var val;
         var alertVal = true;
         var LayerSelected;
         var ThirdLayer = [];
-        var checkedCount=0;
         var j = 0;
         var LayerPosition = [];
         var Altitude;
-        var currentCheckedArray=[];
+
+
 
         $(document).ready(function () {
-            var openedLayer = document.getElementById("openedLayer");
-            var previousL = document.getElementById("previousL");
-            var nextL = document.getElementById("nextL");
-
-            openedLayer.value = "No Layer Selected";
-            openedLayer.disabled = true;
-            previousL.disabled = true;
-            nextL.disabled = true;
+            document.getElementById("openedLayer").value = "No Layer Selected";
+            document.getElementById("openedLayer").disabled = true;
+            document.getElementById("previousL").disabled = true;
+            document.getElementById("nextL").disabled = true;
 
             $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
             });
-            console.log(preloadLayer);
 
-            $(".wmsLayer").click(function () {
-                console.log('toggle switch clicked!');
+            $('#previousL').click(function(){
+                document.getElementById("nextL").disabled = false;
+                if(j < 1){
+                    document.getElementById("previousL").disabled = true;
+                }else{
+                    j = j - 1;
+                    document.getElementById("openedLayer").value = ThirdLayer[j];
+                    if (j === 0){
+                        document.getElementById("previousL").disabled = true;
+                    }
+                }
+            });
+
+            $('#nextL').click(function(){
+                if(j !== ThirdLayer.length - 1){
+                    if(j === ThirdLayer.length - 2){
+                        document.getElementById("nextL").disabled = true;
+                    }
+                    j = j + 1;
+                    document.getElementById("previousL").disabled = false;
+                    document.getElementById("openedLayer").value = ThirdLayer[j];
+                }else{
+                    document.getElementById("nextL").disabled = true;
+                }
+            });
+
+            var strs = preloadLayer + '';
+
+            layerName = strs.split(",");
+            var checkedCount = 0;
+            var currentCheckedArray;
+            $('.wmsLayer').click(function () {
                 var layer1 = $(this).val();
-                console.log(layer1);
                 currentCheckedArray = $(':checkbox:checked');
-                console.log(currentCheckedArray);
 
                 if (currentCheckedArray.length > 0 && alertVal){
                     confirm("Some layers may take awhile to load. Please be patient.")
                 }
 
-                var layerRequest = "layername=" + layer1;
+                var layername = "layername=" + layer1;
                 $.ajax({
                     url: 'position',
                     type: 'GET',
                     dataType: 'json',
-                    data:layerRequest,
+                    data:layername,
                     async: false,
                     success: function (results) {
                         LayerSelected = results;
@@ -109,16 +132,16 @@ requirejs(['./WorldWindShim',
                     // val = checked[checked.length - 1];
                     checkedCount = currentCheckedArray.length;
                     alertVal = false;
-                    openedLayer.value =  LayerSelected.ThirdLayer;
+                    document.getElementById("openedLayer").value =  LayerSelected.ThirdLayer;
                     ThirdLayer.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to ThirdLayer
                     j = ThirdLayer.length - 1;
                     if(ThirdLayer.length === 1){
-                        nextL.disabled = true;
-                        previousL.disabled = true;
-                        openedLayer.disabled = false;
+                        document.getElementById("nextL").disabled = true;
+                        document.getElementById("previousL").disabled = true;
+                        document.getElementById("openedLayer").disabled = false;
                     }else{
-                        previousL.disabled = false;
-                        nextL.disabled = true;
+                        document.getElementById("previousL").disabled = false;
+                        document.getElementById("nextL").disabled = true;
                     }
                     LayerPosition.push(LayerSelected);
                 } else {
@@ -132,65 +155,39 @@ requirejs(['./WorldWindShim',
                     // val = checked[checked.length - 1];
                     checkedCount = currentCheckedArray.length;
                     alertVal = false;
-                    openedLayer.value = ThirdLayer[ThirdLayer.length - 1];
+                    document.getElementById("openedLayer").value = ThirdLayer[ThirdLayer.length - 1];
                     j = ThirdLayer.length - 1;
                     if(ThirdLayer.length === 1){
-                        nextL.disabled = true;
-                        previousL.disabled = true;
+                        document.getElementById("nextL").disabled = true;
+                        document.getElementById("previousL").disabled = true;
                     }else{
                         if(ThirdLayer.length === 0){
-                            openedLayer.value = "No Layer Selected";
-                            previousL.disabled = true;
-                            nextL.disabled = true;
-                            openedLayer.disabled = true;
+                            document.getElementById("openedLayer").value = "No Layer Selected";
+                            document.getElementById("previousL").disabled = true;
+                            document.getElementById("nextL").disabled = true;
+                            document.getElementById("openedLayer").disabled = true;
                             // globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
                         } else{
-                            previousL.disabled = false;
-                            nextL.disabled = true;
+                            document.getElementById("previousL").disabled = false;
+                            document.getElementById("nextL").disabled = true;
                         }
                     }
 
                 }
 
                 for (var a = 0; a < layers.length; a++) {
-                    $(':checkbox:checked').each(function () {
-                        if (layers[a].displayName === $(this).val()) {
-                            layers[a].enabled = true;
-                        }
-                    });
-                    $(":checkbox:not(:checked)").each(function () {
-                        if (layers[a].displayName === $(this).val()) {
-                            layers[a].enabled = false;
-                        }
-                    })
+                        $(':checkbox:checked').each(function () {
+                            if (layers[a].displayName === $(this).val()) {
+                                layers[a].enabled = true;
+                            }
+                        });
+                        $(":checkbox:not(:checked)").each(function () {
+                            if (layers[a].displayName === $(this).val()) {
+                                layers[a].enabled = false;
+                            }
+                        })
                 }
-            });
 
-            $('#previousL').click(function(){
-                console.log("hh");
-                nextL.disabled = false;
-                if(j < 1){
-                    previousL.disabled = true;
-                }else{
-                    j = j - 1;
-                    openedLayer.value = ThirdLayer[j];
-                    if (j === 0){
-                        previousL.disabled = true;
-                    }
-                }
-            });
-
-            $('#nextL').click(function(){
-                if(j !== ThirdLayer.length - 1){
-                    if(j === ThirdLayer.length - 2){
-                        nextL.disabled = true;
-                    }
-                    j = j + 1;
-                    previousL.disabled = false;
-                    openedLayer.value = ThirdLayer[j];
-                }else{
-                    nextL.disabled = true;
-                }
             });
 
             $('#openedLayer').click(function(){
@@ -224,8 +221,6 @@ requirejs(['./WorldWindShim',
                 globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
             });
 
-            var strs = preloadLayer + '';
-            layerName = strs.split(",");
 
             var createWMSLayer = function (xmlDom) {
                 // Create a WmsCapabilities object from the XML DOM
@@ -244,7 +239,6 @@ requirejs(['./WorldWindShim',
 
                     // Create the WMS Layer from the configuration object
                     var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
-                    console.log (wmsLayer);
 
                     // Add the layers to WorldWind and update the layer manager
                     globe.addLayer(wmsLayer);

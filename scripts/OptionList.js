@@ -58,7 +58,6 @@ function ChangeCountryList(countrylevel) {
         document.getElementById("myListCity").style.backgroundColor = "lightgray";
     }
     if(countrylevel === "All Layer") {
-
         $('.Menu').show();
         $('.State').show();
         $("#myListState").html("<option>All Layer</option>");
@@ -105,7 +104,6 @@ function ChangeStateList(statelevel) {
         document.getElementById("myListCity").style.backgroundColor = "white";
     }
     if(statelevel === "All Layer"){
-        console.log("hhh");
         $("myListCity").html("<option>All Layer</option>");
         document.getElementById("myListCity").disabled = true;
         document.getElementById("myListCity").style.backgroundColor = "lightgray";
@@ -163,7 +161,6 @@ function ChangeCityList(citylevel){
 }
 
 function myFunction(returnCity) {
-    console.log("hh");
     for( var i = 0; i <returnCity.length ; i++){
         var obj1 = returnCity[i].FirstLayer;
         var obj2 = returnCity[i].SecondLayer;
