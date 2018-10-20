@@ -676,11 +676,13 @@
                                         checkboxlabel.appendChild(checkboxspan);
                                         document.getElementsByClassName("panel-body " + res[i].SecondLayer)[0].appendChild(checkboxdiv);
                                         comparing3.push([res[i].ThirdLayer, res[i].LayerName]);
+                                        if (i === res.length - 1) {
+                                            console.log (comparing3.length)
+                                        }
                                         classname.push([res[i].ThirdLayer +" " + statenamestr + countrynamestr + continentnamestr, statenamestr]);
 
                                     }
-                                }
-                                else {
+                                } else {
                                     document.getElementsByClassName("input" + res[i].ThirdLayer)[0].setAttribute("value", res[i].LayerName);
                                     if (classname[a][0] !== res[i].ThirdLayer +" "+ statenamestr + " " + countrynamestr) {
                                         classname[a][0] += " " + statenamestr + countrynamestr + continentnamestr;

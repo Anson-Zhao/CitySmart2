@@ -47,7 +47,7 @@ requirejs(['./WorldWindShim',
 
         var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.3.0";
         //var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
-
+        //¡™£¢∞§¶•ªº–≠sšśßàáâäæãåāàeèéêëėoôòóœøõ
         var layerName = [];
         var preloadLayer = [];
         var layers = globe.layers;
@@ -98,9 +98,9 @@ requirejs(['./WorldWindShim',
                 }
             });
 
-            var strs = preloadLayer + '';
+            var strs = preloadLayer + '';// Converts array to string
 
-            layerName = strs.split(",");
+            layerName = strs.split(",");//Converts string to array
             var checkedCount = 0;
             var currentCheckedArray;
             $('.Wmslayer').click(function () {
@@ -176,19 +176,34 @@ requirejs(['./WorldWindShim',
 
                 }
 
+                // The part below turns on/off the layer(s) relevant to the switch.
                 for (var a = 0; a < layers.length; a++) {
-                        $(':checkbox:checked').each(function () {
-                            if (layers[a].displayName === $(this).val()) {
-                                layers[a].enabled = true;
-                            }
-                        });
-                        $(":checkbox:not(:checked)").each(function () {
-                            if (layers[a].displayName === $(this).val()) {
-                                layers[a].enabled = false;
-                            }
-                        })
+                    $(':checkbox:checked').each(function () {
+                        console.log($(this).val());
+                        if (layers[a].displayName === $(this).val()) {
+                            layers[a].enabled = true;
+                        } else {
+                            let bob = $(this).val().split(",");
+                            bob.forEach(function (eleValue) {
+                                if(layers[a].displayName === eleValue){
+                                    layers[a].enabled = true;
+                                }
+                            });
+                        }
+                    });
+                    $(':checkbox:not(:checked)').each(function () {
+                        if (layers[a].displayName === $(this).val()) {
+                            layers[a].enabled = false;
+                        } else {
+                            let bob = $(this).val().split(",");
+                            bob.forEach(function (ery) {
+                                if(layers[a].displayName === ery){
+                                    layers[a].enabled = false;
+                                }
+                            });
+                        }
+                    });
                 }
-
             });
 
             $('#openedLayer').click(function(){
