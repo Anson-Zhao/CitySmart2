@@ -151,6 +151,7 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
+
         var parsedLayers = layername.split(",");
         console.log (parsedLayers);
         var returnRes = [];
@@ -186,6 +187,15 @@ module.exports = function (app, passport) {
         //         // }
         //     });
         // }
+
+
+        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu', function (err, results) {
+           for(var i =0; i< results.length; i++) {
+               if (layername === results[i].LayerName) {
+                   res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
+               }
+           }
+        });
     });
 
     app.get('/thirdL',function (req,res) {
@@ -1460,25 +1470,7 @@ module.exports = function (app, passport) {
     // CitySmart Menu Filter SECTION =======
     // =====================================
 
-    //Continent level
-
-    // app.get('/ContinentList', function (req, res) {
-    //     res.setHeader("Access-Control-Allow-Origin", "*");
-    //     con_CS.query("SELECT ContinentName FROM optionList GROUP BY ContinentName", function (err, results) {
-    //         if (err) throw err;
-    //         res.json(results);
-    //     });
-    // });
-
     //Country level
-    //app.get('/CountryList', function (req, res) {
-        //     res.setHeader("Access-Control-Allow-Origin", "*");
-        //     con_CS.query('SELECT CountryName, ContinentName, COUNT (*) AS count FROM optionList GROUP BY CountryName, ContinentName', function (err, results, fields) {
-        //         if (err) throw err;
-        //         res.json(results);
-        //         // console.log(results);
-        //     });
-        // });
     app.get('/CountryList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         con_CS.query('SELECT CountryName FROM optionList GROUP BY CountryName', function (err, results, fields) {
@@ -1487,16 +1479,7 @@ module.exports = function (app, passport) {
             // console.log(results);
         });
     });
-
-
-
-    //Depend on continent value to get the country and state value
-    // app.get('/ClassName', function (req, res) {
-    //     res.setHeader("Access-Control-Allow-Origin", "*");
-    //     con_CS.query('SELECT CountryName, FirstLayer, SecondLayer, ThirdLayer, StateName, ContinentName FROM MapLayerMenu', function (err, results) {
-    //         res.json(results);
-    //     });
-    // });
+    //Class for menu
     app.get('/ClassName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.citylevel;
@@ -1524,6 +1507,7 @@ module.exports = function (app, passport) {
             console.log(results)
         });
     });
+    //city level
     app.get('/CityList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.statelevel;
