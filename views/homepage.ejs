@@ -87,7 +87,7 @@
             padding: 8px 16px;
         }
 
-        #openedLayer{
+        #currentSelectedLayer{
             background-color: #66ccff;
             color:white;
             border-radius: 10px;
@@ -398,7 +398,7 @@
                 </div>
                 <div>
                     <p>
-                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeStateqList(this.value)" disabled>
+                        <select id="myListState"  style="width:320px; height:50px; background:lightgray; padding-left: 15px" onchange="ChangeStateList(this.value)" disabled>
                             <option selected="selected" value="AL">-Select A State List-</option>
                         </select>
                     </p>
@@ -422,7 +422,7 @@
                 </div>
                 <div style="margin-bottom:10px;">
                     <button class="previous arrow" id="previousL">&#8249;</button>
-                    <input id = "openedLayer" type="button">
+                    <input id = "currentSelectedLayer" type="button">
                     <button class="next arrow" id ="nextL">&#8250;</button>
                 </div>
                 <div class="panel-group" id="accordion" style="width: 340px; height: 380px; overflow: scroll"></div>

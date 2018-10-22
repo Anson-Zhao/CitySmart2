@@ -159,50 +159,22 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
+        var layername2 = layername.split(",");
+        console.log(layername2);
 
-        var parsedLayers = layername.split(",");
-        console.log (parsedLayers);
-        var returnRes = [];
-        con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu Where LayerName = ?", parsedLayers[0], function (err, results) {
-            console.log (results);
-            res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
-        })
-            //
-            //         returnRes.push(results);
-            //         if (j === parsedLayers.length - 1) {
-            //             console.log (returnRes);
-            //             res.json(returnRes);
-            //         }
-            //         // res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
-            //         // for(var i =0; i< results.length; i++) {
-            //         //     if (layername === results[i].LayerName) {
-            //         //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
-            //         //     }
-            //         // }
-        // for (var j = 0; j < parsedLayers.length; j++) {
-        //     con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu Where LayerName = ?", parsedLayers[j], function (err, results) {
-        //
-        //         returnRes.push(results);
-        //         if (j === parsedLayers.length - 1) {
-        //             console.log (returnRes);
-        //             res.json(returnRes);
-        //         }
-        //         // res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
-        //         // for(var i =0; i< results.length; i++) {
-        //         //     if (layername === results[i].LayerName) {
-        //         //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
-        //         //     }
-        //         // }
-        //     });
-        // }
-
-
-        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu', function (err, results) {
-           for(var i =0; i< results.length; i++) {
-               if (layername === results[i].LayerName) {
-                   res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
-               }
-           }
+        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu WHERE LayerName = ?', layername2[0], function (err, results) {
+           // for(var i =0; i< results.length; i++) {
+           //     if (layername === results[i].LayerName) {
+           //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
+           //     }
+           // }
+            if (err) {
+                console.log(err);
+                res.json({"error": true, "message": "no result found !"});
+            } else {
+                console.log(results);
+                res.json(results);
+            }
         });
     });
 
@@ -231,7 +203,6 @@ module.exports = function (app, passport) {
     // LOGIN Section =======================
     // =====================================
     // show the login form
-
     app.get('/login', function (req, res) {
         // render the page and pass in any flash data if it exists
         res.render('login.ejs', {
