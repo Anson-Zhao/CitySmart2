@@ -149,7 +149,6 @@ requirejs(['./WorldWindShim',
                             nextL.disabled = false;
                         }
                     }
-
                 }
 
                 //turn on/off wmsLayer
@@ -160,7 +159,7 @@ requirejs(['./WorldWindShim',
                         } else {
                             let bob = $(this).val().split(",");
                             bob.forEach(function (eleValue) {
-                                if(layers[a].displayName === eleValue){
+                                if (layers[a].displayName === eleValue) {
                                     layers[a].enabled = true;
                                 }
                             });
@@ -172,12 +171,14 @@ requirejs(['./WorldWindShim',
                         } else {
                             let bob = $(this).val().split(",");
                             bob.forEach(function (ery) {
-                                if(layers[a].displayName === ery){
+                                if (layers[a].displayName === ery) {
                                     layers[a].enabled = false;
                                 }
                             });
                         }
-                    });
+                    })
+                }
+            });
 
             $('#previousL').click(function(){
                 nextL.disabled = false;
@@ -204,7 +205,7 @@ requirejs(['./WorldWindShim',
                     nextL.disabled = true;
                 }
             });
-//if the opened layer was clicked, the layer shows
+            //if the opened layer was clicked, the layer shows
             $('#currentSelectedLayer').click(function(){
 
                 // $('.collapse').collapse('hide');
