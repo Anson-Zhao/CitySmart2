@@ -45,9 +45,10 @@ requirejs(['./WorldWindShim',
 
         globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
 
-        var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.3.0";
-        //var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
-        //¡™£¢∞§¶•ªº–≠sšśßàáâäæãåāàeèéêëėoôòóœøõ
+        // Web Map Service information from NASA's Near Earth Observations WMS
+        // var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.1.1";
+        var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
+
         var layerName = [];
         var preloadLayer = [];
         var layers = globe.layers;
@@ -68,7 +69,7 @@ requirejs(['./WorldWindShim',
             document.getElementById("previousL").disabled = true;
             document.getElementById("nextL").disabled = true;
 
-            $(".Wmslayer").each(function (i) {
+            $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
             });
 
@@ -98,14 +99,13 @@ requirejs(['./WorldWindShim',
                 }
             });
 
-            var strs = preloadLayer + '';// Converts array to string
+            var strs = preloadLayer + '';
 
-            layerName = strs.split(",");//Converts string to array
+            layerName = strs.split(",");
             var checkedCount = 0;
             var currentCheckedArray;
-            $('.Wmslayer').click(function () {
+            $('.wmsLayer').click(function () {
                 var layer1 = $(this).val();
-                console.log (layer1);
                 currentCheckedArray = $(':checkbox:checked');
 
                 if (currentCheckedArray.length > 0 && alertVal){
@@ -116,11 +116,10 @@ requirejs(['./WorldWindShim',
                 $.ajax({
                     url: 'position',
                     type: 'GET',
-                    // dataType: 'json',
+                    dataType: 'json',
                     data:layername,
                     async: false,
                     success: function (results) {
-                        console.log (results);
                         LayerSelected = results;
                         Altitude = LayerSelected.Altitude * 1000;
                         globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude));
@@ -176,34 +175,19 @@ requirejs(['./WorldWindShim',
 
                 }
 
-                // The part below turns on/off the layer(s) relevant to the switch.
                 for (var a = 0; a < layers.length; a++) {
-                    $(':checkbox:checked').each(function () {
-                        console.log($(this).val());
-                        if (layers[a].displayName === $(this).val()) {
-                            layers[a].enabled = true;
-                        } else {
-                            let bob = $(this).val().split(",");
-                            bob.forEach(function (eleValue) {
-                                if(layers[a].displayName === eleValue){
-                                    layers[a].enabled = true;
-                                }
-                            });
-                        }
-                    });
-                    $(':checkbox:not(:checked)').each(function () {
-                        if (layers[a].displayName === $(this).val()) {
-                            layers[a].enabled = false;
-                        } else {
-                            let bob = $(this).val().split(",");
-                            bob.forEach(function (ery) {
-                                if(layers[a].displayName === ery){
-                                    layers[a].enabled = false;
-                                }
-                            });
-                        }
-                    });
+                        $(':checkbox:checked').each(function () {
+                            if (layers[a].displayName === $(this).val()) {
+                                layers[a].enabled = true;
+                            }
+                        });
+                        $(":checkbox:not(:checked)").each(function () {
+                            if (layers[a].displayName === $(this).val()) {
+                                layers[a].enabled = false;
+                            }
+                        })
                 }
+
             });
 
             $('#openedLayer').click(function(){
@@ -244,20 +228,20 @@ requirejs(['./WorldWindShim',
 
                 // Retrieve a WmsLayerCapabilities object by the desired layer name
                 for (var n = 0; n < layerName.length; n++) {
-                    console.log (layerName[n]);
-                    var WmslayerCapability = wms.getNamedLayer(layerName[n]);
+
+                    var wmsLayerCapability = wms.getNamedLayer(layerName[n]);
 
                     // Form a configuration object from the WmsLayerCapability object
-                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(WmslayerCapability);
+                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
 
                     // Modify the configuration objects title property to a more user friendly title
                     wmsConfig.title = layerName[n];
 
                     // Create the WMS Layer from the configuration object
-                    var Wmslayer = new WorldWind.WmsLayer(wmsConfig);
-                    console.log(Wmslayer);
+                    var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
+
                     // Add the layers to WorldWind and update the layer manager
-                    globe.addLayer(Wmslayer);
+                    globe.addLayer(wmsLayer);
                     layerManager.synchronizeLayerList();
                 }
             };
