@@ -55,7 +55,15 @@ module.exports = function (app, passport) {
 
     app.get('/',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        res.render('homepage.ejs');
+        // res.render('homepage.ejs');
+        res.render('homepage.ejs', {
+            message: req.flash('loginMessage'),
+            error: "Your username and password don't match."
+        })
+    });
+
+    app.get('/homepageLI', function (req, res) {
+        res.render('homepageUSER.ejs');
     });
 
     // app.get('/app', function (req, res) {
@@ -225,7 +233,7 @@ module.exports = function (app, passport) {
     // process the login form
     app.post('/login', passport.authenticate('local-login', {
             successRedirect: '/loginUpdate', // redirect to the secure profile section
-            failureRedirect: '/login', // redirect back to the signup page if there is an error
+            failureRedirect: '/login', // redirect to the login page if there is an error
             failureFlash: true // allow flash messages
         }),
         function (req, res) {
@@ -350,7 +358,7 @@ module.exports = function (app, passport) {
     app.get('/signout', function (req, res) {
         req.session.destroy();
         req.logout();
-        res.redirect('/login');
+        res.redirect('/');
     });
 
     // =====================================

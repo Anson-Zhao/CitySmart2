@@ -134,31 +134,101 @@
             border: 1px solid blue;
         }
 
-        .alert alert-danger {
+
+        .navul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            /*overflow: hidden;*/
+        }
+
+        .navbutton1 {
+            width: 110px;
+            font-size: 16px;
+            height: 80px;
+            margin: 0;
+            border-radius: 0px 0 0;
+            background-color: #000000;
+            border: 0 solid;
+            color: #ffffff;
+            -webkit-transition-duration: 0.4s;
+            transition-duration: 0.4s;
+        }
+
+        .dropbutton {
+            float: right;
+            width: 150px;
+            height: 80px;
+            padding: 16px;
+            color: white;
+            background-color: #337ab7;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            -webkit-transition-duration: 0.4s;
+            transition-duration: 0.4s;
+        }
+        .dropbutton:hover, .dropbutton:focus {
+            background-color: #2b6699;
+        }
+        .dropdown-content {
+            display: none;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            overflow: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            right: 0;
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 20px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown a:hover {
+            background-color: #ddd;
+        }
+        .show {
+            display: block;
         }
 
     </style>
 
 </head>
-<div class="navul" style="height: 150px; background: #000000;">
-    <a class="navul" href="http://aworldbridge.com" style="background: #000000; width: 500px;height: 60px;">
-        <img class="banner" src="../images/NewWBBanner.jpg" style="width: 950px;height: 150px; margin: auto; display: block;" />
-    </a>
-</div>
+
 <body>
 <div class="container">
-    <div class="page-header text-center header">
-        <h1><span class="fa fa-globe"></span> City Smart V2 </h1>
-        <div class="log-form">
-            <% if (message.length > 0) { %>
-                <div class="alert alert-danger"><%= message %></div>
-            <% } %>
-            <form action="/login" method="post">
-                <input type="text" class="egg" name="username" title="Username" placeholder="Username" />
-                <input type="Password" class="egg" name="password" title="Username" placeholder="Password" />
-                <button type="submit" class="button1">Login>></button>  <!--Temporary link to login page, supposed to work automatically-->
-                <button type="button" class="button1" onClick="window.location='/signup'" >Signup>></button>
-            </form>
+
+    <div class="navul" style="height:80px;background:#000000;">
+        <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
+            <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
+        </a>
+        <a href="/userHome" id= "Request" style="width:110px;">
+            <button class="navbutton1" style="width: 140px"> User Home </button>
+        </a>
+        <a href="/newRequest" id= "Request" style="width:110px;">
+            <button class="navbutton1" style="width: 140px"> New Request </button>
+        </a>
+        <a href="/recovery" id ="Restore" style="width:50px;">
+            <button class="navbutton1"> Restore </button>
+        </a>
+        <a href="/dataHistory" style="width:110px;">
+            <button class="navbutton1" style="width: 160px"> Approved Requests </button>
+        </a>
+        <div class="dropdown" style="height: 80px; width: 200px; float: right; margin: 0;">
+            <button onclick="dropDown()" class="dropbutton" id="Username">
+                <span class="caret"></span>
+            </button>
+            <div id="userMenuAdmin" class="dropdown-content">
+                <a href="/userProfile"> User Profile </a>
+                <a href="/userManagement"> User Management </a>
+                <a href="/signout"> Sign Out </a>
+            </div>
+            <div id="userMenuRegular" class="dropdown-content">
+                <a href="/userProfile"> User Profile </a>
+                <a href="/signout"> Sign Out </a>
+            </div>
         </div>
     </div>
 

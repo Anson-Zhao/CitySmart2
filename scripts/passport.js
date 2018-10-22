@@ -92,6 +92,7 @@ module.exports = function(passport) {
                     if (err)
                         return done(err);
                     if (!rows.length) {
+
                         return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
                     }
 
