@@ -157,11 +157,8 @@ $(document).ready(function () {
                         let countrynamestr = res[i].CountryName.replace(/\s+/g, '');
                         let statenamestr = res[i].StateName.replace(/\s+/g, '');
 
-
                         for (var c = 0; c < comparing3.length; c++) {
-
                             if (comparing3[c][0] !== res[i].ThirdLayer) {
-
                                 if (c === comparing3.length - 1) {
                                     var checkboxdivG = document.createElement("div");
                                     checkboxdivG.className = "State " + Thirdreplace + " " + statenamestr + countrynamestr + continentnamestr;
