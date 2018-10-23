@@ -23,7 +23,6 @@ $(document).ready(function () {
             var removesecondlayer = unpack(res, 'SecondLayer');
             var removethirdlayer = unpack(res,"ThirdLayer");
             var Layerinfo = unpack(res,"LayerName");
-            console.log (Layerinfo);
 
             $.each(removefirstlayer, function (index, value) {
                 if($.inArray(value, firstlayer) === -1) firstlayer.push(value);
@@ -52,15 +51,12 @@ $(document).ready(function () {
 
             if(comparing.length === 0){
                 comparing.push(["firstlayer","secondlayer"]);
-                // console.log (comparing);
             }
             if(comparing3.length === 0){
                 comparing3.push(["thirdlayer","layermenu"]);
-                // console.log (comparing3);
             }
             if(classname.length === 0){
                 classname.push("classname");
-                // console.log (classname);
             }
 
             var createfirstlayer = function() {
@@ -211,8 +207,9 @@ $(document).ready(function () {
 
                                         document.getElementsByClassName(classname[c][0])[0].className += " " + statenamestr;
                                     }
-
                                 }
+
+                                break
 
                             }
                         }
@@ -250,12 +247,15 @@ $(document).ready(function () {
                                     document.getElementsByClassName("panel-body " + res[i].SecondLayer)[0].appendChild(checkboxdiv);
                                     comparing3.push([res[i].ThirdLayer, res[i].LayerName]);
                                     if (i === res.length - 1) {
-                                        console.log (comparing3.length)
+                                        console.log (comparing3)
                                     }
                                     classname.push([res[i].ThirdLayer +" " + statenamestr + countrynamestr + continentnamestr, statenamestr]);
 
                                 }
                             } else {
+                                if (i === res.length - 1) {
+                                    console.log (comparing3.length)
+                                }
                                 document.getElementsByClassName("input" + res[i].ThirdLayer)[0].setAttribute("value", res[i].LayerName);
                                 if (classname[a][0] !== res[i].ThirdLayer +" "+ statenamestr + " " + countrynamestr) {
                                     classname[a][0] += " " + statenamestr + countrynamestr + continentnamestr;
@@ -264,8 +264,9 @@ $(document).ready(function () {
                                     if (classname[a][1] !== statenamestr) {
                                         document.getElementsByClassName(classname[a][0])[0].className += " " + statenamestr;
                                     }
-
                                 }
+
+                                break
 
                             }
 
