@@ -1,4 +1,4 @@
-let Continentlevel, Countrylevel,continentObj1,continentObj2,continentObj3;
+var country;
 
 $(document).ready(function() {
     let x = document.getElementById("myListCountry");
@@ -36,9 +36,8 @@ function getObjects(obj, key, val) {
     }
     return objects;
 }
-var country;
+
 function ChangeCountryList(countrylevel) {
-    console.log(countrylevel);
     $('.Menu').hide();
     $('.State').hide();
     var stateList = document.getElementById("myListState");
@@ -139,7 +138,6 @@ function ChangeStateList(statelevel) {
         }
     });
 }
-
 
 function ChangeCityList(citylevel){
     console.log(citylevel);
