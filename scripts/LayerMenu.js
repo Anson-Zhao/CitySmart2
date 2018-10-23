@@ -247,17 +247,17 @@ requirejs(['./WorldWindShim',
 
                     var wmsLayerCapability = wms.getNamedLayer(layerName[n]);
 
-                    // Form a configuration object from the WmsLayerCapability object
-                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(WmslayerCapability);
+                    // Form a configuration object from the wmsLayerCapability object
+                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
 
                     // Modify the configuration objects title property to a more user friendly title
                     wmsConfig.title = layerName[n];
 
                     // Create the WMS Layer from the configuration object
-                    var Wmslayer = new WorldWind.WmsLayer(wmsConfig);
-                    console.log(Wmslayer);
+                    var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
+                    console.log(wmsLayer);
                     // Add the layers to WorldWind and update the layer manager
-                    globe.addLayer(Wmslayer);
+                    globe.addLayer(wmsLayer);
                     layerManager.synchronizeLayerList();
                 }
             };
