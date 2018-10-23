@@ -180,6 +180,7 @@ requirejs(['./WorldWindShim',
                 }
             });
 
+
             $('#previousL').click(function(){
                 nextL.disabled = false;
                 if(j < 1){

@@ -94,15 +94,15 @@ requirejs(['./WorldWindShim',
             console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
         };
 
+        //preload function
         $(document).ready(function() {
             // Preload wmsLayer
             $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
             });
-
-            var preloadLayerStr = preloadLayer + '';
-            preloadWMSLayerName = preloadLayerStr.split(",");
-            console.log (preloadLayer);
+            var preloadLayerStr = preloadLayer + '';//change preloadLayer into a string
+            preloadWMSLayerName = preloadLayerStr.split(",");//split preloadLayerStr with ","
+            // console.log (preloadWMSLayerName);
 
             $.get(serviceAddress).done(createWMSLayer).fail(logError);
 
@@ -118,9 +118,9 @@ requirejs(['./WorldWindShim',
 
             $(".wmsLayer").click(function () {
                 var layer1 = $(this).val(); //the most current value of the selected switch
-                allCheckedArray = $(':checkbox:checked');
-                console.log(allCheckedArray);
-                console.log(allCheckedArray.length);
+                allCheckedArray = $(':checkbox:checked'); //All arrays of the switches that were opened by users
+                // console.log(allCheckedArray);
+                // console.log(allCheckedArray.length);
                 if (alertVal){
                     confirm("Some layers may take awhile to load. Please be patient.")
                 }
@@ -131,14 +131,13 @@ requirejs(['./WorldWindShim',
                     url: 'position',
                     type: 'GET',
                     dataType: 'json',
-                    data:layerRequest,
+                    data:layerRequest, //send the most current value of the selected switch to server-side
                     async: false,
                     success: function (results) {
-                        LayerSelected = results[0]; //Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
+                        LayerSelected = results[0]; //the first object of an array --- Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
                         console.log(LayerSelected);
                         Altitude = LayerSelected.Altitude * 1000;
-                        globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude));
-
+                        globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude)); //turn the globe to the position of the layer
                     }
                 });
 
@@ -146,20 +145,20 @@ requirejs(['./WorldWindShim',
 
                     checked.push(layer1); //insert current value to "checked" array
                     checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
-                    alertVal = false; //alert
+                    alertVal = false; //alert (only appear at the first time)
                     currentSelectedLayer.value =  LayerSelected.ThirdLayer; //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
                     arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
-                    j = arrMenu.length - 1;
-                    if(arrMenu.length === 1){
+                    j = arrMenu.length - 1; //count
+                    if(arrMenu.length === 1){ //if the length of arrMenu is equal to 1 /if user only checks one switch.
                         nextL.disabled = true;
                         previousL.disabled = true;
                         currentSelectedLayer.disabled = false;
-                    }else{
+                    }else{//if user checks over 1 switch
                         previousL.disabled = false;
                         nextL.disabled = true;
                     }
                     // LayerPosition.push(LayerSelected);
-                } else {
+                } else { //if there is not new array was inserted into the allCheckedArray / If user un-checks a switch)
                     for( var i = 0 ; i < checked.length; i++) {
                         if (checked[i] === layer1) {
                             checked.splice(i,1); //remove current value from checked array
@@ -220,36 +219,38 @@ requirejs(['./WorldWindShim',
 
             $('#previousL').click(function(){
                 nextL.disabled = false;
-                if(j < 1){
-                    previousL.disabled = true;
-                }else{
+                if(j < 1){ //if there was only one switch was checked
+                    previousL.disabled = true; //
+                }else{//if there was more than one switch was checked
                     j = j - 1;
-                    currentSelectedLayer.value = arrMenu[j];
+                    currentSelectedLayer.value = arrMenu[j]; //value of currentSelectedLayer changes to the previous one
                     if (j === 0){
-                        previousL.disabled = true;
+                        previousL.disabled = true; // if there is no previous layer ,then the button would be disabled
                     }
                 }
             });
 
             $('#nextL').click(function(){
-                if(j !== arrMenu.length - 1){
+                console.log(arrMenu.length);
+                console.log(j); //j = j - 1;
+                if(j !== arrMenu.length - 1){ // if there is not only one switch was selected
+                    console.log(j);
                     if(j === arrMenu.length - 2){
                         nextL.disabled = true;
                     }
                     j = j + 1;
                     previousL.disabled = false;
                     currentSelectedLayer.value = arrMenu[j];
-                }else{
-                    nextL.disabled = true;
                 }
+                // else{
+                //     nextL.disabled = true; //?
+                // }
             });
 
             //if the opened layer was clicked, the layer shows
             $('#currentSelectedLayer').click(function(){
-
                 // $('.collapse').collapse('hide');
-                var a = document.getElementById("accordion").children; //eight layer menus
-
+                // var a = document.getElementById("accordion").children; //eight layer menus
                 var currentSelectedLayer = "thirdlayer=" + arrMenu[j];
                 $.ajax({
                     url: 'thirdL',
@@ -259,7 +260,9 @@ requirejs(['./WorldWindShim',
                     async: false,
                     success: function (results) {
                         var FirstLayerId = '#' + results[0].FirstLayer;
+                        console.log(FirstLayerId);
                         var SecondLayerId = '#' + results[0].FirstLayer + '-' + results[0].SecondLayer;
+                        console.log(SecondLayerId);
 
                         globe.goTo(new WorldWind.Position(results[0].Latitude, results[0].Longitude, results[0].Altitude * 1000));
 
