@@ -23,6 +23,7 @@ $(document).ready(function () {
             var removesecondlayer = unpack(res, 'SecondLayer');
             var removethirdlayer = unpack(res,"ThirdLayer");
             var Layerinfo = unpack(res,"LayerName");
+            console.log (Layerinfo);
 
             $.each(removefirstlayer, function (index, value) {
                 if($.inArray(value, firstlayer) === -1) firstlayer.push(value);
@@ -114,7 +115,6 @@ $(document).ready(function () {
                     for (var v = 0; v < comparing.length; v++) {
                         //secondlayer beginning
                         if (comparing[v][1] !== res[i].SecondLayer) {
-
                             if(v === comparing.length - 1) {
                                 var paneldefault2 = document.createElement("div");
                                 paneldefault2.id = res[i].SecondLayer;
@@ -148,9 +148,7 @@ $(document).ready(function () {
                                 document.getElementsByClassName("panel-group " + res[i].FirstLayer)[0].appendChild(paneldefault2);
                                 comparing.push([res[i].FirstLayer, res[i].SecondLayer]);
                             }
-                        } else {
-                            break;
-                        }
+                        } else {break}
                     }// secondlayer ending
 
                     if (res[i].LayerType === "Wmslayer") {
