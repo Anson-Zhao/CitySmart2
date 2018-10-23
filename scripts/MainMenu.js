@@ -55,7 +55,7 @@ requirejs(['./WorldWindShim',
         var preloadLayer = []; //preload entire layer name
         var layers = globe.layers;
         let bob=[];
-        var checked = []; //selected toogle switch value
+        var checked = []; //selected toggle switch value
         var alertVal = true;
         var LayerSelected;
         var arrMenu = [];
@@ -102,7 +102,7 @@ requirejs(['./WorldWindShim',
 
             var preloadLayerStr = preloadLayer + '';
             preloadWMSLayerName = preloadLayerStr.split(",");
-            console.log (preloadWMSLayerName);
+            console.log (preloadLayer);
 
             $.get(serviceAddress).done(createWMSLayer).fail(logError);
 
