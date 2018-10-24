@@ -251,7 +251,9 @@ requirejs(['./WorldWindShim',
             $('#currentSelectedLayer').click(function(){
                 // $('.collapse').collapse('hide');
                 // var a = document.getElementById("accordion").children; //eight layer menus
+
                 var currentSelectedLayer = "thirdlayer=" + arrMenu[j];
+                console.log(arrMenu[j]);
                 $.ajax({
                     url: 'thirdL',
                     type: 'GET',
@@ -263,7 +265,6 @@ requirejs(['./WorldWindShim',
                         console.log(FirstLayerId);
                         var SecondLayerId = '#' + results[0].FirstLayer + '-' + results[0].SecondLayer;
                         console.log(SecondLayerId);
-
                         globe.goTo(new WorldWind.Position(results[0].Latitude, results[0].Longitude, results[0].Altitude * 1000));
 
                         $(FirstLayerId).collapse('show');
