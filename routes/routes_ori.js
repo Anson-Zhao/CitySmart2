@@ -20,6 +20,12 @@ const Delete_Dir = config.Delete_Dir;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
+// const newmask = 0o011;
+// console.log (`Current umask: ${process.umask().toString(8)}`);
+// const oldmask = process.umask(newmask);
+// console.log(
+//    `Changed umask from ${oldmask.toString(8)} to ${process.umask().toString(8)}`
+// );
 
 let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
@@ -60,6 +66,96 @@ module.exports = function (app, passport) {
         res.render('homepageUSER.ejs');
     });
 
+    // app.get('/app', function (req, res) {
+    //     res.render('usgs_mapsvc.ejs');
+    // });
+
+    app.get('/mapsvcviewer', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+        res.render('usgs_mapsvc.ejs');
+    });
+
+    app.get('/usgswt', function (req, res) {
+        res.render('usgswt.ejs');
+    });
+
+    app.get('/mapsvcviewerL', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+        res.render('usgs_mapsvcL.ejs');
+    });
+
+    app.get('/usgswtL', function (req, res) {
+        res.render('usgswtL.ejs');
+    });
+
+    app.get('/uswtdb', function (req, res) {
+        // console.log("A: " + new Date());
+
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+
+        // var statement = "SELECT p_name, xlong, ylat, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB INNER JOIN USWTDB_COLOR ON USWTDB.case_id = USWTDB_COLOR.case_id ORDER BY p_name;";
+        var statement = "SELECT USWTDB_Sample.case_id, t_state, p_name, xlong, ylat, p_year, p_tnum, p_cap, p_avgcap, t_ttlh, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB_Sample INNER JOIN USWTDB_COLOR_Sample ON USWTDB_Sample.case_id = USWTDB_COLOR_Sample.case_id ORDER BY p_name;";
+
+        con_CS.query(statement, function (err, results, fields) {
+            if (err) {
+                console.log(err);
+                res.json({"error": true, "message": "An unexpected error occurred !"});
+            } else {
+                // console.log("success: " + new Date());
+                // console.log(results);
+                res.json({"error": false, "data": results});
+            }
+        });
+    });
+
+    app.get('/mdw', function (req, res) {
+        res.render('Mineral_Deposits.ejs');
+    });
+
+    app.get('/placemarkt', function (req, res) {
+        // console.log("A: " + new Date());
+
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+
+        // var statement = "SELECT p_name, xlong, ylat, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB INNER JOIN USWTDB_COLOR ON USWTDB.case_id = USWTDB_COLOR.case_id ORDER BY p_name;";
+        var statement = "SELECT * FROM Mineral_Deposits;";
+
+        con_CS.query(statement, function (err, results, fields) {
+            if (err) {
+                console.log(err);
+                res.json({"error": true, "message": "An unexpected error occurred !"});
+            } else {
+                // console.log("success: " + new Date());
+                // console.log(results);
+                res.json({"error": false, "data": results});
+            }
+        });
+    });
+
+    app.get('/mrds', function (req, res) {
+        res.render('mrds.ejs');
+    });
+
+    app.get('/mrdsData', function (req, res) {
+        // console.log("A: " + new Date());
+
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+
+        // var statement = "SELECT p_name, xlong, ylat, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB INNER JOIN USWTDB_COLOR ON USWTDB.case_id = USWTDB_COLOR.case_id ORDER BY p_name;";
+        var statement = "SELECT * FROM mrds_sample;";
+
+        con_CS.query(statement, function (err, results, fields) {
+            if (err) {
+                console.log(err);
+                res.json({"error": true, "message": "An unexpected error occurred !"});
+            } else {
+                // console.log("success: " + new Date());
+                // console.log(results);
+                res.json({"error": false, "data": results});
+            }
+        });
+    });
+
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
@@ -67,6 +163,11 @@ module.exports = function (app, passport) {
         console.log(layername2);
 
         con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu WHERE LayerName = ?', layername2[0], function (err, results) {
+           // for(var i =0; i< results.length; i++) {
+           //     if (layername === results[i].LayerName) {
+           //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
+           //     }
+           // }
             if (err) {
                 console.log(err);
                 res.json({"error": true, "message": "no result found !"});
@@ -524,6 +625,19 @@ module.exports = function (app, passport) {
             ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
         };
 
+        // dateNtime();
+
+        // myStat = "UPDATE UserProfile SET firstName =?, lastName = ? ";
+        // mylogin = "UPDATE UserLogin SET dateModified  = ? WHERE username = ? ";
+        // myVal = [newPass.firstname, newPass.lastname, dateTime, user.username];
+        //
+        // con_CS.query(myStat, myVal, mylogin, function (err, rows) {
+        //     if (err) {
+        //         console.log(err);
+        //         res.json({"error": true, "message": "Fail !"});
+        //     } else {
+        // console.log(user.password);
+        // console.log(newPass.currentpassword);
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
         if (!!req.body.newpassword && passComp) {
@@ -538,6 +652,9 @@ module.exports = function (app, passport) {
                     res.json({"error": false, "message": "Success !"});
                 }
             });
+            //         } else {
+            //             res.json({"error": false, "message": "Success !"});
+            //         }
         }
     });
 
@@ -786,6 +903,61 @@ module.exports = function (app, passport) {
         ];
         // console.log(req.query.status);
         QueryStat(myQuery, myStat, res);
+
+        // function userQuery() {
+        //     res.setHeader("Access-Control-Allow-Origin", "*");
+        //
+        //     con_CS.query(myStat, function (err, results, fields) {
+        //
+        //         let status = [{errStatus: ""}];
+        //
+        //         if (err) {
+        //             console.log(err);
+        //             status[0].errStatus = "fail";
+        //             res.send(status);
+        //             res.end();
+        //         } else if (results.length === 0) {
+        //             status[0].errStatus = "no data entry";
+        //             res.send(status);
+        //             res.end();
+        //         } else {
+        //             let JSONresult = JSON.stringify(results, null, "\t");
+        //             // console.log(JSONresult);
+        //             res.send(JSONresult);
+        //             res.end();
+        //         }
+        //     });
+        // }
+
+        // let j = 0;
+        //
+        // for (let i = 0; i < myQuery.length; i++) {
+        //     // console.log("i = " + i);
+        //     // console.log("field Value: " + !!myQuery[i].fieldVal);
+        //     if (i === myQuery.length - 1) {
+        //         if (!!myQuery[i].fieldVal) {
+        //             if (j === 0) {
+        //                 myStat += " WHERE " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
+        //                 j = 1;
+        //                 userQuery()
+        //             } else {
+        //                 myStat += " AND " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
+        //                 userQuery()
+        //             }
+        //         } else {
+        //             userQuery()
+        //         }
+        //     } else {
+        //         if (!!myQuery[i].fieldVal) {
+        //             if (j === 0) {
+        //                 myStat += " WHERE " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
+        //                 j = 1;
+        //             } else {
+        //                 myStat += " AND " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
+        //             }
+        //         }
+        //     }
+        // }
     });
 
     // // Retrieve user data from user management page
@@ -1414,6 +1586,7 @@ module.exports = function (app, passport) {
 
     });
 
+
     app.get('/layername', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -1443,6 +1616,10 @@ module.exports = function (app, passport) {
     // =====================================
     // Others  =============================
     // =====================================
+    app.get('/scanner', function (req, res) {
+        res.render('scanner.ejs')
+    });
+
     app.get('Cancel', function (req, res) {
         res.redirect('/userHome');
         res.render('userHome', {
