@@ -94,15 +94,15 @@ requirejs(['./WorldWindShim',
             console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
         };
 
-        //preload function
         $(document).ready(function() {
             // Preload wmsLayer
             $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
             });
-            var preloadLayerStr = preloadLayer + '';//change preloadLayer into a string
-            preloadWMSLayerName = preloadLayerStr.split(",");//split preloadLayerStr with ","
-            // console.log (preloadWMSLayerName);
+
+            var preloadLayerStr = preloadLayer + '';
+            preloadWMSLayerName = preloadLayerStr.split(",");
+            console.log (preloadLayer);
 
             $.get(serviceAddress).done(createWMSLayer).fail(logError);
 
@@ -116,11 +116,273 @@ requirejs(['./WorldWindShim',
             previousL.disabled = true;
             nextL.disabled = true;
 
+
+
+
+            $('.placemarkLayer').click(function(){
+
+                var val1;
+                if ($('.placemarkLayer').is(":checkbox:checked")) {
+                    // alert("hi");
+
+                    $(':checkbox:checked').each(function () {
+                        val1 = $(this).val();
+                        // var str = val+'';
+                        // val = str.split(",");
+                        // console.log(val1);
+                        // console.log(layers);
+
+                        for (var a = 0; a < layers.length; a++) {
+
+                            if (layers[a].displayName === val1) {
+                                // alert(layers[a].displayName + " works now!");
+                                layers[a].enabled = true;
+                                console.log('KEA_Wind_Turbine'); //find out how to console the problem
+
+                            }
+                        }
+                    });
+                }
+
+                if($('.placemarkLayer').is(":not(:checked)")) {
+                    // console.log("enable:false");
+                    var val2;
+                    $(":checkbox:not(:checked)").each(function (i) {
+                        val2 = $(this).val();
+
+                        // console.log(str);
+                        // console.log(val2[i]);
+
+                        // alert("it doesn't works");
+                        // console.log(val);
+                        // console.log("s"+val2s[a].displayName);
+                        for (var a = 0; a < layers.length; a++) {
+                            if (layers[a].displayName === val2) {
+
+                                layers[a].enabled = false;
+
+                                // console.log("str: " + layers[a].displayName);
+                                // console.log(layers[a]);
+                            }
+                        }
+                    });
+                }
+            });
+            var Placemark_Creation = function (RGB, latandlong, LayerName) {
+
+            var placemark;
+            var highlightAttributes;
+            var placemarkLayer = new WorldWind.RenderableLayer(LayerName);
+            var placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
+// console.log(latandlong[0]);
+
+
+// Create the custom image for the placemark.
+
+            var canvas = document.createElement("canvas"),
+                ctx2d = canvas.getContext("2d"),
+                size = 45, c = size / 2, innerRadius = 5, outerRadius = 15;
+
+            canvas.width = size;
+            canvas.height = size;
+//This is the color of the placeholder and appearance (Most likely)
+//             console.log(RGB);
+
+            var gradient = ctx2d.createRadialGradient(c, c, innerRadius, c, c, outerRadius);
+            gradient.addColorStop(0, RGB[0]);
+            gradient.addColorStop(0.5, RGB[1]);
+            gradient.addColorStop(1, RGB[2]);
+
+
+            ctx2d.fillStyle = gradient;
+            ctx2d.arc(c, c, outerRadius, 0, 2 * Math.PI, false);
+            ctx2d.fill();
+
+            // var ImageLibrary = WorldWind.configuration.baseUrl + "home/Pics/" ;// location of the image files
+            // console.log(ImageLibrary);
+
+
+            // Set up the common placemark attributes.
+            placemarkAttributes.imageScale = 0.75; //placemark size!
+            placemarkAttributes.imageOffset = new WorldWind.Offset(
+                WorldWind.OFFSET_FRACTION, 0.5,
+                WorldWind.OFFSET_FRACTION, 0.5);
+            placemarkAttributes.imageColor = WorldWind.Color.WHITE;
+
+
+            placemark = new WorldWind.Placemark(new WorldWind.Position(latandlong[0], latandlong[1], 1e2), true, null);
+            // placemark.label = "Placemark" + "\n"
+            placemark.displayName = LayerName;
+            //     + "Lat " + placemark.position.latitude.toPrecision(4).toString() + "\n"
+            //     + "Lon " + placemark.position.longitude.toPrecision(5).toString();
+            placemark.altitudeMode = WorldWind.RELATIVE_TO_GROUND;
+
+            // Create the placemark attributes for this placemark. Note that the attributes differ only by their
+            // image URL.
+            placemarkAttributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
+            placemarkAttributes.imageSource = new WorldWind.ImageSource(canvas);
+            placemark.attributes = placemarkAttributes;
+
+            // Create the highlight attributes for this placemark. Note that the normal attributes are specified as
+            // the default highlight attributes so that all properties are identical except the image scale.
+            highlightAttributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
+            highlightAttributes.imageScale = 1.2;
+            placemark.highlightAttributes = highlightAttributes;
+
+            // console.log(placemark);
+
+            // Add the placemark to the layer.
+            placemarkLayer.addRenderable(placemark);
+            placemarkLayer.enabled = false;
+            // console.log(placemarkLayer);
+            // console.log(placemark);
+            globe.addLayer(placemarkLayer);
+        };
+
+        var highlightedItems= [];
+
+        var handlePick = function (o) {
+
+            // alert("ttyy");
+            // The input argument is either an Event or a TapRecognizer. Both have the same properties for determining
+            // the mouse or tap location.
+            var x = o.clientX,
+                y = o.clientY;
+
+            var redrawRequired = highlightedItems.length > 0; // must redraw if we de-highlight previously picked items
+
+            // De-highlight any previously highlighted placemarks.
+            for (var h = 0; h < highlightedItems.length; h++) {
+                highlightedItems[h].highlighted = false;
+            }
+            highlightedItems = [];
+
+            // Perform the pick. Must first convert from window coordinates to canvas coordinates, which are
+            // relative to the upper left corner of the canvas rather than the upper left corner of the page.
+            var pickList = globe .pick(globe.canvasCoordinates(x, y));
+            if (pickList.objects.length > 0) {
+                redrawRequired = true;
+            }
+
+            // Highlight the items picked by simply setting their highlight flag to true.
+            if (pickList.objects.length > 0) {
+                for (var p = 0; p < pickList.objects.length; p++) {
+                    pickList.objects[p].userObject.highlighted = true;
+
+                    // Keep track of highlighted items in order to de-highlight them later.
+                    highlightedItems.push(pickList.objects[p].userObject);
+
+                    // Detect whether the placemark's label was picked. If so, the "labelPicked" property is true.
+                    // If instead the user picked the placemark's image, the "labelPicked" property is false.
+                    // Applications might use this information to determine whether the user wants to edit the label
+                    // or is merely picking the placemark as a whole.
+                    if (pickList.objects[p].labelPicked) {
+                        // console.log("Label picked");
+                    }
+                }
+            }
+
+            // Update the window if we changed anything.
+            if (redrawRequired) {
+                globe.redraw(); // redraw to make the highlighting changes take effect on the screen
+            }
+        };
+
+
+        var handleMouseCLK = function (a)   {
+            var x = a.clientX,
+                y = a.clientY;
+            var pickListCLK = globe.pick(globe.canvasCoordinates(x, y));
+            // console.log(pickListCLK);
+            for (var m = 0; m < pickListCLK.objects.length; m++) {
+                // console.log (pickListCLK.objects[m].position.latitude);
+                var pickedPM = pickListCLK.objects[m].userObject;
+                if (pickedPM instanceof WorldWind.Placemark) {
+
+                    // sitePopUp(pickedPM.label);
+                    // alert(pickedPM.label);
+                    sitePopUp(pickListCLK.objects[m].position.latitude, pickListCLK.objects[m].position.longitude);
+                    // sitePopUp(pickListCLK.objects[m].position.longitude);
+// console.log(pickedPM);
+
+                    $(document).ready(function () {
+
+                        var modal = document.getElementById('popupBox');
+                        var span = document.getElementById('closeIt');
+
+                        modal.style.display = "block";
+
+
+                        span.onclick = function () {
+                            modal.style.display = "none";
+
+                            window.onclick = function (event) {
+                                if (event.target === modal) {
+                                    modal.style.display = "none";
+
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        };
+
+            var sitePopUp = function (latitude, longitude) {
+                var popupBodyItem = $("#popupBody");
+                var c = latitude + "," + longitude;
+                // console.log(c);
+
+                // console.log(infobox);
+
+
+                for (var k = 0, lengths = infobox.length; k < lengths; k++) {
+                    // alert("popup info");
+
+                    if (infobox[k].Latitude_and_Longitude_Decimal === c) {
+                        // console.log("good-bye");
+                        popupBodyItem.children().remove();
+                        // alert(infobox[k].sitename);
+                        //     alert("hi");
+
+                        var popupBodyName = $('<p class="site-name"><h4>' + infobox[k].LayerName + '</h4></p>');
+                        var popupBodyDesc = $('<p class="site-description">' + infobox[k].Site_Description + '</p><br>');
+                        var fillerImages = $('<img style="width:100%; height:110%;" src="../images/Pics/' + infobox[k].Picture_Location + '"/>');
+                        var imageLinks = $('<h6><strong><a href="' + infobox[k].Link_to_site_location + '">Website Link </a></strong></h6>');
+
+                        popupBodyItem.append(popupBodyName);
+                        popupBodyItem.append(popupBodyDesc);
+                        popupBodyItem.append(fillerImages);
+                        popupBodyItem.append(imageLinks);
+                        break
+
+                        // alert(popupBodyName);
+                    }
+                }
+
+                // alert("hello" + pmDescription[0].Layer_Name);
+                // alert ("length: " + pmDescription.length);
+
+                // for (var k = 0, lengths = pmDescription.length; k < lengths; k++) {
+                //     var pmLayerName = pmDescription[k].Layer_Name;
+                //     var pmSiteNam
+                // e = pmDescription[k].Site_Name;
+            //     var pmColor = pmDescription[k].Color;
+            //     var pmPicLoc = pmDescription[k].Picture_Location;
+            //
+            //     // if (pmLayerName[k]) {
+            //     //
+            //     //     popupBodyItem.children().remove();
+            //     //.
+            //     // }
+            // }
+        };//
+
             $(".wmsLayer").click(function () {
                 var layer1 = $(this).val(); //the most current value of the selected switch
-                allCheckedArray = $(':checkbox:checked'); //All arrays of the switches that were opened by users
-                // console.log(allCheckedArray);
-                // console.log(allCheckedArray.length);
+                allCheckedArray = $(':checkbox:checked');
+                console.log(allCheckedArray);
+                console.log(allCheckedArray.length);
                 if (alertVal){
                     confirm("Some layers may take awhile to load. Please be patient.")
                 }
@@ -131,13 +393,14 @@ requirejs(['./WorldWindShim',
                     url: 'position',
                     type: 'GET',
                     dataType: 'json',
-                    data:layerRequest, //send the most current value of the selected switch to server-side
+                    data:layerRequest,
                     async: false,
                     success: function (results) {
-                        LayerSelected = results[0]; //the first object of an array --- Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
+                        LayerSelected = results[0]; //Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
                         console.log(LayerSelected);
                         Altitude = LayerSelected.Altitude * 1000;
-                        globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude)); //turn the globe to the position of the layer
+                        globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude));
+
                     }
                 });
 
@@ -145,20 +408,20 @@ requirejs(['./WorldWindShim',
 
                     checked.push(layer1); //insert current value to "checked" array
                     checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
-                    alertVal = false; //alert (only appear at the first time)
+                    alertVal = false; //alert
                     currentSelectedLayer.value =  LayerSelected.ThirdLayer; //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
                     arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
-                    j = arrMenu.length - 1; //count
-                    if(arrMenu.length === 1){ //if the length of arrMenu is equal to 1 /if user only checks one switch.
+                    j = arrMenu.length - 1;
+                    if(arrMenu.length === 1){
                         nextL.disabled = true;
                         previousL.disabled = true;
                         currentSelectedLayer.disabled = false;
-                    }else{//if user checks over 1 switch
+                    }else{
                         previousL.disabled = false;
                         nextL.disabled = true;
                     }
                     // LayerPosition.push(LayerSelected);
-                } else { //if there is not new array was inserted into the allCheckedArray / If user un-checks a switch)
+                } else {
                     for( var i = 0 ; i < checked.length; i++) {
                         if (checked[i] === layer1) {
                             checked.splice(i,1); //remove current value from checked array
@@ -219,38 +482,36 @@ requirejs(['./WorldWindShim',
 
             $('#previousL').click(function(){
                 nextL.disabled = false;
-                if(j < 1){ //if there was only one switch was checked
-                    previousL.disabled = true; //
-                }else{//if there was more than one switch was checked
+                if(j < 1){
+                    previousL.disabled = true;
+                }else{
                     j = j - 1;
-                    currentSelectedLayer.value = arrMenu[j]; //value of currentSelectedLayer changes to the previous one
+                    currentSelectedLayer.value = arrMenu[j];
                     if (j === 0){
-                        previousL.disabled = true; // if there is no previous layer ,then the button would be disabled
+                        previousL.disabled = true;
                     }
                 }
             });
 
             $('#nextL').click(function(){
-                console.log(arrMenu.length);
-                console.log(j); //j = j - 1;
-                if(j !== arrMenu.length - 1){ // if there is not only one switch was selected
-                    console.log(j);
+                if(j !== arrMenu.length - 1){
                     if(j === arrMenu.length - 2){
                         nextL.disabled = true;
                     }
                     j = j + 1;
                     previousL.disabled = false;
                     currentSelectedLayer.value = arrMenu[j];
+                }else{
+                    nextL.disabled = true;
                 }
-                // else{
-                //     nextL.disabled = true; //?
-                // }
             });
 
             //if the opened layer was clicked, the layer shows
             $('#currentSelectedLayer').click(function(){
+
                 // $('.collapse').collapse('hide');
-                // var a = document.getElementById("accordion").children; //eight layer menus
+                var a = document.getElementById("accordion").children; //eight layer menus
+
                 var currentSelectedLayer = "thirdlayer=" + arrMenu[j];
                 $.ajax({
                     url: 'thirdL',
@@ -260,9 +521,7 @@ requirejs(['./WorldWindShim',
                     async: false,
                     success: function (results) {
                         var FirstLayerId = '#' + results[0].FirstLayer;
-                        console.log(FirstLayerId);
                         var SecondLayerId = '#' + results[0].FirstLayer + '-' + results[0].SecondLayer;
-                        console.log(SecondLayerId);
 
                         globe.goTo(new WorldWind.Position(results[0].Latitude, results[0].Longitude, results[0].Altitude * 1000));
 
