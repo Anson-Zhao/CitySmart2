@@ -16,8 +16,12 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <script data-main="../scripts/MainMenu" src="../scripts/require-2.3.5.min.js"></script>
+
     <style>
-        body {padding-bottom: 80px}
+        body{
+            padding-bottom: 80px;
+            word-wrap:break-word;
+        }
 
         .note {
             color: #959595;
@@ -154,6 +158,33 @@
             transition-duration: 0.4s;
         }
 
+        .navbutton1:hover {
+            background-color: #333;
+            color: white;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .button1 {
+            height: 40px;
+            width: 110px;
+            float: right;
+            border-radius: 5px;
+            -webkit-transition-duration: 0.4s;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            background-color: white;
+            color: #337ab7;
+            border: 1px solid #337ab7;
+        }
+
+        .button1:hover {
+            background-color: #337ab7;
+            color: white;
+        }
+
         .dropbutton {
             float: right;
             width: 150px;
@@ -191,20 +222,17 @@
         .show {
             display: block;
         }
-
     </style>
-
 </head>
 
-<body>
-<div class="container">
 
     <div class="navul" style="height:80px;background:#000000;">
         <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
             <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
         </a>
-        <a href="/userHome" id= "Request" style="width:110px;">
-            <button class="navbutton1" style="width: 140px"> User Home </button>
+        <a href="/userHome" style="width:110px;">
+            <button class="navbutton1"> User Home
+            </button>
         </a>
         <a href="/newRequest" id= "Request" style="width:110px;">
             <button class="navbutton1" style="width: 140px"> New Request </button>
@@ -217,6 +245,7 @@
         </a>
         <div class="dropdown" style="height: 80px; width: 200px; float: right; margin: 0;">
             <button onclick="dropDown()" class="dropbutton" id="Username">
+                <%= firstName%>
                 <span class="caret"></span>
             </button>
             <div id="userMenuAdmin" class="dropdown-content">
@@ -230,7 +259,8 @@
             </div>
         </div>
     </div>
-
+<body>
+    <div class="container">
     <div>
         <!-- Menu -->
         <ul class="nav navbar-nav">
@@ -507,6 +537,164 @@
     </div>
 </div>
 </body>
-<script>
+<script type='text/javascript'>
+    var username = "<%= user.username %>";
+    console.log(username);
+    var scoutingRowSelected, DropMenu, transactionpicturename;
+    var UserRole = "<%= user.userrole %>";
+    console.log(UserRole);
+    var scoutingTransactionID = [];
+    var trapTransactionID = [];
+    var LayerNameStr = [];
+
+
+    function dropDown() {
+        console.log(UserRole);
+        if (UserRole === "Admin") {
+            document.getElementById("userMenuAdmin").classList.toggle("show");
+        } else if (UserRole === "Regular") {
+            document.getElementById("userMenuRegular").classList.toggle("show");
+        }
+    }
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbutton')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    // function query() {
+    //     var firstName = document.getElementById("firstName").value;
+    //     var lastName = document.getElementById("lastName").value;
+    //     var startDate = document.getElementsByClassName("date")[0].value;
+    //     var endDate = document.getElementsByClassName("date")[1].value;
+    //
+    //     var queryStr = "&firstName=" + firstName + "&lastName=" + lastName + "&startDate=" + startDate + "&endDate=" + endDate;
+    //
+    //     table.clear();
+    //     table.draw();
+    //     // trapTable.clear();
+    //     // trapTable.draw();
+    //     queryAndDisplay(queryStr);
+    // }
+
+
+    // var queryAndDisplay = function (querystr) {
+    //     // $.ajax({
+    //     //     url: 'AddData',
+    //     //     dataType: 'json',
+    //     //     success: function (results) {
+    //     //         console.log(results);
+    //     //         for (var i = 0; i < results.length; i++) {
+    //     //                 if (UserRole === "Regular") {
+    //     //                     if (results[i].UID === username) {
+    //     //                         table.row.add([
+    //     //                             results[i].Date,
+    //     //                             results[i].UID,
+    //     //                             results[i].RID,
+    //     //                             results[i].LayerCategory,
+    //     //                             results[i].ContinentName,
+    //     //                             results[i].CountryName,
+    //     //                             results[i].StateName,
+    //     //                             results[i].FirstLayer,
+    //     //                             results[i].FirstOther,
+    //     //                             results[i].SecondLayer,
+    //     //                             results[i].SecondOther,
+    //     //                             results[i].LayerName,
+    //     //                             results[i].Layer_Description,
+    //     //                             results[i].LayerFormat,
+    //     //                             results[i].Layer_Uploader_name,
+    //     //                             results[i].Status
+    //     //                         ]).draw(false);
+    //     //                     }
+    //     //                 } else {
+    //     //                     if (results[i].Status === "Pending") {
+    //     //                         table.row.add([
+    //     //                             results[i].Date,
+    //     //                             results[i].UID,
+    //     //                             results[i].RID,
+    //     //                             results[i].LayerCategory,
+    //     //                             results[i].ContinentName,
+    //     //                             results[i].CountryName,
+    //     //                             results[i].StateName,
+    //     //                             results[i].FirstLayer,
+    //     //                             results[i].FirstOther,
+    //     //                             results[i].SecondLayer,
+    //     //                             results[i].SecondOther,
+    //     //                             results[i].LayerName,
+    //     //                             results[i].Layer_Description,
+    //     //                             results[i].LayerFormat,
+    //     //                             results[i].Layer_Uploader_name,
+    //     //                             results[i].Status
+    //     //                         ]).draw(false);
+    //     //                     }
+    //     //                 }
+    //     //         }
+    //     //     }
+    //     // });
+    //
+    //     $.ajax({
+    //         url: '/filterQuery',
+    //         type: 'GET',
+    //         dataType: 'json',
+    //         async: false,
+    //         data: querystr,
+    //         success: function (results) {
+    //             console.log(results);
+    //             for (var i = 0; i < results.length; i++) {
+    //                 if (UserRole === "Regular") {
+    //                     if (results[i].UID === username) {
+    //                         table.row.add([
+    //                             results[i].Date,
+    //                             results[i].UID,
+    //                             results[i].RID,
+    //                             results[i].LayerCategory,
+    //                             results[i].ContinentName,
+    //                             results[i].CountryName,
+    //                             results[i].StateName,
+    //                             results[i].FirstLayer,
+    //                             results[i].FirstOther,
+    //                             results[i].SecondLayer,
+    //                             results[i].SecondOther,
+    //                             results[i].LayerName,
+    //                             results[i].Layer_Description,
+    //                             results[i].LayerFormat,
+    //                             results[i].Layer_Uploader_name,
+    //                             results[i].Status,
+    //                             results[i].Comments
+    //                         ]).draw(false);
+    //                     }
+    //                 } else {
+    //                     if (results[i].Status === "Pending") {
+    //                         table.row.add([
+    //                             results[i].Date,
+    //                             results[i].UID,
+    //                             results[i].RID,
+    //                             results[i].LayerCategory,
+    //                             results[i].ContinentName,
+    //                             results[i].CountryName,
+    //                             results[i].StateName,
+    //                             results[i].FirstLayer,
+    //                             results[i].FirstOther,
+    //                             results[i].SecondLayer,
+    //                             results[i].SecondOther,
+    //                             results[i].LayerName,
+    //                             results[i].Layer_Description,
+    //                             results[i].LayerFormat,
+    //                             results[i].Layer_Uploader_name,
+    //                             results[i].Status,
+    //                             results[i].Comments
+    //                         ]).draw(false);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     });
+    // }
 </script>
 </html>
