@@ -56,9 +56,27 @@ module.exports = function (app, passport) {
         })
     });
 
-    app.get('/homepageLI', function (req, res) {
-        res.render('homepageUSER.ejs');
+
+    app.get('/homepageLI', isLoggedIn, function (req, res) {
+        let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
+        let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
+
+        con_CS.query(myStat + state2, function (err, results, fields) {
+            if (!results[0][0].userrole) {
+                console.log("Error2");
+            } else if (!results[1][0].firstName) {
+                console.log("Error1")
+            } else {
+                console.log(req.user);
+                res.render('homepageUSER.ejs', {
+                    user: req.user, // get the user out of session and pass to template
+                    firstName: results[1][0].firstName
+                });
+            }
+        });
     });
+
+
 
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
@@ -263,25 +281,8 @@ module.exports = function (app, passport) {
             } else if (!results[1][0].firstName) {
                 console.log("Error1")
             } else {
+                console.log(req.user);
                 res.render('userHome.ejs', {
-                    user: req.user, // get the user out of session and pass to template
-                    firstName: results[1][0].firstName
-                });
-            }
-        });
-    });
-
-    app.get('/homepage', isLoggedIn, function (req, res) {
-        let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
-        let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
-
-        con_CS.query(myStat + state2, function (err, results, fields) {
-            if (!results[0][0].userrole) {
-                console.log("Error2");
-            } else if (!results[1][0].firstName) {
-                console.log("Error1")
-            } else {
-                res.render('homepageL.ejs', {
                     user: req.user, // get the user out of session and pass to template
                     firstName: results[1][0].firstName
                 });
