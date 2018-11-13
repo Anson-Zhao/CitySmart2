@@ -23,6 +23,7 @@ $(document).ready(function () {
             var removesecondlayer = unpack(res, 'SecondLayer');
             var removethirdlayer = unpack(res,"ThirdLayer");
             var Layerinfo = unpack(res,"LayerName");
+            console.log (Layerinfo);
 
             $.each(removefirstlayer, function (index, value) {
                 if($.inArray(value, firstlayer) === -1) firstlayer.push(value);
@@ -144,7 +145,8 @@ $(document).ready(function () {
                                 document.getElementsByClassName("panel-group " + res[i].FirstLayer)[0].appendChild(paneldefault2);
                                 comparing.push([res[i].FirstLayer, res[i].SecondLayer]);
                             }
-                        } else {break}
+                        }
+                        else {break}
                     }// secondlayer ending
 
                     if (res[i].LayerType === "Wmslayer") {
@@ -153,8 +155,11 @@ $(document).ready(function () {
                         let countrynamestr = res[i].CountryName.replace(/\s+/g, '');
                         let statenamestr = res[i].StateName.replace(/\s+/g, '');
 
+
                         for (var c = 0; c < comparing3.length; c++) {
+
                             if (comparing3[c][0] !== res[i].ThirdLayer) {
+
                                 if (c === comparing3.length - 1) {
                                     var checkboxdivG = document.createElement("div");
                                     checkboxdivG.className = "State " + Thirdreplace + " " + statenamestr + countrynamestr + continentnamestr;
@@ -207,6 +212,7 @@ $(document).ready(function () {
 
                                         document.getElementsByClassName(classname[c][0])[0].className += " " + statenamestr;
                                     }
+
                                 }
 
                                 break
@@ -247,15 +253,16 @@ $(document).ready(function () {
                                     document.getElementsByClassName("panel-body " + res[i].SecondLayer)[0].appendChild(checkboxdiv);
                                     comparing3.push([res[i].ThirdLayer, res[i].LayerName]);
                                     if (i === res.length - 1) {
-                                        console.log (comparing3)
+                                        console.log (comparing3);
+                                        console.log (comparing3.length)
                                     }
                                     classname.push([res[i].ThirdLayer +" " + statenamestr + countrynamestr + continentnamestr, statenamestr]);
 
                                 }
                             } else {
-                                if (i === res.length - 1) {
-                                    console.log (comparing3.length)
-                                }
+                                // if (i === res.length - 1) {
+                                //     console.log (comparing3.length)
+                                // }
                                 document.getElementsByClassName("input" + res[i].ThirdLayer)[0].setAttribute("value", res[i].LayerName);
                                 if (classname[a][0] !== res[i].ThirdLayer +" "+ statenamestr + " " + countrynamestr) {
                                     classname[a][0] += " " + statenamestr + countrynamestr + continentnamestr;
