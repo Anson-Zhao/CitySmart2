@@ -63,16 +63,26 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
-        var layername2 = layername.split(",");
+        console.log("Layername Below: ");
+        console.log(layername);
+        var parsedLayers = layername.split(",");
+        console.log("Parsed Layers: ");
+        console.log(parsedLayers);
 
-        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu WHERE LayerName = ?', layername2[0], function (err, results) {
+        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu WHERE LayerName = ?', parsedLayers[0], function (err, results) {
             if (err) {
                 console.log(err);
-                res.json({"error": true, "message": "no result found !"});
+                res.json({"error": true, "message": "no result found!"});
             } else {
                 res.json(results);
+                console.log("Results:");
+                console.log(results);
             }
         });
+        // con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu Where LayerName = ?", parsedLayers[0], function (err, results) {
+        //     console.log (results);
+        //     res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
+        // })
     });
 
     app.get('/thirdL',function (req,res) {
@@ -85,6 +95,7 @@ module.exports = function (app, passport) {
                 res.json({"error": true, "message": "An unexpected error occurred !"});
             } else {
                 res.json(results);
+                console.log(results);
             }
         });
     });

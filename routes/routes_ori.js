@@ -162,7 +162,7 @@ module.exports = function (app, passport) {
         var layername2 = layername.split(",");
         console.log(layername2);
 
-        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu WHERE LayerName = ?', layername2[0], function (err, results) {
+        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu WHERE LayerName = ?', layername2[0], function (err, results) {
            // for(var i =0; i< results.length; i++) {
            //     if (layername === results[i].LayerName) {
            //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
@@ -181,7 +181,7 @@ module.exports = function (app, passport) {
     app.get('/thirdL',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var thirdlayer = req.query.thirdlayer;
-        var queryState = 'SELECT FirstLayer, SecondLayer, ThirdLayer, Longitude, Latitude, Altitude FROM MapLayerMenu WHERE ThirdLayer = ?';
+        var queryState = 'SELECT FirstLayer, SecondLayer, ThirdLayer, Longitude, Latitude, Altitude FROM LayerMenu WHERE ThirdLayer = ?';
         con_CS.query(queryState, thirdlayer, function (err, results) {
             if (err) {
                 console.log(err);
@@ -432,7 +432,7 @@ module.exports = function (app, passport) {
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
             let statement = "UPDATE USGS.Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE USGS.MapLayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement1 = "UPDATE USGS.LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ geoData_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
@@ -1353,7 +1353,7 @@ module.exports = function (app, passport) {
         let statement2 = "UPDATE USGS.Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
         let statement3 = "UPDATE USGS.Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO USGS.MapLayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO USGS.LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1362,7 +1362,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO USGS.MapLayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO USGS.LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1412,7 +1412,7 @@ module.exports = function (app, passport) {
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
             let statement = "UPDATE USGS.Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE USGS.MapLayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement1 = "UPDATE USGS.LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
@@ -1464,7 +1464,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.citylevel;
         console.log(recieveCitylist);
-        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CityName = '" + recieveCitylist + "'", function (err, results) {
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM LayerMenu WHERE CityName = '" + recieveCitylist + "'", function (err, results) {
             res.json(results);
             console.log(results)
         });
@@ -1473,7 +1473,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCountrylist = req.query.countrylevel;
         console.log(recieveCountrylist);
-        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CountryName = '" + recieveCountrylist + "'", function (err, results) {
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM LayerMenu WHERE CountryName = '" + recieveCountrylist + "'", function (err, results) {
             res.json(results);
             console.log(results)
         });
@@ -1509,7 +1509,7 @@ module.exports = function (app, passport) {
 //check if the layer name is available
     app.get('/SearchLayerName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT ThirdLayer FROM MapLayerMenu", function (err, results) {
+        con_CS.query("SELECT ThirdLayer FROM LayerMenu", function (err, results) {
             if (err) throw err;
             res.json(results);
 
@@ -1526,7 +1526,7 @@ module.exports = function (app, passport) {
 
     app.get('/SearchLayerName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT ThirdLayer FROM MapLayerMenu", function (err, results) {
+        con_CS.query("SELECT ThirdLayer FROM LayerMenu", function (err, results) {
             if (err) throw err;
             res.json(results);
 
@@ -1540,7 +1540,7 @@ module.exports = function (app, passport) {
 
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT FirstLayer From MapLayerMenu", function (err, result) {
+        con_CS.query("SELECT FirstLayer From LayerMenu", function (err, result) {
 
             console.log("recive and processing");
 
@@ -1557,7 +1557,7 @@ module.exports = function (app, passport) {
     app.get('/secondlayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT SecondLayer From MapLayerMenu", function (err, result) {
+        con_CS.query("SELECT SecondLayer From LayerMenu", function (err, result) {
 
             console.log("recive and processing");
 
@@ -1573,7 +1573,7 @@ module.exports = function (app, passport) {
     app.get('/thirdlayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT ThirdLayer From MapLayerMenu", function (err, result) {
+        con_CS.query("SELECT ThirdLayer From LayerMenu", function (err, result) {
 
             console.log("recive and processing");
 
@@ -1590,7 +1590,7 @@ module.exports = function (app, passport) {
     app.get('/layername', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT LayerName From MapLayerMenu", function (err, result) {
+        con_CS.query("SELECT LayerName From LayerMenu", function (err, result) {
 
             console.log("recive and processing");
 
@@ -1603,7 +1603,7 @@ module.exports = function (app, passport) {
     app.get('/createlayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT * From MapLayerMenu WHERE Status = 'Approved'", function (err, result) {
+        con_CS.query("SELECT * From LayerMenu WHERE Status = 'Approved'", function (err, result) {
             // console.log("recive and processing");
 
             let JSONresult = JSON.stringify(result, null, "\t");
