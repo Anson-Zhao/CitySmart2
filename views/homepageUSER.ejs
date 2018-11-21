@@ -54,7 +54,7 @@
             /*margin-left: -30px;*/
             position: absolute;
             width: 380px;
-            height: 910px;
+            height: 900px;
             box-shadow: 9px 4px 10px 0 rgba(0, 0, 0, 0.21), -4px 6px 18px 0 rgba(0, 0, 0, 0.17);
         }
 
@@ -222,16 +222,27 @@
         .show {
             display: block;
         }
+
+        /*#canvasOne {*/
+            /*background-color: blue;*/
+            /*padding-right: 10px;*/
+        /*}*/
+        /*.container{*/
+            /*background-color:pink;*/
+        /*}*/
+
+        /*^^^ Used to determine if the content is centered on the page or not ^^^*/
+
+
     </style>
 </head>
-
 
     <div class="navul" style="height:80px;background:#000000;">
         <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
             <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
         </a>
         <a href="/userHome" style="width:110px;">
-            <button class="navbutton1"> User Home
+            <button class="navbutton1"> Userhome
             </button>
         </a>
         <a href="/newRequest" id= "Request" style="width:110px;">
@@ -259,6 +270,7 @@
             </div>
         </div>
     </div>
+
 <body>
     <div class="container">
     <div>
@@ -529,7 +541,7 @@
         </div>
 
         <div class="col-sm-9" id="globe" style="margin-left:420px;">
-            <canvas id="canvasOne" width="1000" height="1000" style="width:100%; height:auto">
+            <canvas id="canvasOne" width="1000" height="1000" style="width:90%; height:auto">
                 Your browser does not support HTML5 Canvas.
             </canvas>
 
@@ -567,134 +579,5 @@
             }
         }
     }
-
-    // function query() {
-    //     var firstName = document.getElementById("firstName").value;
-    //     var lastName = document.getElementById("lastName").value;
-    //     var startDate = document.getElementsByClassName("date")[0].value;
-    //     var endDate = document.getElementsByClassName("date")[1].value;
-    //
-    //     var queryStr = "&firstName=" + firstName + "&lastName=" + lastName + "&startDate=" + startDate + "&endDate=" + endDate;
-    //
-    //     table.clear();
-    //     table.draw();
-    //     // trapTable.clear();
-    //     // trapTable.draw();
-    //     queryAndDisplay(queryStr);
-    // }
-
-
-    // var queryAndDisplay = function (querystr) {
-    //     // $.ajax({
-    //     //     url: 'AddData',
-    //     //     dataType: 'json',
-    //     //     success: function (results) {
-    //     //         console.log(results);
-    //     //         for (var i = 0; i < results.length; i++) {
-    //     //                 if (UserRole === "Regular") {
-    //     //                     if (results[i].UID === username) {
-    //     //                         table.row.add([
-    //     //                             results[i].Date,
-    //     //                             results[i].UID,
-    //     //                             results[i].RID,
-    //     //                             results[i].LayerCategory,
-    //     //                             results[i].ContinentName,
-    //     //                             results[i].CountryName,
-    //     //                             results[i].StateName,
-    //     //                             results[i].FirstLayer,
-    //     //                             results[i].FirstOther,
-    //     //                             results[i].SecondLayer,
-    //     //                             results[i].SecondOther,
-    //     //                             results[i].LayerName,
-    //     //                             results[i].Layer_Description,
-    //     //                             results[i].LayerFormat,
-    //     //                             results[i].Layer_Uploader_name,
-    //     //                             results[i].Status
-    //     //                         ]).draw(false);
-    //     //                     }
-    //     //                 } else {
-    //     //                     if (results[i].Status === "Pending") {
-    //     //                         table.row.add([
-    //     //                             results[i].Date,
-    //     //                             results[i].UID,
-    //     //                             results[i].RID,
-    //     //                             results[i].LayerCategory,
-    //     //                             results[i].ContinentName,
-    //     //                             results[i].CountryName,
-    //     //                             results[i].StateName,
-    //     //                             results[i].FirstLayer,
-    //     //                             results[i].FirstOther,
-    //     //                             results[i].SecondLayer,
-    //     //                             results[i].SecondOther,
-    //     //                             results[i].LayerName,
-    //     //                             results[i].Layer_Description,
-    //     //                             results[i].LayerFormat,
-    //     //                             results[i].Layer_Uploader_name,
-    //     //                             results[i].Status
-    //     //                         ]).draw(false);
-    //     //                     }
-    //     //                 }
-    //     //         }
-    //     //     }
-    //     // });
-    //
-    //     $.ajax({
-    //         url: '/filterQuery',
-    //         type: 'GET',
-    //         dataType: 'json',
-    //         async: false,
-    //         data: querystr,
-    //         success: function (results) {
-    //             console.log(results);
-    //             for (var i = 0; i < results.length; i++) {
-    //                 if (UserRole === "Regular") {
-    //                     if (results[i].UID === username) {
-    //                         table.row.add([
-    //                             results[i].Date,
-    //                             results[i].UID,
-    //                             results[i].RID,
-    //                             results[i].LayerCategory,
-    //                             results[i].ContinentName,
-    //                             results[i].CountryName,
-    //                             results[i].StateName,
-    //                             results[i].FirstLayer,
-    //                             results[i].FirstOther,
-    //                             results[i].SecondLayer,
-    //                             results[i].SecondOther,
-    //                             results[i].LayerName,
-    //                             results[i].Layer_Description,
-    //                             results[i].LayerFormat,
-    //                             results[i].Layer_Uploader_name,
-    //                             results[i].Status,
-    //                             results[i].Comments
-    //                         ]).draw(false);
-    //                     }
-    //                 } else {
-    //                     if (results[i].Status === "Pending") {
-    //                         table.row.add([
-    //                             results[i].Date,
-    //                             results[i].UID,
-    //                             results[i].RID,
-    //                             results[i].LayerCategory,
-    //                             results[i].ContinentName,
-    //                             results[i].CountryName,
-    //                             results[i].StateName,
-    //                             results[i].FirstLayer,
-    //                             results[i].FirstOther,
-    //                             results[i].SecondLayer,
-    //                             results[i].SecondOther,
-    //                             results[i].LayerName,
-    //                             results[i].Layer_Description,
-    //                             results[i].LayerFormat,
-    //                             results[i].Layer_Uploader_name,
-    //                             results[i].Status,
-    //                             results[i].Comments
-    //                         ]).draw(false);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     });
-    // }
 </script>
 </html>

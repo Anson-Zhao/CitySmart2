@@ -20,7 +20,7 @@ const Delete_Dir = config.Delete_Dir;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
-// const newmask = 0o011;
+    // const newmask = 0o011;
 // console.log (`Current umask: ${process.umask().toString(8)}`);
 // const oldmask = process.umask(newmask);
 // console.log(
