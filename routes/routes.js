@@ -328,8 +328,8 @@ module.exports = function (app, passport) {
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE USGS.Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE USGS.LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
+            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ geoData_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
@@ -465,7 +465,7 @@ module.exports = function (app, passport) {
                 return [String(key), req.body[key]];
             });
 
-            var update1 = "UPDATE USGS.UserProfile SET ";
+            var update1 = "UPDATE UserProfile SET ";
             let update2 = "";
             var update3 = " WHERE username = '" + req.user.username + "'";
             for (let i = 1; i < result.length - 3; i++) {
@@ -937,7 +937,7 @@ module.exports = function (app, passport) {
         });
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        var update1 = "UPDATE USGS.UserProfile SET ";
+        var update1 = "UPDATE UserProfile SET ";
         let update2 = "";
         var update3 = " WHERE username = '" + req.user.username + "'";
         for (let i = 0; i < result.length - 3; i++) {
@@ -1008,8 +1008,8 @@ module.exports = function (app, passport) {
         valueSubmit += ", '" + newImage.Layer_Uploader + "','" + newImage.Layer_Uploader_name + "'";
         let filepathname = uploadPath + "/" + responseDataUuid;
 
-        let statement2 = "INSERT INTO USGS.Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
-        let statement = "UPDATE USGS.Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
+        let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
+        let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
 
         con_CS.query(statement2 + statement, function (err, result) {
             if (err) {
@@ -1067,7 +1067,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         let status = req.body.status;
 
-        let update1 = "UPDATE USGS.Request_Form SET " ;
+        let update1 = "UPDATE Request_Form SET " ;
         let update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
 
@@ -1082,9 +1082,9 @@ module.exports = function (app, passport) {
         let Layer_Uploader_name = responseDataUuid;
         let filepathname = uploadPath + "/" + responseDataUuid;
         let statement1 = update1+update2+update3;
-        let statement2 = "UPDATE USGS.Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
-        let statement3 = "UPDATE USGS.Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-        let statement4 = "UPDATE USGS.Request_Form SET Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
+        let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
+        let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
+        let statement4 = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
         if(status === "Reject"){
             con_CS.query(statement1 + statement2 + statement3 + statement4, function (err, result) {
                 if (err) {
@@ -1131,7 +1131,7 @@ module.exports = function (app, passport) {
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
 
-        let statement = "UPDATE USGS.Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
+        let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
         for(let i = 0; i < approvepictureStr.length; i++) {
@@ -1156,7 +1156,7 @@ module.exports = function (app, passport) {
 
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        var update1 = "UPDATE USGS.Request_Form SET " ;
+        var update1 = "UPDATE Request_Form SET " ;
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
 
@@ -1172,10 +1172,10 @@ module.exports = function (app, passport) {
         let Layer_Uploader_name = responseDataUuid;
         let filepathname = uploadPath + "/" + responseDataUuid;
         let statement1 = update1+update2+update3;
-        let statement2 = "UPDATE USGS.Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
-        let statement3 = "UPDATE USGS.Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
+        let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
+        let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO USGS.LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1184,7 +1184,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO USGS.LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1199,7 +1199,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let rejectID = req.query.reject;
         let comment = req.query.comment;
-        let statement = "UPDATE USGS.Request_Form SET Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
+        let statement = "UPDATE Request_Form SET Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
         con_CS.query(statement,function (err,results) {
             if (err) throw err;
             res.json(results);
@@ -1233,8 +1233,8 @@ module.exports = function (app, passport) {
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE USGS.Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE USGS.LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
+            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
