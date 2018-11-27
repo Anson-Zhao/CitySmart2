@@ -260,9 +260,9 @@ $(document).ready(function () {
 
                                 }
                             } else {
-                                // if (i === res.length - 1) {
-                                //     console.log (comparing3.length)
-                                // }
+                                if (i === res.length - 1) {
+                                    console.log (comparing3.length)
+                                }
                                 document.getElementsByClassName("input" + res[i].ThirdLayer)[0].setAttribute("value", res[i].LayerName);
                                 if (classname[a][0] !== res[i].ThirdLayer +" "+ statenamestr + " " + countrynamestr) {
                                     classname[a][0] += " " + statenamestr + countrynamestr + continentnamestr;
