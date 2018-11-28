@@ -1286,7 +1286,7 @@ module.exports = function (app, passport) {
     //Country level
     app.get('/CountryList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query('SELECT CountryName FROM optionList GROUP BY CountryName', function (err, results, fields) {
+        con_CS.query('SELECT CountryName FROM LayerMenu GROUP BY CountryName', function (err, results, fields) {
             if (err) throw err;
             res.json(results);
         });
@@ -1295,7 +1295,6 @@ module.exports = function (app, passport) {
     app.get('/ClassName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.citylevel;
-
         con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM LayerMenu WHERE CityName = '" + recieveCitylist + "'", function (err, results) {
             res.json(results);
         });
@@ -1311,7 +1310,7 @@ module.exports = function (app, passport) {
     app.get('/StateList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCountrylist = req.query.countrylevel;
-        con_CS.query("SELECT StateName FROM optionList  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
+        con_CS.query("SELECT StateName FROM LayerMenu  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
             res.json(results);
         });
     });
@@ -1319,7 +1318,7 @@ module.exports = function (app, passport) {
     app.get('/CityList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.statelevel;
-        con_CS.query("SELECT CityName FROM optionList  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
+        con_CS.query("SELECT CityName FROM LayerMenu  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
             res.json(results);
         });
     });
@@ -1364,34 +1363,34 @@ module.exports = function (app, passport) {
     // =====================================
     // CitySmart Dynamic Menu SECTION ======
     // =====================================
-    app.get('/firstlayer', function (req, res) {
+    // app.get('/firstlayer', function (req, res) {
+    //
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //
+    //     con_CS.query("SELECT FirstLayer From LayerMenu", function (err, result) {
+    //         let JSONresult = JSON.stringify(result, null, "\t");
+    //         res.send(JSONresult);
+    //     });
+    // });
 
-        res.setHeader("Access-Control-Allow-Origin", "*");
+    // app.get('/secondlayer', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     con_CS.query("SELECT SecondLayer From LayerMenu", function (err, result) {
+    //         let JSONresult = JSON.stringify(result, null, "\t");
+    //         res.send(JSONresult);
+    //     });
+    //
+    // });
 
-        con_CS.query("SELECT FirstLayer From LayerMenu", function (err, result) {
-            let JSONresult = JSON.stringify(result, null, "\t");
-            res.send(JSONresult);
-        });
-    });
-
-    app.get('/secondlayer', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT SecondLayer From LayerMenu", function (err, result) {
-            let JSONresult = JSON.stringify(result, null, "\t");
-            res.send(JSONresult);
-        });
-
-    });
-
-    app.get('/thirdlayer', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-
-        con_CS.query("SELECT ThirdLayer From LayerMenu", function (err, result) {
-            let JSONresult = JSON.stringify(result, null, "\t");
-            res.send(JSONresult);
-        });
-
-    });
+    // app.get('/thirdlayer', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //
+    //     con_CS.query("SELECT ThirdLayer From LayerMenu", function (err, result) {
+    //         let JSONresult = JSON.stringify(result, null, "\t");
+    //         res.send(JSONresult);
+    //     });
+    //
+    // });
 
     app.get('/layername', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
@@ -1401,6 +1400,45 @@ module.exports = function (app, passport) {
         });
     });
 
+    app.get('/firstLayer', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        con_CS.query("SELECT FirstLayer FROM LayerMenu WHERE Status ='Approved' GROUP BY FirstLayer ", function (err, result) {
+            // let JSONresult = JSON.stringify(result, null, "\t");
+            if (err) { throw err } else {
+                console.log(result);
+                res.json(result);
+            }
+        });
+
+    });
+    app.get('/secondLayer', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var firstlayerValue = req.query.FirstLayer;
+        con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Status ='Approved' and FirstLayer =? GROUP BY SecondLayer ", firstlayerValue ,function (err, result) {
+            // let JSONresult = JSON.stringify(result, null, "\t");
+            if (err) { throw err } else {
+                console.log(result);
+                res.json(result);
+            }
+        });
+
+    });
+    app.get('/thirdLayer', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var secondLayerValue = req.query.SecondLayer;
+        con_CS.query("SELECT SecondLayer,ThirdLayer,CityName,StateName,CountryName, GROUP_CONCAT(LayerName) as LayerName FROM LayerMenu WHERE Status ='Approved' and SecondLayer =? GROUP BY ThirdLayer,CityName,StateName,CountryName,SecondLayer", secondLayerValue ,function (err, result) {
+            // let JSONresult = JSON.stringify(result, null, "\t");
+            //All layer?
+            //WHERE cityname = ''?
+            if (err) { throw err } else {
+                console.log(result.length);
+                for(var i =0; i<result.length; i++){
+                    console.log(result[i].LayerName);
+                }
+                res.json(result);
+            }
+        });
+    });
     app.get('/createlayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -1410,6 +1448,7 @@ module.exports = function (app, passport) {
         });
 
     });
+
 
     // =====================================
     // Others  =============================
