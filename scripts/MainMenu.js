@@ -48,7 +48,7 @@ requirejs(['./WorldWindShim',
         globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
 
         // Web Map Service information from NASA's Near Earth Observations WMS
-        // var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.1.1";
+        //var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.1.1";
         var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
 
         var preloadWMSLayerName = [];
@@ -65,6 +65,8 @@ requirejs(['./WorldWindShim',
         var allCheckedArray=[];
 
         var createWMSLayer = function (xmlDom) {
+            console.log("hh");
+            console.log(xmlDom);
             // Create a WmsCapabilities object from the XML DOM
             var wms = new WorldWind.WmsCapabilities(xmlDom);
 
@@ -81,8 +83,7 @@ requirejs(['./WorldWindShim',
 
                 // Create the WMS Layer from the configuration object
                 var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
-
-                console.log(wmsLayer);
+                // console.log(wmsLayer);
                 // Add the layers to WorldWind and update the layer manager
                 globe.addLayer(wmsLayer);
                 layerManager.synchronizeLayerList();
@@ -96,13 +97,18 @@ requirejs(['./WorldWindShim',
 
         //preload function
         $(document).ready(function() {
+            // console.log("jj");
             // Preload wmsLayer
             $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
+                // console.log(preloadLayer[i]);
             });
+            // console.log(preloadLayer);
             var preloadLayerStr = preloadLayer + '';//change preloadLayer into a string
+            // console.log(preloadLayerStr);
             preloadWMSLayerName = preloadLayerStr.split(",");//split preloadLayerStr with ","
             // console.log (preloadWMSLayerName);
+
 
             $.get(serviceAddress).done(createWMSLayer).fail(logError);
 
@@ -118,6 +124,7 @@ requirejs(['./WorldWindShim',
 
             $(".wmsLayer").click(function () {
                 var layer1 = $(this).val(); //the most current value of the selected switch
+                // console.log(layer1);
                 allCheckedArray = $(':checkbox:checked'); //All arrays of the switches that were opened by users
                 // console.log(allCheckedArray);
                 // console.log(allCheckedArray.length);
@@ -135,7 +142,7 @@ requirejs(['./WorldWindShim',
                     async: false,
                     success: function (results) {
                         LayerSelected = results[0]; //the first object of an array --- Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
-                        console.log(LayerSelected);
+                        // console.log(LayerSelected);
                         Altitude = LayerSelected.Altitude * 1000;
                         globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude)); //turn the globe to the position of the layer
                     }
@@ -147,6 +154,7 @@ requirejs(['./WorldWindShim',
                     checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
                     alertVal = false; //alert (only appear at the first time)
                     currentSelectedLayer.value =  LayerSelected.ThirdLayer; //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
+                    // console.log(currentSelectedLayer.value);
                     arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
                     j = arrMenu.length - 1; //count
                     if(arrMenu.length === 1){ //if the length of arrMenu is equal to 1 /if user only checks one switch.
@@ -232,9 +240,9 @@ requirejs(['./WorldWindShim',
 
             $('#nextL').click(function(){
                 console.log(arrMenu.length);
-                console.log(j); //j = j - 1;
+                // console.log(j); //j = j - 1;
                 if(j !== arrMenu.length - 1){ // if there is not only one switch was selected
-                    console.log(j);
+                    // console.log(j);
                     if(j === arrMenu.length - 2){
                         nextL.disabled = true;
                     }
@@ -253,7 +261,7 @@ requirejs(['./WorldWindShim',
                 // var a = document.getElementById("accordion").children; //eight layer menus
 
                 var currentSelectedLayer = "thirdlayer=" + arrMenu[j];
-                console.log(arrMenu[j]);
+                // console.log(arrMenu[j]);
                 $.ajax({
                     url: 'thirdL',
                     type: 'GET',
@@ -262,9 +270,9 @@ requirejs(['./WorldWindShim',
                     async: false,
                     success: function (results) {
                         var FirstLayerId = '#' + results[0].FirstLayer;
-                        console.log(FirstLayerId);
+                        // console.log(FirstLayerId);
                         var SecondLayerId = '#' + results[0].FirstLayer + '-' + results[0].SecondLayer;
-                        console.log(SecondLayerId);
+                        // console.log(SecondLayerId);
                         globe.goTo(new WorldWind.Position(results[0].Latitude, results[0].Longitude, results[0].Altitude * 1000));
 
                         $(FirstLayerId).collapse('show');

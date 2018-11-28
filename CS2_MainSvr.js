@@ -16,6 +16,7 @@ var passport = require('passport');
 var flash    = require('connect-flash');
 
 
+
 require('./scripts/passport')(passport); // pass passport for configuration
 
 
@@ -60,6 +61,7 @@ var options = {
 };
 
 var sessionStore = new MySQLStore(options);
+
 
 app.use(session({
     secret: 'Uesei9872',
