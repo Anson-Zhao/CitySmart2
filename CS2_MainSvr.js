@@ -16,7 +16,7 @@ var passport = require('passport');
 var flash    = require('connect-flash');
 
 
-require('./scripts/passport')(passport); // pass passport for configuration
+require('./routes/passport')(passport); // pass passport for configuration
 
 
 // set up our express application

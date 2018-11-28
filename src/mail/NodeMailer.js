@@ -1,6 +1,6 @@
 var url = require('url');
 var EventEmitter = require('events').EventEmitter;
-var mailer = require('scripts/NodeMailer');
+var mailer = require('NodeMailer');
 var ent = require('ent');
 
 module.exports = function (opts) {
