@@ -526,7 +526,7 @@
         }
     });
 
-    function submitForm () {
+    function submitForm() {
         if (UserRole === "Admin") {
             if (confirm("Are you sure you would like to approve this data?") === true) {
                 var tID = "tID=" + document.getElementById('RID').value;
@@ -620,6 +620,7 @@
             FirstLayer:"required",
             SecondLayer:"required",
             Layer_Description: "required",
+            CityName: "required",
             LayerFormat:"required"
 
         },
