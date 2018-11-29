@@ -68,8 +68,19 @@ requirejs(['./WorldWindShim',
         var Altitude;
         var allCheckedArray=[];
 
-        var createWMSLayer = function (xmlDom) {
-            console.log("hh");
+
+        function loadDoc() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState === 4 && this.status === 200) {
+                    createWMSLayer(this);
+                }
+            };
+            xhttp.open("GET", "GeoLayers.xml", true);
+            xhttp.send();
+        }
+        function createWMSLayer (xmlDom) {
+
             console.log(xmlDom);
             // Create a WmsCapabilities object from the XML DOM
             var wms = new WorldWind.WmsCapabilities(xmlDom);
@@ -94,6 +105,32 @@ requirejs(['./WorldWindShim',
                 layerManager.synchronizeLayerList();
             }
         };
+
+        // var createWMSLayer = function (xmlDom) {
+        //     console.log(xmlDom);
+        //     // Create a WmsCapabilities object from the XML DOM
+        //     var wms = new WorldWind.WmsCapabilities(xmlDom);
+        //
+        //     // Retrieve a WmsLayerCapabilities object by the desired layer name
+        //     for (var n = 0; n < preloadWMSLayerName.length; n++) {
+        //
+        //         var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
+        //
+        //         // Form a configuration object from the wmsLayerCapability object
+        //         var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
+        //
+        //         // Modify the configuration objects title property to a more user friendly title
+        //         wmsConfig.title = preloadWMSLayerName[n];
+        //
+        //         // Create the WMS Layer from the configuration object
+        //         var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
+        //
+        //         console.log(wmsLayer);
+        //         // Add the layers to WorldWind and update the layer manager
+        //         globe.addLayer(wmsLayer);
+        //         layerManager.synchronizeLayerList();
+        //     }
+        // };
 
         // Called if an error occurs during WMS Capabilities document retrieval
         var logError = function (jqXhr, text, exception) {
