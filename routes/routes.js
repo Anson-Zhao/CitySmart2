@@ -165,6 +165,26 @@ module.exports = function (app, passport) {
 
     });
 
+
+    app.get('/placemark', function(req, res) {
+        console.log("Hello traveler");
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+        var select = "SELECT * FROM CitySmart2.LayerMenu WHERE LayerType = 'Placemark'";
+        con_CS.query( select, function (err, result) {
+            if (err) throw err;
+            else {
+                console.log(result);
+                res.json({"err": false, "data": result});
+            }
+        });
+    });
+
+
+
+
+    // app.listen(3005, function(){ console.log('Example app listening on port 3005!')});
+
+
     app.post('/email', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let statement = "SELECT * FROM UserLogin WHERE username = '" + req.body.username + "';";
