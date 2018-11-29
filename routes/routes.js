@@ -13,6 +13,7 @@ const fs = require("fs");
 const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
+const mv = require('mv');
 const upload_Dir = config.Upload_Dir;
 const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
@@ -1205,6 +1206,11 @@ module.exports = function (app, passport) {
                 }
             });
         }
+        mv('source/file', 'dest/file', function(err) {
+            // done. it `tried fs.rename first, and then falls back to
+            // piping the source file to the dest file and then unlinking
+            // the source file.
+        });
     });
 
     app.get('/reject',function (req,res) {
