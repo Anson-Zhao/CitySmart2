@@ -1207,8 +1207,9 @@ module.exports = function (app, passport) {
             });
         }
         mv('source/file', 'dest/file', function(err) {
-            // done. it `tried fs.rename first, and then falls back to
-            // piping the source file to the dest file and then unlinking
+            //This is supposed to do the following:
+            //Tries fs.rename first, then falls back to
+            // piping the source file to the dest file (destination)  then unlinking
             // the source file.
         });
     });
