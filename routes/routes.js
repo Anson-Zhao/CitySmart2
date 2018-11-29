@@ -192,6 +192,7 @@ module.exports = function (app, passport) {
 
         con_CS.query(myStat, function (err, user) {
             dateNtime();
+            console.log(user);
 
             if (!user || dateTime > user[0].resetPasswordExpires) {
                 res.send('Password reset token is invalid or has expired. Please contact Administrator.');
