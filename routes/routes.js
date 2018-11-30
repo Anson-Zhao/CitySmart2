@@ -1206,12 +1206,12 @@ module.exports = function (app, passport) {
                 }
             });
         }
-        mv('source/file', 'dest/file', {mkdirp: true}, {clobber: false}, function(err) {
-            //This is supposed to do the following:
-            //Tries fs.rename first, then falls back to
-            // piping the source file to the dest file (destination)  then unlinking
-            // the source file.
-        });
+        // mv('/uploadfiles', 'dest/file', {mkdirp: true}, {clobber: false}, function(err) {
+        //     //This is supposed to do the following:
+        //     //Tries fs.rename first, then falls back to
+        //     // piping the source file to the dest file (destination)  then unlinking
+        //     // the source file.
+        // });
     });
 
     app.get('/reject',function (req,res) {
