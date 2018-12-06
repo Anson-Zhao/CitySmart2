@@ -311,18 +311,6 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-4 control-label">Layer City</label>
-                        <div class="col-md-8 inputGroupContainer">
-                            <div class="input-group">
-                                <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
-                                <!--<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>-->
-                                <select  id="city" class="form-control selectpicker" name="CityName">
-                                    <option value="select">SELECT CONTINENT</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label class="col-md-4 control-label">Layer Country</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -339,6 +327,23 @@
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
                                 <input name="StateName" value="" placeholder="State Name" class="form-control" required  type="text" id="LayerStateInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">Layer City</label>
+                        <div class="col-md-8 inputGroupContainer">
+                            <!--<div class="input-group">-->
+                                <!--<span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>-->
+                                <!--&lt;!&ndash;<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>&ndash;&gt;-->
+                                <!--<select  id="city" class="form-control selectpicker" name="CityName">-->
+                                    <!--<option value="select">SELECT CONTINENT</option>-->
+                                <!--</select>-->
+                            <!--</div>-->
+                            <div class="input-group">
+                                <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
+                                <!--<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>-->
+                                <input name="CityName" id="city" value="" placeholder="Please enter full city name" class="form-control selectpicker" type="text">
                             </div>
                         </div>
                     </div>
@@ -408,7 +413,7 @@
         document.getElementById('LayerStateInput').value = getvalue[6];
         document.getElementById('LayerFormat').value = getvalue[13];
         document.getElementById('message').value = getvalue[12];
-        document.getElementById('city').options[0].innerHTML = getvalue[4];
+        document.getElementById('city').innerHTML = getvalue[4];
         document.getElementById('country').options[0].innerHTML = getvalue[5];
         document.getElementById('DisplayName').value = getvalue[11];
         document.getElementById('comment').value = getvalue[16];
@@ -620,7 +625,6 @@
             FirstLayer:"required",
             SecondLayer:"required",
             Layer_Description: "required",
-            CityName: "required",
             LayerFormat:"required"
 
         },

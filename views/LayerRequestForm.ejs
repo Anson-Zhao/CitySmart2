@@ -267,16 +267,6 @@
                 </div>
                 <!--<p id="LayerName1" style="color: palevioletred; margin-left:270px;">Please Enter the Layer Name, the Layer Name must be at least 6 characters</p>-->
                 <div class="form-group">
-                    <label class="col-md-4 control-label">Layer City</label>
-                    <div class="col-md-8 inputGroupContainer">
-                        <div class="input-group">
-                            <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
-                            <!--<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>-->
-                            <input name="CityName" id=City value="" placeholder="Please enter full city name" class="form-control" required  type="text">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label class="col-md-4 control-label">Layer Country</label>
                     <div class="col-md-8 inputGroupContainer">
                         <div class="input-group">
@@ -295,6 +285,16 @@
                             <!--<select name="StateName" id="two" class="crs-region form-control" data-default-option="SELECT STATE" data-blank-option="NO STATE SELECTED">-->
                             <!--<option>Please select a state</option>-->
                             <input name="StateName" value="" placeholder="Please enter full state name" class="form-control" required  type="text">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">Layer City</label>
+                    <div class="col-md-8 inputGroupContainer">
+                        <div class="input-group">
+                            <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
+                            <!--<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>-->
+                            <input name="CityName" id="City" value="" placeholder="Please enter full city name" class="form-control" required  type="text">
                         </div>
                     </div>
                 </div>
@@ -513,9 +513,9 @@
 
     $(function() {
         new dgCitysCountries({
-            CityVal: document.getElementById("City").val,
+            cityVal: document.getElementById("city").val,
             countryVal: document.getElementById("country").val,
-            City: document.getElementById("City"),
+            city: document.getElementById("city"),
             country: document.getElementById("country"),
             change: true
         });
