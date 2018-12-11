@@ -42,6 +42,7 @@ requirejs(['./WorldWindShim',
         var heatmapPanel = new HeatmapPanel(globe, gInterface.globe.navigator, gInterface.globe.worldWindowController, controls);
 
         WorldWind.Logger.setLoggingLevel(WorldWind.Logger.LEVEL_WARNING);
+
         // Create a layer manager for controlling layer visibility.
         var layerManager = new LayerManager(globe);
 
@@ -52,7 +53,7 @@ requirejs(['./WorldWindShim',
 
         // Web Map Service information from NASA's Near Earth Observations WMS
         // var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.1.1";
-        var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
+        // var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
 
         var preloadWMSLayerName = [];
         var layerName = [];
@@ -68,33 +69,39 @@ requirejs(['./WorldWindShim',
         var Altitude;
         var allCheckedArray=[];
 
-
-        function loadDoc() {
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState === 4 && this.status === 200) {
-                    createWMSLayer(this);
-                }
-            };
-            xhttp.open("GET", "GeoLayers.xml", true);
-            xhttp.send();
-        }
+        // $.get("/config/GeoLayers.xml", function(data){
+        //     alert("Data: " + data);
+        //     console.log('h')
+        // },"xml");
+        // $.ajax({
+        //     url:"/config/GeoLayers.xml",
+        //     dataType:"xml",
+        //     success:function (xmlDom) {
+        //         console.log('hh');
+        //         console.log(xmlDom)
+        //     }
+        // });
         function createWMSLayer (xmlDom) {
 
-            console.log(xmlDom);
+            // console.log(xmlDom);
             // Create a WmsCapabilities object from the XML DOM
             var wms = new WorldWind.WmsCapabilities(xmlDom);
+            console.log(wms.getNamedLayer);
 
+            console.log(preloadWMSLayerName);
             // Retrieve a WmsLayerCapabilities object by the desired layer name
             for (var n = 0; n < preloadWMSLayerName.length; n++) {
-
+                //if (!preloadWMSLayerName[n]) {console.log("The " + n + "th tile is null!")}
+                console.log(preloadWMSLayerName[n]);
                 var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
+                console.log(wmsLayerCapability);
 
                 // Form a configuration object from the wmsLayerCapability object
                 var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
 
                 // Modify the configuration objects title property to a more user friendly title
                 wmsConfig.title = preloadWMSLayerName[n];
+                console.log (wmsConfig.title);
 
                 // Create the WMS Layer from the configuration object
                 var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
@@ -104,33 +111,10 @@ requirejs(['./WorldWindShim',
                 globe.addLayer(wmsLayer);
                 layerManager.synchronizeLayerList();
             }
-        };
+        }
+        // createWMSLayer();
 
-        // var createWMSLayer = function (xmlDom) {
-        //     console.log(xmlDom);
-        //     // Create a WmsCapabilities object from the XML DOM
-        //     var wms = new WorldWind.WmsCapabilities(xmlDom);
-        //
-        //     // Retrieve a WmsLayerCapabilities object by the desired layer name
-        //     for (var n = 0; n < preloadWMSLayerName.length; n++) {
-        //
-        //         var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
-        //
-        //         // Form a configuration object from the wmsLayerCapability object
-        //         var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
-        //
-        //         // Modify the configuration objects title property to a more user friendly title
-        //         wmsConfig.title = preloadWMSLayerName[n];
-        //
-        //         // Create the WMS Layer from the configuration object
-        //         var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
-        //
-        //         console.log(wmsLayer);
-        //         // Add the layers to WorldWind and update the layer manager
-        //         globe.addLayer(wmsLayer);
-        //         layerManager.synchronizeLayerList();
-        //     }
-        // };
+        var infobox;
 
         // Called if an error occurs during WMS Capabilities document retrieval
         var logError = function (jqXhr, text, exception) {
@@ -143,27 +127,54 @@ requirejs(['./WorldWindShim',
             $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
             });
+            console.log(preloadLayer);
             var preloadLayerStr = preloadLayer + '';//change preloadLayer into a string
             preloadWMSLayerName = preloadLayerStr.split(",");//split preloadLayerStr with ","
-            // console.log (preloadWMSLayerName);
 
-            $.get(serviceAddress).done(createWMSLayer).fail(logError);
+            $.get("../config/ows.xml").done(createWMSLayer).fail(logError);
 
-            //Create Slected Layer Button etc.
-            var currentSelectedLayer = document.getElementById("currentSelectedLayer");
-            var previousL = document.getElementById("previousL");
-            var nextL = document.getElementById("nextL");
+            $.ajax({
+                url: '/placemark',
+                dataType: 'json',
+                success: function(result) {
+                    if (!result.err) {
+                        // console.log(result.data);
+                        infobox = result.data;
+                        for (var k = 0; k < infobox.length; k++) {
+                            // alert (data[0].Color);
 
-            currentSelectedLayer.value = "No Layer Selected";
-            currentSelectedLayer.disabled = true;
-            previousL.disabled = true;
-            nextL.disabled = true;
+                            var colorAttribute = infobox[k].Color;
+                            var cAtwo = colorAttribute.split(" ");
+                            // console.log(cAtwo);
+
+                            var coLat = infobox[k].Latitude;
+
+                            // console.log(coLat);
+
+                            var coLong = infobox[k].Longitude;
+
+                            var PK = infobox[k].PK;
+                            // var ptwo = location.split(",");
+
+           // $.get(serviceAddress).done(createWMSLayer).fail(logError);
+
+                            var LayerName = infobox[k].LayerName;
+                            // console.log(LayerName);
+
+
+                            // console.log(Placemark_Creation);
+                            Placemark_Creation(cAtwo, PK, coLat, coLong, LayerName);
+                        }
+                    }
+
+                }
+            });
 
             $('.placemarkLayer').click(function(){
 
                 var val1;
                 if ($('.placemarkLayer').is(":checkbox:checked")) {
-                    // alert("hi");
+                    alert("hi");
 
                     $(':checkbox:checked').each(function () {
                         val1 = $(this).val();
@@ -208,16 +219,17 @@ requirejs(['./WorldWindShim',
                     });
                 }
             });
-            var Placemark_Creation = function (RGB, latandlong, LayerName) {
+
+            var Placemark_Creation = function (RGB,PKValue, coLat, coLong, LayerName) {
 
                 var placemark;
                 var highlightAttributes;
                 var placemarkLayer = new WorldWind.RenderableLayer(LayerName);
                 var placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
-// console.log(latandlong[0]);
+                // console.log(latandlong[0]);
 
 
-// Create the custom image for the placemark.
+                // Create the custom image for the placemark.
 
                 var canvas = document.createElement("canvas"),
                     ctx2d = canvas.getContext("2d"),
@@ -225,8 +237,8 @@ requirejs(['./WorldWindShim',
 
                 canvas.width = size;
                 canvas.height = size;
-//This is the color of the placeholder and appearance (Most likely)
-//             console.log(RGB);
+                //This is the color of the placeholder and appearance (Most likely)
+                //             console.log(RGB);
 
                 var gradient = ctx2d.createRadialGradient(c, c, innerRadius, c, c, outerRadius);
                 gradient.addColorStop(0, RGB[0]);
@@ -250,7 +262,8 @@ requirejs(['./WorldWindShim',
                 placemarkAttributes.imageColor = WorldWind.Color.WHITE;
 
 
-                placemark = new WorldWind.Placemark(new WorldWind.Position(latandlong[0], latandlong[1], 1e2), true, null);
+                placemark = new WorldWind.Placemark(new WorldWind.Position(coLat, coLong, 1e2), true, null);
+                // console.log(PKValue);
                 // placemark.label = "Placemark" + "\n"
                 placemark.displayName = LayerName;
                 //     + "Lat " + placemark.position.latitude.toPrecision(4).toString() + "\n"
@@ -268,6 +281,7 @@ requirejs(['./WorldWindShim',
                 highlightAttributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
                 highlightAttributes.imageScale = 1.2;
                 placemark.highlightAttributes = highlightAttributes;
+                placemark.primarykeyAttributes = PKValue;
 
                 // console.log(placemark);
 
@@ -328,7 +342,6 @@ requirejs(['./WorldWindShim',
                 }
             };
 
-
             var handleMouseCLK = function (a)   {
                 var x = a.clientX,
                     y = a.clientY;
@@ -341,16 +354,19 @@ requirejs(['./WorldWindShim',
 
                         // sitePopUp(pickedPM.label);
                         // alert(pickedPM.label);
-                        sitePopUp(pickListCLK.objects[m].position.latitude, pickListCLK.objects[m].position.longitude);
+                        // sitePopUp(pickListCLK.objects[m].position.latitude, pickListCLK.objects[m].position.longitude);
                         // sitePopUp(pickListCLK.objects[m].position.longitude);
-// console.log(pickedPM);
+                        console.log(pickListCLK.objects[m].userObject.primarykeyAttributes);
+                        sitePopUp(pickListCLK.objects[m].userObject.primarykeyAttributes);
+    // console.log(pickedPM);
 
                         $(document).ready(function () {
 
                             var modal = document.getElementById('popupBox');
                             var span = document.getElementById('closeIt');
-
+                            console.log(modal);
                             modal.style.display = "block";
+
 
 
                             span.onclick = function () {
@@ -368,59 +384,66 @@ requirejs(['./WorldWindShim',
                 }
             };
 
-            var sitePopUp = function (latitude, longitude) {
+            var sitePopUp = function (PKValue) {
                 var popupBodyItem = $("#popupBody");
-                var c = latitude + "," + longitude;
-                // console.log(c);
+                var c = PKValue;
+                console.log(c);
 
                 // console.log(infobox);
 
 
                 for (var k = 0, lengths = infobox.length; k < lengths; k++) {
                     // alert("popup info");
+                    console.log(infobox[k].PK);
+                    if (infobox[k].PK === c) {
+                        console.log("good-bye");
 
-                    if (infobox[k].Latitude_and_Longitude_Decimal === c) {
-                        // console.log("good-bye");
                         popupBodyItem.children().remove();
                         // alert(infobox[k].sitename);
                         //     alert("hi");
 
+
                         var popupBodyName = $('<p class="site-name"><h4>' + infobox[k].LayerName + '</h4></p>');
                         var popupBodyDesc = $('<p class="site-description">' + infobox[k].Site_Description + '</p><br>');
                         var fillerImages = $('<img style="width:100%; height:110%;" src="../images/Pics/' + infobox[k].Picture_Location + '"/>');
-                        var imageLinks = $('<h6><strong><a href="' + infobox[k].Link_to_site_location + '">Website Link </a></strong></h6>');
+                        var imageLinks = $('<p class="site-link" <h6>Site Link: </h6></p><a href="' + infobox[k].Link_to_site_location + '">Click here to navigate to the site&#8217;s website </a>');
+                        var copyrightStatus = $('<p  class="copyright" <h6>Copyright Status: </h6>' + infobox[k].Copyright + '</p><br>');
+                        var coordinates = $('<p class="coordinate" <h6>Latitude and Longitude: </h6>'+ infobox[k].Latitude + infobox[k].Longitude + '</p><br>');
 
                         popupBodyItem.append(popupBodyName);
                         popupBodyItem.append(popupBodyDesc);
                         popupBodyItem.append(fillerImages);
                         popupBodyItem.append(imageLinks);
+                        popupBodyItem.append(copyrightStatus);
+                        popupBodyItem.append(coordinates);
                         break
 
-                        // alert(popupBodyName);
+                            // alert(popupBodyName);
+                        }
                     }
-                }
 
-                // alert("hello" + pmDescription[0].Layer_Name);
-                // alert ("length: " + pmDescription.length);
+                    // alert("hello" + pmDescription[0].Layer_Name);
+                    // alert ("length: " + pmDescription.length);
 
-                // for (var k = 0, lengths = pmDescription.length; k < lengths; k++) {
-                //     var pmLayerName = pmDescription[k].Layer_Name;
-                //     var pmSiteNam
-                // e = pmDescription[k].Site_Name;
-                //     var pmColor = pmDescription[k].Color;
-                //     var pmPicLoc = pmDescription[k].Picture_Location;
-                //
-                //     // if (pmLayerName[k]) {
-                //     //
-                //     //     popupBodyItem.children().remove();
-                //     //.
-                //     // }
-                // }
-            };//
+                    // for (var k = 0, lengths = pmDescription.length; k < lengths; k++) {
+                    //     var pmLayerName = pmDescription[k].Layer_Name;
+                    //     var pmSiteNam
+                    // e = pmDescription[k].Site_Name;
+                    //     var pmColor = pmDescription[k].Color;
+                    //     var pmPicLoc = pmDescription[k].Picture_Location;
+                    //
+                    //     // if (pmLayerName[k]) {
+                    //     //
+                    //     //     popupBodyItem.children().remove();
+                    //     //.
+                    //     // }
+                    // }
+                };//
+
             $(".wmsLayer").click(function () {
                 var layer1 = $(this).val(); //the most current value of the selected switch
                 allCheckedArray = $(':checkbox:checked');
-                console.log(layer1);
+                // console.log(layer1);
                 // console.log(allCheckedArray);
                 // console.log(allCheckedArray.length);
                 if (alertVal){
@@ -428,7 +451,8 @@ requirejs(['./WorldWindShim',
                 }
 
                 var layerRequest = 'layername=' + layer1;
-                console.log(layerRequest);
+                console.log(layer1);
+                // console.log(layerRequest);
 
                 $.ajax({
                     url: 'position',
@@ -535,7 +559,7 @@ requirejs(['./WorldWindShim',
             });
 
             $('#nextL').click(function(){
-                console.log(arrMenu.length);
+                // console.log(arrMenu.length);
                 // console.log(j); //j = j - 1;
                 if(j !== arrMenu.length - 1){ // if there is not only one switch was selected
                     // console.log(j);

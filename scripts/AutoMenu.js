@@ -78,11 +78,10 @@ $(document).ready(function () {
                     // async:true,
                     async: false,
                     success: function (res2) {
-
-                        // console.log(res2);
+                        console.log(res2);
                         for (var a = 0; a < res2.length; a++) {
                             // var secondResStr = res2[a] +'';
-                            // console.log(res2[a]);
+                            console.log(res2[a]);
                             secondRes.push(res2[a].SecondLayer);
 
                             var paneldefault2 = document.createElement("div");
@@ -127,70 +126,103 @@ $(document).ready(function () {
             }
         }
     });
-    // console.log(secondRes.length);
+    // console.log(secondRespond);
+    for(var k =0; k < secondRes.length; k++ ) {
+            // console.log(secondRespond);
+            // console.log('hh');
+            var secondLayerValue = "SecondLayer=" + secondRes[k];
+            // console.log(secondLayerValue);
+            // console.log(secondLayerValue);
+            $.ajax({
+                type: "GET",
+                url: "thirdLayer",
+                dataType: "json",
+                data: secondLayerValue,
+                async: false,
+                success: function (res3) {
+                    console.log(res3);
+                    // for(var i = 0 ; i <res3.length; i++){
+                    //     console.log(res3[i].LayerName);
+                    //     console.log(res3[i].ThirdLayer);
+                    // }
+                    for (var i = 0; i < res3.length; i++) {
+                        if (res3[i].LayerType === 'Wmslayer') {
+                            // console.log(res3[i].LayerType);
+                            // console.log('hh');
+                            let Thirdreplace = res3[i].ThirdLayer.replace(/\s+/g, '');
+                            let countrynamestr = res3[i].CountryName.replace(/\s+/g, '');
+                            let statenamestr = res3[i].StateName.replace(/\s+/g, '');
+                            let citynamestr = res3[i].CityName.replace(/\s+/g, '');
+                            // console.log(res3[i].ThirdLayer);
 
-    for(var k =0; k < secondRes.length; k++ ){
-        // console.log('hh');
-        var secondLayerValue = "SecondLayer="+secondRes[k];
-        // console.log(secondLayerValue);
-        // console.log(secondLayerValue);
-        $.ajax({
-            type: "GET",
-            url: "thirdLayer",
-            dataType: "json",
-            data:secondLayerValue,
-            // sync:true,
-            async:false,
-            success: function (res3) {
-                // console.log(res3);
-                // console.log(res3);
+                            var checkboxdiv = document.createElement("div");
+                            checkboxdiv.className = "State " + Thirdreplace + " " + countrynamestr + statenamestr + citynamestr;
+                            // checkboxdiv.className = "State " + res3[i].ThirdLayer + " " + countrynamestr + statenamestr + continentnamestr;
+                            var checkboxh5 = document.createElement("h5");
+                            var checkboxa = document.createElement("a");
+                            var checkaboxat = document.createTextNode(res3[i].ThirdLayer + "   ");
+                            var checkboxlabel = document.createElement("label");
+                            checkboxlabel.className = "switch right";
+                            var checkboxinput = document.createElement("input");
+                            checkboxinput.type = "checkbox";
+                            checkboxinput.id = res3[i].LayerType;
+                            // console.log(res3[i].ThirdLayer);
+                            checkboxinput.className = "wmsLayer input" + Thirdreplace;
+                            checkboxinput.setAttribute("value", res3[i].LayerName);
+                            var checkboxspan = document.createElement("span");
+                            checkboxspan.className = "slider round";
 
-                // for(var i = 0 ; i <res3.length; i++){
-                //     console.log(res3[i].LayerName);
-                //     console.log(res3[i].ThirdLayer);
-                // }
-                 for(var i = 0; i <res3.length; i++) {
-                     //$.each(res3, function (i) {
-                     // let continentnamestr = res3[i].ContinentName.replace(/\s+/g, '');
+                            checkboxdiv.appendChild(checkboxh5);
+                            checkboxa.appendChild(checkaboxat);
+                            checkboxh5.appendChild(checkboxa);
+                            checkboxh5.appendChild(checkboxlabel);
+                            checkboxlabel.appendChild(checkboxinput);
+                            checkboxlabel.appendChild(checkboxspan);
 
-                     let countrynamestr = res3[i].CountryName.replace(/\s+/g, '');
-                     let statenamestr = res3[i].StateName.replace(/\s+/g, '');
-                     let citynamestr = res3[i].CityName.replace(/\s+/g, '');
-                     console.log(res3[i].ThirdLayer);
+                            document.getElementsByClassName("panel-body " + res3[i].SecondLayer)[0].appendChild(checkboxdiv);
+                            // comparing3.push([res[i].ThirdLayer, res[i].LayerName]);
+                            // classname.push([res3[i].ThirdLayer +" " + statenamestr + countrynamestr + continentnamestr, statenamestr]);
+                            //    classname.push([res3[i].ThirdLayer +" " + statenamestr + countrynamestr + citynamestr, statenamestr]);
+                            //});
+                        }
+                        if(res3[i].LayerType ==='Placemark'){
 
-                     var checkboxdiv = document.createElement("div");
-                     checkboxdiv.className = "State " + res3[i].ThirdLayer + " " + countrynamestr + statenamestr + citynamestr;
-                     // checkboxdiv.className = "State " + res3[i].ThirdLayer + " " + countrynamestr + statenamestr + continentnamestr;
-                     var checkboxh5 = document.createElement("h5");
-                     var checkboxa = document.createElement("a");
-                     var checkaboxat = document.createTextNode(res3[i].ThirdLayer);
-                     var checkboxlabel = document.createElement("label");
-                     checkboxlabel.className = "switch right";
-                     var checkboxinput = document.createElement("input");
-                     checkboxinput.type = "checkbox";
-                     checkboxinput.id = res3[i].LayerType;
-                     // console.log(res3[i].ThirdLayer);
-                     checkboxinput.className = "wmsLayer input" + res3[i].ThirdLayer;
-                     checkboxinput.setAttribute("value", res3[i].LayerName);
-                     var checkboxspan = document.createElement("span");
-                     checkboxspan.className = "slider round";
+                            let countrynamestr = res3[i].CountryName.replace(/\s+/g, '');
+                            let statenamestr = res3[i].StateName.replace(/\s+/g, '');
+                            let citynamestr = res3[i].CityName.replace(/\s+/g, '');
+                            // console.log(res3[i].ThirdLayer);
 
-                     checkboxdiv.appendChild(checkboxh5);
-                     checkboxa.appendChild(checkaboxat);
-                     checkboxh5.appendChild(checkboxa);
-                     checkboxh5.appendChild(checkboxlabel);
-                     checkboxlabel.appendChild(checkboxinput);
-                     checkboxlabel.appendChild(checkboxspan);
+                            var checkboxdiv = document.createElement("div");
+                            checkboxdiv.className = "State " + res3[i].ThirdLayer + " " + countrynamestr + statenamestr + citynamestr;
+                            // checkboxdiv.className = "State " + res3[i].ThirdLayer + " " + countrynamestr + statenamestr + continentnamestr;
+                            var checkboxh5 = document.createElement("h5");
+                            var checkboxa = document.createElement("a");
+                            var checkaboxat = document.createTextNode(res3[i].ThirdLayer);
+                            var checkboxlabel = document.createElement("label");
+                            checkboxlabel.className = "switch right";
+                            var checkboxinput = document.createElement("input");
+                            checkboxinput.type = "checkbox";
+                            checkboxinput.id = res3[i].LayerType;
+                            // console.log(res3[i].ThirdLayer);
+                            checkboxinput.className = "placemarkLayer input" + res3[i].ThirdLayer;
+                            checkboxinput.setAttribute("value", res3[i].LayerName);
+                            var checkboxspan = document.createElement("span");
+                            checkboxspan.className = "slider round";
 
-                     document.getElementsByClassName("panel-body " + res3[i].SecondLayer)[0].appendChild(checkboxdiv);
-                     // comparing3.push([res[i].ThirdLayer, res[i].LayerName]);
-                     // classname.push([res3[i].ThirdLayer +" " + statenamestr + countrynamestr + continentnamestr, statenamestr]);
-                     //    classname.push([res3[i].ThirdLayer +" " + statenamestr + countrynamestr + citynamestr, statenamestr]);
-                     //});
-                 }
-            }
+                            checkboxdiv.appendChild(checkboxh5);
+                            checkboxa.appendChild(checkaboxat);
+                            checkboxh5.appendChild(checkboxa);
+                            checkboxh5.appendChild(checkboxlabel);
+                            checkboxlabel.appendChild(checkboxinput);
+                            checkboxlabel.appendChild(checkboxspan);
 
-        })
+                            document.getElementsByClassName("panel-body " + res3[i].SecondLayer)[0].appendChild(checkboxdiv);
+                        }
+                    }
+                }
+
+            })
+
     }
 
 
