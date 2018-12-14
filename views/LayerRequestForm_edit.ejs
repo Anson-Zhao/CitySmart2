@@ -163,7 +163,7 @@
         .selectpicker {
             height: 60px;
         }
-        #city, #country {
+        #City, #country {
             height: 60px;
         }
         .other {
@@ -336,14 +336,14 @@
                             <!--<div class="input-group">-->
                                 <!--<span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>-->
                                 <!--&lt;!&ndash;<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>&ndash;&gt;-->
-                                <!--<select  id="city" class="form-control selectpicker" name="CityName">-->
+                                <!--<select  id="City" class="form-control selectpicker" name="CityName">-->
                                     <!--<option value="select">SELECT CONTINENT</option>-->
                                 <!--</select>-->
                             <!--</div>-->
                             <div class="input-group">
                                 <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
                                 <!--<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>-->
-                                <input name="CityName" id="city" value="" placeholder="Please enter full city name" class="form-control selectpicker" type="text">
+                                <input name="CityName" id="City" value="" placeholder="Please enter full City name" class="form-control selectpicker" type="text">
                             </div>
                         </div>
                     </div>
@@ -413,7 +413,7 @@
         document.getElementById('LayerStateInput').value = getvalue[6];
         document.getElementById('LayerFormat').value = getvalue[13];
         document.getElementById('message').value = getvalue[12];
-        document.getElementById('city').innerHTML = getvalue[4];
+        document.getElementById('City').innerHTML = getvalue[4];
         document.getElementById('country').options[0].innerHTML = getvalue[5];
         document.getElementById('DisplayName').value = getvalue[11];
         document.getElementById('comment').value = getvalue[16];
@@ -457,7 +457,7 @@
             }
         })
 
-        $("#city").change(function () {
+        $("#City").change(function () {
             var val = $(this).val();
             if (val == "select") {
                 $("#country").html("<option value='select'>SELECT SUBCATEGORY</option>");
@@ -606,7 +606,7 @@
            $('input,select,textarea').not('[readonly],[disabled],:button').val('');
            $("#main").value = "Category";
             $("#sub").html("<option>SELECT SUBCATEGORY</option>");
-            $("#city").html("<option>SELECT CONTINENT</option>");
+            $("#City").html("<option>SELECT CONTINENT</option>");
             $("#country").html("<option>SELECT COUNTRY</option>");
         }
     }
@@ -633,7 +633,7 @@
             Layer_Name: "Please enter the layer name.",
             StateName:"Please enter the layer state.",
             CountryName:"Please enter the layer country.",
-            CityName:"Please enter the layer city.",
+            CityName:"Please enter the layer City.",
             FirstLayer: "Please select the main category.",
             SecondLayer:"Please select the subcategory.",
             Layer_Description: "Please write the description of the layer.",
@@ -702,11 +702,11 @@
         })
     }
 
-    $("#city").click(function () {
+    $("#City").click(function () {
         new dgCitysCountries({
-            cityVal: document.getElementById("city").val,
+            CityVal: document.getElementById("City").val,
             countryVal: document.getElementById("country").val,
-            city: document.getElementById("city"),
+            City: document.getElementById("City"),
             country: document.getElementById("country"),
             change: true
         });
