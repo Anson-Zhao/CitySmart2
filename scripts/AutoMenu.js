@@ -78,10 +78,10 @@ $(document).ready(function () {
                     // async:true,
                     async: false,
                     success: function (res2) {
-                        console.log(res2);
+                        // console.log(res2);
                         for (var a = 0; a < res2.length; a++) {
                             // var secondResStr = res2[a] +'';
-                            console.log(res2[a]);
+                            // console.log(res2[a]);
                             secondRes.push(res2[a].SecondLayer);
 
                             var paneldefault2 = document.createElement("div");
@@ -140,7 +140,7 @@ $(document).ready(function () {
                 data: secondLayerValue,
                 async: false,
                 success: function (res3) {
-                    console.log(res3);
+                    // console.log(res3);
                     // for(var i = 0 ; i <res3.length; i++){
                     //     console.log(res3[i].LayerName);
                     //     console.log(res3[i].ThirdLayer);
