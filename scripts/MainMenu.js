@@ -339,12 +339,70 @@ requirejs(['./WorldWindShim',
                 async: false,
                 success: function (results) {
                     console.log(results);
-                    LayerSelected = results[0]; //the first object of an array --- Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
+                    LayerSelected = results[0];//the first object of an array --- Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
+                    console.log(LayerSelected);
                     // console.log(LayerSelected);
                     Altitude = LayerSelected.Altitude * 1000;
                     globe.goTo(new WorldWind.Position(LayerSelected.Latitude, LayerSelected.Longitude, Altitude));
                 }
             })
+        };
+
+        var buttonControl = function(allCheckedArray,layer1){
+            if (alertVal){
+                confirm("Some layers may take awhile to load. Please be patient.")
+            }
+            if (allCheckedArray.length > checkedCount){ //if there is new array was inserted into the allCheckedArray ( If user choose more than 1 switch)
+                console.log(LayerSelected.ThirdLayer);
+                checked.push(layer1); //insert current value to "checked" array
+                checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
+                alertVal = false; //alert (only appear at the first time)
+                currentSelectedLayer.prop('value', LayerSelected.ThirdLayer); //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
+                console.log(currentSelectedLayer);
+                arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
+                j = arrMenu.length - 1; //count
+                console.log(arrMenu.length);
+                if(arrMenu.length === 1){ //if the length of arrMenu is equal to 1 /if user only checks one switch.
+                    nextL.prop('disabled',true);
+                    previousL.prop('disabled',true);
+                    currentSelectedLayer.prop('disabled',false);
+                }else{//if user checks over 1 switch
+                    previousL.prop('disabled',false);
+                    nextL.prop('disabled',true);
+                }
+                // LayerPosition.push(LayerSelected);
+            } else { //if there is not new array was inserted into the allCheckedArray / If user un-checks a switch)
+                for( var i = 0 ; i < checked.length; i++) {
+                    if (checked[i] === layer1) {
+                        checked.splice(i,1); //remove current value from checked array
+                        arrMenu.splice(i,1); //remove current ThirdLayer from the array
+                        // LayerPosition.splice(i,1); //remove current Latlong from the array
+                    }
+                }
+                // val = checked[checked.length - 1];
+                checkedCount = allCheckedArray.length;
+                alertVal = false;
+                currentSelectedLayer.prop('value',arrMenu[arrMenu.length - 1]);
+                // currentSelectedLayer.value = arrMenu[arrMenu.length - 1];
+                j = arrMenu.length - 1;
+                if(arrMenu.length === 1){
+                    nextL.prop('disabled',true);
+                    previousL.prop('disabled',true)
+                }else{
+                    if(arrMenu.length === 0){
+                        // currentSelectedLayer.value = "No Layer Selected";
+                        currentSelectedLayer.prop('value','No Layer Selected');
+                        currentSelectedLayer.prop('disabled',true);
+                        previousL.prop('disabled',true);
+                        nextL.prop('disabled',true);
+                        // globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
+                    } else{
+                        previousL.prop('disabled',false);
+                        nextL.prop('disabled',true);
+                    }
+                }
+            }
+
         };
 
         //preload function
@@ -402,10 +460,10 @@ requirejs(['./WorldWindShim',
             });
 
             $('.placemarkLayer').click(function(){
-                console.log($('.placemarkLayer').is());
                 var val1;
+                allCheckedArray = $(':checkbox:checked');
                 if ($('.placemarkLayer').is(":checkbox:checked")) {
-                    alert("hi");
+                    // alert("hi");
 
                     $(':checkbox:checked').each(function () {
                         val1 = $(this).val();
@@ -416,6 +474,8 @@ requirejs(['./WorldWindShim',
                         var layerRequest = 'layername=' + val1;
 
                         globlePosition(layerRequest);
+
+                        buttonControl(allCheckedArray,val1);
 
                         for (var a = 0; a < layers.length; a++) {
 
@@ -457,83 +517,67 @@ requirejs(['./WorldWindShim',
                 allCheckedArray = $(':checkbox:checked');
                 // console.log(layer1);
                 // console.log(allCheckedArray);
-                // console.log(allCheckedArray.length);
-                if (alertVal){
-                    confirm("Some layers may take awhile to load. Please be patient.")
-                }
+                // console.log(allCheckedArray.length)
 
                 var layerRequest = 'layername=' + layer1;
                 console.log(layer1);
-                // console.log(layerRequest);
-
-                // $.ajax({
-                //     url: 'position',
-                //     type: 'GET',
-                //     dataType: 'json',
-                //     data:layerRequest, //send the most current value of the selected switch to server-side
-                //     async: false,
-                //     success: function (results) {
-                //         console.log(results);
-                //         LayerSelected = results[0]; //the first object of an array --- Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
-                //         // console.log(LayerSelected);
-                //         Altitude = LayerSelected.Altitude * 1000;
-                //         globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude));
-                //
-                //     }
-                // });
-
                 globlePosition(layerRequest);
+                // alertVal = false;
+                // arrMenu.push(LayerSelected.ThirdLayer);
+                console.log(layerRequest);
 
-                if (allCheckedArray.length > checkedCount){ //if there is new array was inserted into the allCheckedArray ( If user choose more than 1 switch)
-                    console.log(LayerSelected.ThirdLayer);
-                    checked.push(layer1); //insert current value to "checked" array
-                    checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
-                    alertVal = false; //alert (only appear at the first time)
-                    currentSelectedLayer.prop('value', LayerSelected.ThirdLayer); //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
-                    console.log(currentSelectedLayer);
-                    arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
-                    j = arrMenu.length - 1; //count
-                    console.log(arrMenu.length);
-                    if(arrMenu.length === 1){ //if the length of arrMenu is equal to 1 /if user only checks one switch.
-                        nextL.prop('disabled',true);
-                        previousL.prop('disabled',true);
-                        currentSelectedLayer.prop('disabled',false);
-                    }else{//if user checks over 1 switch
-                        previousL.prop('disabled',false);
-                        nextL.prop('disabled',true);
-                    }
-                    // LayerPosition.push(LayerSelected);
-                } else { //if there is not new array was inserted into the allCheckedArray / If user un-checks a switch)
-                    for( var i = 0 ; i < checked.length; i++) {
-                        if (checked[i] === layer1) {
-                            checked.splice(i,1); //remove current value from checked array
-                            arrMenu.splice(i,1); //remove current ThirdLayer from the array
-                            // LayerPosition.splice(i,1); //remove current Latlong from the array
-                        }
-                    }
-                    // val = checked[checked.length - 1];
-                    checkedCount = allCheckedArray.length;
-                    alertVal = false;
-                    currentSelectedLayer.prop('value',arrMenu[arrMenu.length - 1]);
-                    // currentSelectedLayer.value = arrMenu[arrMenu.length - 1];
-                    j = arrMenu.length - 1;
-                    if(arrMenu.length === 1){
-                        nextL.prop('disabled',true);
-                        previousL.prop('disabled',true)
-                    }else{
-                        if(arrMenu.length === 0){
-                            // currentSelectedLayer.value = "No Layer Selected";
-                            currentSelectedLayer.prop('value','No Layer Selected');
-                            currentSelectedLayer.prop('disabled',true);
-                            previousL.prop('disabled',true);
-                            nextL.prop('disabled',true);
-                            // globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
-                        } else{
-                            previousL.prop('disabled',false);
-                            nextL.prop('disabled',true);
-                        }
-                    }
-                }
+                buttonControl(allCheckedArray,layer1);
+
+                // if (allCheckedArray.length > checkedCount){ //if there is new array was inserted into the allCheckedArray ( If user choose more than 1 switch)
+                //     console.log(LayerSelected.ThirdLayer);
+                //     checked.push(layer1); //insert current value to "checked" array
+                //     checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
+                //     alertVal = false; //alert (only appear at the first time)
+                //     currentSelectedLayer.prop('value', LayerSelected.ThirdLayer); //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
+                //     console.log(currentSelectedLayer);
+                //     arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
+                //     j = arrMenu.length - 1; //count
+                //     console.log(arrMenu.length);
+                //     if(arrMenu.length === 1){ //if the length of arrMenu is equal to 1 /if user only checks one switch.
+                //         nextL.prop('disabled',true);
+                //         previousL.prop('disabled',true);
+                //         currentSelectedLayer.prop('disabled',false);
+                //     }else{//if user checks over 1 switch
+                //         previousL.prop('disabled',false);
+                //         nextL.prop('disabled',true);
+                //     }
+                //     // LayerPosition.push(LayerSelected);
+                // } else { //if there is not new array was inserted into the allCheckedArray / If user un-checks a switch)
+                //     for( var i = 0 ; i < checked.length; i++) {
+                //         if (checked[i] === layer1) {
+                //             checked.splice(i,1); //remove current value from checked array
+                //             arrMenu.splice(i,1); //remove current ThirdLayer from the array
+                //             // LayerPosition.splice(i,1); //remove current Latlong from the array
+                //         }
+                //     }
+                //     // val = checked[checked.length - 1];
+                //     checkedCount = allCheckedArray.length;
+                //     alertVal = false;
+                //     currentSelectedLayer.prop('value',arrMenu[arrMenu.length - 1]);
+                //     // currentSelectedLayer.value = arrMenu[arrMenu.length - 1];
+                //     j = arrMenu.length - 1;
+                //     if(arrMenu.length === 1){
+                //         nextL.prop('disabled',true);
+                //         previousL.prop('disabled',true)
+                //     }else{
+                //         if(arrMenu.length === 0){
+                //             // currentSelectedLayer.value = "No Layer Selected";
+                //             currentSelectedLayer.prop('value','No Layer Selected');
+                //             currentSelectedLayer.prop('disabled',true);
+                //             previousL.prop('disabled',true);
+                //             nextL.prop('disabled',true);
+                //             // globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
+                //         } else{
+                //             previousL.prop('disabled',false);
+                //             nextL.prop('disabled',true);
+                //         }
+                //     }
+                // }
 
                 //turn on/off wmsLayer
                 for (var a = 0; a < layers.length; a++) {
