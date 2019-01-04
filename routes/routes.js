@@ -1442,7 +1442,7 @@ module.exports = function (app, passport) {
     app.get('/secondLayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var firstlayerValue = req.query.FirstLayer;
-        con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Status ='Approved' and FirstLayer =? GROUP BY SecondLayer ", firstlayerValue ,function (err, result) {
+        con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Status ='Approved' and FirstLayer =? GROUP BY SecondLayer", firstlayerValue ,function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             if (err) { throw err } else {
                 console.log(result);
@@ -1454,7 +1454,7 @@ module.exports = function (app, passport) {
     app.get('/thirdLayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var secondLayerValue = req.query.SecondLayer;
-        con_CS.query("SELECT SecondLayer,ThirdLayer,CityName,StateName,CountryName, GROUP_CONCAT(LayerName) as LayerName FROM LayerMenu WHERE Status ='Approved' and SecondLayer =? GROUP BY ThirdLayer,CityName,StateName,CountryName,SecondLayer", secondLayerValue ,function (err, result) {
+        con_CS.query("SELECT LayerType,SecondLayer,ThirdLayer,CityName,StateName,CountryName, GROUP_CONCAT(LayerName) as LayerName FROM LayerMenu WHERE Status ='Approved' and SecondLayer =? GROUP BY ThirdLayer,CityName,StateName,CountryName,SecondLayer,LayerType", secondLayerValue ,function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             //All layer?
             //WHERE cityname = ''?
