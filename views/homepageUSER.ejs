@@ -257,41 +257,40 @@
 </head>
 
 <body>
-<div class="container">
-
-    <div class="navul" style="height:80px;background:#000000;">
-        <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
-            <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
-        </a>
-        <a href="/userHome" id= "Request" style="width:110px;">
-            <button class="navbutton1" style="width: 140px"> User Home </button>
-        </a>
-        <a href="/newRequest" id= "Request" style="width:110px;">
-            <button class="navbutton1" style="width: 140px"> New Request </button>
-        </a>
-        <a href="/recovery" id ="Restore" style="width:50px;">
-            <button class="navbutton1"> Restore </button>
-        </a>
-        <a href="/dataHistory" style="width:110px;">
-            <button class="navbutton1" style="width: 160px"> Approved Requests </button>
-        </a>
-        <div class="dropdown" style="height: 80px; width: 200px; float: right; margin: 0;">
-            <button onclick="dropDown()" class="dropbutton" id="Username">
-                <%= firstName%>
-                <span class="caret"></span>
-            </button>
-            <div id="userMenuAdmin" class="dropdown-content">
-                <a href="/userProfile"> User Profile </a>
-                <a href="/userManagement"> User Management </a>
-                <a href="/signout"> Sign Out </a>
-            </div>
-            <div id="userMenuRegular" class="dropdown-content">
-                <a href="/userProfile"> User Profile </a>
-                <a href="/signout"> Sign Out </a>
-            </div>
+<div class="navul" style="height:80px;background:#000000;">
+    <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
+        <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
+    </a>
+    <a href="/userHome" id= "Request" style="width:110px;">
+        <button class="navbutton1" style="width: 140px"> User Home </button>
+    </a>
+    <a href="/newRequest" id= "Request" style="width:110px;">
+        <button class="navbutton1" style="width: 140px"> New Request </button>
+    </a>
+    <a href="/recovery" id ="Restore" style="width:50px;">
+        <button class="navbutton1"> Restore </button>
+    </a>
+    <a href="/dataHistory" style="width:110px;">
+        <button class="navbutton1" style="width: 160px"> Approved Requests </button>
+    </a>
+    <div class="dropdown" style="height: 80px; width: 200px; float: right; margin: 0;">
+        <button onclick="dropDown()" class="dropbutton" id="Username">
+            <%= firstName%>
+            <span class="caret"></span>
+        </button>
+        <div id="userMenuAdmin" class="dropdown-content">
+            <a href="/userProfile"> User Profile </a>
+            <a href="/userManagement"> User Management </a>
+            <a href="/signout"> Sign Out </a>
+        </div>
+        <div id="userMenuRegular" class="dropdown-content">
+            <a href="/userProfile"> User Profile </a>
+            <a href="/signout"> Sign Out </a>
         </div>
     </div>
+</div>
 
+<div class="container">
     <div>
         <!-- Menu -->
         <ul class="nav navbar-nav">
