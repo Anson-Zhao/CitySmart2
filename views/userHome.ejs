@@ -357,10 +357,10 @@
             } else {
                 // var transactionIDStr = "transactionIDStr=" + transactionID.toString();
                 var getvalue = table.rows('.selected').data();
-                // console.log(getvalue);
+                console.log(getvalue);
                 localStorage.setItem("getvalue", JSON.stringify(getvalue[0]));
                 window.location.replace('/editdata');
-                // console.log(localStorage.getItem("getvalue"));
+                console.log(localStorage.getItem("getvalue"));
             }
         });
 
@@ -488,7 +488,7 @@
             async: false,
             data: querystr,
             success: function (results) {
-                console.log(results);
+                // console.log(results);
                 for (var i = 0; i < results.length; i++) {
                     if (UserRole === "Regular") {
                         if (results[i].UID === username) {
