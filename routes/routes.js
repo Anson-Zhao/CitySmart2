@@ -9,7 +9,7 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const async = require('async');
 const crypto = require('crypto');
-const fs = require("fs");
+const http= require('http');
 const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
@@ -18,9 +18,14 @@ const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
 // const local_URL = config.local_URL;
 
+const Path = require('path');
+const Axios = require('axios');
+const fs = require("fs");
+
+const request = require("request");
+
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
-
 let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
 
@@ -56,6 +61,17 @@ module.exports = function (app, passport) {
         })
     });
 
+    function downloadImage () {
+        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
+        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
+        const desti = Path.resolve(__dirname, '../config', 'code6.jpg');
+
+        request(url).pipe(fs.createWriteStream(desti));
+        fs.createWriteStream(desti).end();
+
+    }
+
+    downloadImage();
 
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
@@ -75,8 +91,6 @@ module.exports = function (app, passport) {
             }
         });
     });
-
-
 
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
