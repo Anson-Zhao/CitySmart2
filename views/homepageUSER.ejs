@@ -4,7 +4,7 @@
     <!--NOTE: Most Web WorldWind bak use jquery, Bootstrap and requirejs but those technologies are NOT-->
     <!--required by Web WorldWind. See SimplestExample.html for an example of using Web WorldWind without them.-->
     <meta charset="utf-8"/>
-    <title>USGS Data Visualization - MapService Viewer</title>
+    <title>CitySmart - MapService Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
@@ -257,41 +257,40 @@
 </head>
 
 <body>
-<div class="container">
-
-    <div class="navul" style="height:80px;background:#000000;">
-        <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
-            <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
-        </a>
-        <a href="/userHome" id= "Request" style="width:110px;">
-            <button class="navbutton1" style="width: 140px"> User Home </button>
-        </a>
-        <a href="/newRequest" id= "Request" style="width:110px;">
-            <button class="navbutton1" style="width: 140px"> New Request </button>
-        </a>
-        <a href="/recovery" id ="Restore" style="width:50px;">
-            <button class="navbutton1"> Restore </button>
-        </a>
-        <a href="/dataHistory" style="width:110px;">
-            <button class="navbutton1" style="width: 160px"> Approved Requests </button>
-        </a>
-        <div class="dropdown" style="height: 80px; width: 200px; float: right; margin: 0;">
-            <button onclick="dropDown()" class="dropbutton" id="Username">
-                <%= firstName%>
-                <span class="caret"></span>
-            </button>
-            <div id="userMenuAdmin" class="dropdown-content">
-                <a href="/userProfile"> User Profile </a>
-                <a href="/userManagement"> User Management </a>
-                <a href="/signout"> Sign Out </a>
-            </div>
-            <div id="userMenuRegular" class="dropdown-content">
-                <a href="/userProfile"> User Profile </a>
-                <a href="/signout"> Sign Out </a>
-            </div>
+<div class="navul" style="height:80px;background:#000000;">
+    <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
+        <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
+    </a>
+    <a href="/userHome" id= "Request" style="width:110px;">
+        <button class="navbutton1" style="width: 140px"> User Home </button>
+    </a>
+    <a href="/newRequest" id= "Request" style="width:110px;">
+        <button class="navbutton1" style="width: 140px"> New Request </button>
+    </a>
+    <a href="/recovery" id ="Restore" style="width:50px;">
+        <button class="navbutton1"> Restore </button>
+    </a>
+    <a href="/dataHistory" style="width:110px;">
+        <button class="navbutton1" style="width: 160px"> Approved Requests </button>
+    </a>
+    <div class="dropdown" style="height: 80px; width: 200px; float: right; margin: 0;">
+        <button onclick="dropDown()" class="dropbutton" id="Username">
+            <%= firstName%>
+            <span class="caret"></span>
+        </button>
+        <div id="userMenuAdmin" class="dropdown-content">
+            <a href="/userProfile"> User Profile </a>
+            <a href="/userManagement"> User Management </a>
+            <a href="/signout"> Sign Out </a>
+        </div>
+        <div id="userMenuRegular" class="dropdown-content">
+            <a href="/userProfile"> User Profile </a>
+            <a href="/signout"> Sign Out </a>
         </div>
     </div>
+</div>
 
+<div class="container">
     <div>
         <!-- Menu -->
         <ul class="nav navbar-nav">
