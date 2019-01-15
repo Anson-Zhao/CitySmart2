@@ -1,23 +1,27 @@
 // set up ======================================================================
 // get all the tools we need
-var express  = require('express');
-var session  = require('express-session');
-var MySQLStore = require('express-mysql-session')(session);
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var morgan = require('morgan');
-var config = require('./config/mainconf');
-var app      = express();
-// var CORS_host = process.env.HOST || config.CORS_host;
-// var CORS_port = process.env.PORT || config.CORS_port;
-var port = process.env.PORT || config.Server_Port;
-var path    = require('path');
-var passport = require('passport');
-var flash    = require('connect-flash');
+const express  = require('express');
+const app      = express();
+const config = require('./config/mainconf');
 
+const session  = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+
+const passport = require('passport');
+const flash    = require('connect-flash');
+
+// const CORS_host = process.env.HOST || config.CORS_host;
+// const CORS_port = process.env.PORT || config.CORS_port;
+// const local_URL = config.local_URL;
+// const mv = require('mv');
+const path    = require('path');
+const port = process.env.PORT || config.Server_Port;
+
+const morgan = require('morgan');
 
 require('./routes/passport')(passport); // pass passport for configuration
-
 
 // set up our express application
 app.use(express.static(__dirname));
@@ -39,7 +43,7 @@ app.set('view engine', 'ejs');
 //routes.set('view engine', 'ejs'); // set up ejs for templating
 
 // required for passport
-var options = {
+let options = {
     host: config.session_connection.host,
     port: config.session_connection.port,
     user: config.session_connection.user,
@@ -59,7 +63,7 @@ var options = {
     }
 };
 
-var sessionStore = new MySQLStore(options);
+let sessionStore = new MySQLStore(options);
 
 app.use(session({
     secret: 'Uesei9872',

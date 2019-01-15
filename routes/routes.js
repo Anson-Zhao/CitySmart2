@@ -1,8 +1,9 @@
 // routes/routes.js
 const mysql = require('mysql');
-const config = require('../config/mainconf');
-const con_CS = mysql.createConnection(config.commondb_connection);
 const bodyParser = require('body-parser');
+const config = require('../config/mainconf');
+const fs = require("fs");
+const request = require("request");
 const bcrypt = require('bcrypt-nodejs');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
@@ -11,16 +12,12 @@ const crypto = require('crypto');
 const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
-// const mv = require('mv');
+const path    = require('path');
 const upload_Dir = config.Upload_Dir;
 const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
 const downloadPath = config.Download_Path;
-// const local_URL = config.local_URL;
-
-const Path = require('path');
-const fs = require("fs");
-const request = require("request");
+const con_CS = mysql.createConnection(config.commondb_connection);
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
@@ -63,7 +60,7 @@ module.exports = function (app, passport) {
     function downloadImage () {
         // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
         const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-        const downloadDir = Path.resolve(__dirname, downloadPath, 'code.jpg');
+        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
 
         request(url).pipe(fs.createWriteStream(downloadDir));
         fs.createWriteStream(downloadDir).end();
