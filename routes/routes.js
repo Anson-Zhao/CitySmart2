@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
+const mv = require('mv');
 const upload_Dir = config.Upload_Dir;
 const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
@@ -224,6 +225,7 @@ module.exports = function (app, passport) {
 
         con_CS.query(myStat, function (err, user) {
             dateNtime();
+            console.log(user);
 
             if (!user || dateTime > user[0].resetPasswordExpires) {
                 res.send('Password reset token is invalid or has expired. Please contact Administrator.');
@@ -1236,6 +1238,12 @@ module.exports = function (app, passport) {
                 }
             });
         }
+        // mv('/uploadfiles', 'dest/file', {mkdirp: true}, {clobber: false}, function(err) {
+        //     //This is supposed to do the following:
+        //     //Tries fs.rename first, then falls back to
+        //     // piping the source file to the dest file (destination)  then unlinking
+        //     // the source file.
+        // });
     });
 
     app.get('/reject',function (req,res) {

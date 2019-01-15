@@ -123,7 +123,7 @@ requirejs(['./WorldWindShim',
 
             var canvas = document.createElement("canvas"),
                 ctx2d = canvas.getContext("2d"),
-                size = 45, c = size / 2, innerRadius = 5, outerRadius = 15;
+                size = 60, c = size / 2, innerRadius = 12, outerRadius = 20;
 
             canvas.width = size;
             canvas.height = size;
