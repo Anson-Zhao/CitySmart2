@@ -2,30 +2,28 @@
 const mysql = require('mysql');
 const config = require('../config/mainconf');
 const con_CS = mysql.createConnection(config.commondb_connection);
-const uploadPath = config.Upload_Path;
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const async = require('async');
 const crypto = require('crypto');
-const http= require('http');
 const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
 const upload_Dir = config.Upload_Dir;
 const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
+const downloadPath = config.Download_Path;
 // const local_URL = config.local_URL;
 
 const Path = require('path');
-const Axios = require('axios');
 const fs = require("fs");
-
 const request = require("request");
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
+
 let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
 
@@ -64,10 +62,10 @@ module.exports = function (app, passport) {
     function downloadImage () {
         // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
         const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-        const desti = Path.resolve(__dirname, '../config', 'code6.jpg');
+        const downloadDir = Path.resolve(__dirname, downloadPath, 'code.jpg');
 
-        request(url).pipe(fs.createWriteStream(desti));
-        fs.createWriteStream(desti).end();
+        request(url).pipe(fs.createWriteStream(downloadDir));
+        fs.createWriteStream(downloadDir).end();
 
     }
 
@@ -1046,12 +1044,12 @@ module.exports = function (app, passport) {
             }
         }
         let newImage = {
-            Layer_Uploader: uploadPath + "/" + responseDataUuid,
+            Layer_Uploader: upload_Dir + "/" + responseDataUuid,
             Layer_Uploader_name: responseDataUuid
         };
         name += ", Layer_Uploader, Layer_Uploader_name";
         valueSubmit += ", '" + newImage.Layer_Uploader + "','" + newImage.Layer_Uploader_name + "'";
-        let filepathname = uploadPath + "/" + responseDataUuid;
+        let filepathname = upload_Dir + "/" + responseDataUuid;
 
         let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
         let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
@@ -1123,9 +1121,9 @@ module.exports = function (app, passport) {
                 update2 += result[i][0] + " = '" + result[i][1] + "', " ;
             }
         }
-        let Layer_Uploader = uploadPath + "/" + responseDataUuid;
+        let Layer_Uploader = upload_Dir + "/" + responseDataUuid;
         let Layer_Uploader_name = responseDataUuid;
-        let filepathname = uploadPath + "/" + responseDataUuid;
+        let filepathname = upload_Dir + "/" + responseDataUuid;
         let statement1 = update1+update2+update3;
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
@@ -1213,9 +1211,9 @@ module.exports = function (app, passport) {
             }
         }
 
-        let Layer_Uploader = uploadPath + "/" + responseDataUuid;
+        let Layer_Uploader = upload_Dir + "/" + responseDataUuid;
         let Layer_Uploader_name = responseDataUuid;
-        let filepathname = uploadPath + "/" + responseDataUuid;
+        let filepathname = upload_Dir + "/" + responseDataUuid;
         let statement1 = update1+update2+update3;
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
