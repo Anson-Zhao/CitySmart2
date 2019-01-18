@@ -627,6 +627,7 @@ requirejs(['./WorldWindShim',
                 // }
             });
 
+
             //if the opened layer was clicked, the layer shows
             $('#currentSelectedLayer').click(function(){
                 // $('.collapse').collapse('hide');
