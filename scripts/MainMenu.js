@@ -326,7 +326,19 @@ requirejs(['./WorldWindShim',
             //     //.
             //     // }
             // }
-        };//
+        };
+//
+        globe.addEventListener("mousemove", handlePick);
+
+// globe.addEventListener("click", sitePopUp);
+
+        globe.addEventListener("click", handleMouseCLK);
+
+
+        // // Called if an error occurs during WMS Capabilities document retrieval
+        // var logError = function (jqXhr, text, exception) {
+        //     console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
+        // };
 
         var globlePosition = function(layerRequest){
             $.ajax({
