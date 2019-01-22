@@ -59,18 +59,6 @@ module.exports = function (app, passport) {
         })
     });
 
-    function downloadImage () {
-        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
-        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
-
-        request(url).pipe(fs.createWriteStream(downloadDir));
-        fs.createWriteStream(downloadDir).end();
-
-    }
-
-    downloadImage();
-
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
         let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
