@@ -81,11 +81,11 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
-        console.log("Layername Below: ");
-        console.log(layername);
+        // console.log("Layername Below: ");
+        // console.log(layername);
         var parsedLayers = layername.split(",");
-        console.log("Parsed Layers: ");
-        console.log(parsedLayers);
+        // console.log("Parsed Layers: ");
+        // console.log(parsedLayers);
 
         con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu WHERE LayerName = ?', parsedLayers[0], function (err, results) {
             if (err) {
@@ -2019,7 +2019,7 @@ function QueryStat(myObj, scoutingStat, res) {
         });
     }
     function predownloadXml () {
-        const downloadDir = Path.resolve(__dirname, downloadPath, 'ows.xml');
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
         const requestOptions = {
             uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
             timeout: 3600000
