@@ -407,8 +407,7 @@ requirejs(['./WorldWindShim',
             //     //.
             //     // }
             // }
-<<<<<<< HEAD
-=======
+
         };
 //
         globe.addEventListener("mousemove", handlePick);
