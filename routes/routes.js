@@ -37,6 +37,8 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
 
+    setInterval(predownloadXml, 3660000);
+
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
     app.use(cors({
@@ -56,18 +58,6 @@ module.exports = function (app, passport) {
             error: "Your username and password don't match."
         })
     });
-
-    function downloadImage () {
-        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
-        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
-
-        request(url).pipe(fs.createWriteStream(downloadDir));
-        fs.createWriteStream(downloadDir).end();
-
-    }
-
-    downloadImage();
 
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
@@ -91,11 +81,11 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
-        console.log("Layername Below: ");
-        console.log(layername);
+        // console.log("Layername Below: ");
+        // console.log(layername);
         var parsedLayers = layername.split(",");
-        console.log("Parsed Layers: ");
-        console.log(parsedLayers);
+        // console.log("Parsed Layers: ");
+        // console.log(parsedLayers);
 
         con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu WHERE LayerName = ?', parsedLayers[0], function (err, results) {
             if (err) {
@@ -2027,5 +2017,32 @@ function QueryStat(myObj, scoutingStat, res) {
                 res.render('success.ejs', {});
             }
         });
+    }
+    function predownloadXml () {
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
+        const requestOptions = {
+            uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
+            timeout: 3600000
+        };
+        let resXMLRequest;
+
+        request.get(requestOptions)
+            .on('error',function(err){
+                console.log(err.code);
+                // process.exit(0)
+            })
+            .on('response', function (res) {
+                resXMLRequest = res;
+                if (res.statusCode === 200){
+                    res.pipe(fs.createWriteStream(downloadDir))
+                } else {
+                    console.log("Respose with Error Code: " + res.statusCode);
+                    // process.exit(0)
+                }
+            })
+            .on('end', function () {
+                console.log("The End: " + resXMLRequest.statusCode);
+                // process.exit(0)
+            })
     }
 };
