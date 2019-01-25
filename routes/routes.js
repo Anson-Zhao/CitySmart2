@@ -1432,7 +1432,7 @@ module.exports = function (app, passport) {
         con_CS.query("SELECT FirstLayer FROM LayerMenu WHERE Status ='Approved' GROUP BY FirstLayer ", function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             if (err) { throw err } else {
-                console.log(result);
+                // console.log(result);
                 res.json(result);
             }
         });
@@ -1444,7 +1444,7 @@ module.exports = function (app, passport) {
         con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Status ='Approved' and FirstLayer =? GROUP BY SecondLayer", firstlayerValue ,function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             if (err) { throw err } else {
-                console.log(result);
+                // console.log(result);
                 res.json(result);
             }
         });
