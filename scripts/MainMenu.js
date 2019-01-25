@@ -407,6 +407,39 @@ requirejs(['./WorldWindShim',
             //     //.
             //     // }
             // }
+<<<<<<< HEAD
+=======
+        };
+//
+        globe.addEventListener("mousemove", handlePick);
+
+// globe.addEventListener("click", sitePopUp);
+
+        globe.addEventListener("click", handleMouseCLK);
+
+
+        // // Called if an error occurs during WMS Capabilities document retrieval
+        // var logError = function (jqXhr, text, exception) {
+        //     console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
+        // };
+
+        var globlePosition = function(layerRequest){
+            $.ajax({
+                url: 'position',
+                type: 'GET',
+                dataType: 'json',
+                data: layerRequest, //send the most current value of the selected switch to server-side
+                async: false,
+                success: function (results) {
+                    console.log(results);
+                    LayerSelected = results[0];//the first object of an array --- Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
+                    console.log(LayerSelected);
+                    // console.log(LayerSelected);
+                    Altitude = LayerSelected.Altitude * 1000;
+                    globe.goTo(new WorldWind.Position(LayerSelected.Latitude, LayerSelected.Longitude, Altitude));
+                }
+            })
+>>>>>>> 3835786a44a5fd53f8369b4fc2efca0bbee86ac7
         };
 //
         globe.addEventListener("mousemove", handlePick);

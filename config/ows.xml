@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><WMS_Capabilities version="1.3.0" updateSequence="2511" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms http://cs.aworldbridgelabs.com:8080/geoserver/schemas/wms/1.3.0/capabilities_1_3_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><WMS_Capabilities version="1.3.0" updateSequence="2711" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms http://cs.aworldbridgelabs.com:8080/geoserver/schemas/wms/1.3.0/capabilities_1_3_0.xsd">
   <Service>
     <Name>WMS</Name>
     <Title>WWSK GeoServer WMS</Title>
@@ -6949,6 +6949,40 @@ The NHD is a national framework for assigning reach addresses to water-related e
         </Style>
       </Layer>
       <Layer queryable="1" opaque="0">
+        <Name>AZ_Test:FTAA_Campus</Name>
+        <Title>FTAA_Campus</Title>
+        <Abstract/>
+        <KeywordList>
+          <Keyword>WCS</Keyword>
+          <Keyword>GeoTIFF</Keyword>
+          <Keyword>FTAA_Campus</Keyword>
+        </KeywordList>
+        <CRS>EPSG:32618</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-74.44129058718954</westBoundLongitude>
+          <eastBoundLongitude>-74.4341919107993</eastBoundLongitude>
+          <southBoundLatitude>41.448435982442064</southBoundLatitude>
+          <northBoundLatitude>41.454290649266234</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-74.44129058718954" miny="41.448435982442064" maxx="-74.4341919107993" maxy="41.454290649266234"/>
+        <BoundingBox CRS="EPSG:32618" minx="546668.47368" miny="4588694.099890001" maxx="547257.22268" maxy="4589340.281160001"/>
+        <BoundingBox CRS="EPSG:4326" minx="41.448435982442064" miny="-74.44129058718954" maxx="41.454290649266234" maxy="-74.4341919107993"/>
+        <BoundingBox CRS="EPSG:3395" minx="-8286766.562160049" miny="5050421.359538775" maxx="-8285976.34111898" maxy="5051287.623397178"/>
+        <BoundingBox CRS="EPSG:4979" minx="41.448435982442064" miny="-74.44129058718954" maxx="41.454290649266234" maxy="-74.4341919107993"/>
+        <BoundingBox CRS="EPSG:5041" minx="-3515089.997735818" miny="463763.0212406444" maxx="-3514159.5506074307" maxy="464645.1712688627"/>
+        <BoundingBox CRS="EPSG:5042" minx="-2.4877539469834782E7" miny="9482460.096489467" maxx="-2.48729751545648E7" maxy="9486794.395572674"/>
+        <Style>
+          <Name>raster</Name>
+          <Title>Default Raster</Title>
+          <Abstract>A sample style that draws a raster, good for displaying imagery</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=AZ_Test%3AFTAA_Campus"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
         <Name>City_Smart:FTAA_CampusCC</Name>
         <Title>FTAA_CampusCC</Title>
         <Abstract/>
@@ -8095,6 +8129,73 @@ The NHD is a national framework for assigning reach addresses to water-related e
         <BoundingBox CRS="EPSG:4979" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
         <BoundingBox CRS="EPSG:5041" minx="-2.0500300589327538E23" miny="-2.0500300589327538E23" maxx="2.0500300589327538E23" maxy="2.0500300589327538E23"/>
         <BoundingBox CRS="EPSG:5042" minx="-2.0500300589327538E23" miny="-2.0500300589327538E23" maxx="2.0500300589327538E23" maxy="2.0500300589327538E23"/>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>AZ_Test:Test</Name>
+        <Title>Test</Title>
+        <Abstract/>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>Test</Keyword>
+        </KeywordList>
+        <CRS>EPSG:404000</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.212626753650554</westBoundLongitude>
+          <eastBoundLongitude>-3.616420791590933</eastBoundLongitude>
+          <southBoundLatitude>1.7410914317115438</southBoundLatitude>
+          <northBoundLatitude>1.746511485912086</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.212626753650554" miny="1.7410914317115438" maxx="-3.616420791590933" maxy="1.746511485912086"/>
+        <BoundingBox CRS="EPSG:404000" minx="-4.212626753650554" miny="1.7410914317115438" maxx="-3.616420791590933" maxy="1.746511485912086"/>
+        <BoundingBox CRS="EPSG:4326" minx="1.7410914317115438" miny="-4.212626753650554" maxx="1.746511485912086" maxy="-3.616420791590933"/>
+        <BoundingBox CRS="EPSG:3395" minx="-4.212626753650554" miny="1.7410914317115438" maxx="-3.616420791590933" maxy="1.746511485912086"/>
+        <BoundingBox CRS="EPSG:4979" minx="1.7410914317115438" miny="-4.212626753650554" maxx="1.746511485912086" maxy="-3.616420791590933"/>
+        <BoundingBox CRS="EPSG:5041" minx="-4.212626753650554" miny="1.7410914317115438" maxx="-3.616420791590933" maxy="1.746511485912086"/>
+        <BoundingBox CRS="EPSG:5042" minx="-4.212626753650554" miny="1.7410914317115438" maxx="-3.616420791590933" maxy="1.746511485912086"/>
+        <Style>
+          <Name>line</Name>
+          <Title>Default Line</Title>
+          <Abstract>A sample style that draws a line</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=AZ_Test%3ATest"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>City_Smart:TheBestLayerEver</Name>
+        <Title>The.Ultimate.Layer</Title>
+        <Abstract/>
+        <KeywordList>
+          <Keyword>WCS</Keyword>
+          <Keyword>GeoTIFF</Keyword>
+          <Keyword>Ian is awesome</Keyword>
+        </KeywordList>
+        <CRS>EPSG:32605</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-152.46517567875924</westBoundLongitude>
+          <eastBoundLongitude>-152.43492278322145</eastBoundLongitude>
+          <southBoundLatitude>57.779426821957095</southBoundLatitude>
+          <northBoundLatitude>57.790021931592136</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-152.46517567875924" miny="57.779426821957095" maxx="-152.43492278322145" maxy="57.790021931592136"/>
+        <BoundingBox CRS="EPSG:32605" minx="531806.8864600001" miny="6404293.612850001" maxx="533596.4518100001" maxy="6405458.680310001"/>
+        <BoundingBox CRS="EPSG:4326" minx="57.779426821957095" miny="-152.46517567875924" maxx="57.790021931592136" maxy="-152.43492278322145"/>
+        <BoundingBox CRS="EPSG:3395" minx="-1.6972345720266476E7" miny="7884943.86970015" maxx="-1.696897798334019E7" maxy="7887152.054630622"/>
+        <BoundingBox CRS="EPSG:4979" minx="57.779426821957095" miny="-152.46517567875924" maxx="57.790021931592136" maxy="-152.43492278322145"/>
+        <BoundingBox CRS="EPSG:5041" minx="301327.0371241807" miny="5252996.257791132" maxx="303614.8189049405" maxy="5254991.385572579"/>
+        <BoundingBox CRS="EPSG:5042" minx="-1.813955853343809E7" miny="-3.6591417903297216E7" maxx="-1.811239192734424E7" maxy="-3.656754625038533E7"/>
+        <Style>
+          <Name>raster</Name>
+          <Title>Default Raster</Title>
+          <Abstract>A sample style that draws a raster, good for displaying imagery</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=City_Smart%3ATheBestLayerEver"/>
+          </LegendURL>
+        </Style>
       </Layer>
       <Layer queryable="0" opaque="0" cascaded="1">
         <Name>mrdata:Thorium</Name>
@@ -9322,6 +9423,105 @@ The NHD is a national framework for assigning reach addresses to water-related e
         <BoundingBox CRS="EPSG:4979" minx="34.99998545050578" miny="-82.99984426358428" maxx="36.99994107034834" maxy="-80.99988832451668"/>
         <BoundingBox CRS="EPSG:5041" minx="-4554674.152042233" miny="966909.6187561118" maxx="-4248310.872153445" maxy="1229013.222342382"/>
         <BoundingBox CRS="EPSG:5042" minx="-2.3056337052072305E7" miny="4947226.765523084" maxx="-2.188521325283968E7" maxy="5949160.242421894"/>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>AZ_Test:pointlands</Name>
+        <Title>pointlands</Title>
+        <Abstract/>
+        <KeywordList>
+          <Keyword>pointlands</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4269</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-105.370531</westBoundLongitude>
+          <eastBoundLongitude>-105.065309</eastBoundLongitude>
+          <southBoundLatitude>39.91435199907132</southBoundLatitude>
+          <northBoundLatitude>40.21739599906962</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-105.370531" miny="39.91435199907132" maxx="-105.065309" maxy="40.21739599906962"/>
+        <BoundingBox CRS="EPSG:4269" minx="39.914352" miny="-105.370531" maxx="40.217396" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.91435199907132" miny="-105.370531" maxx="40.21739599906962" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:3395" minx="-1.1729793855536846E7" miny="4826082.118331113" maxx="-1.1695816697917944E7" maxy="4869989.013493377"/>
+        <BoundingBox CRS="EPSG:4979" minx="39.91435199907132" miny="-105.370531" maxx="40.21739599906962" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:5041" minx="-3726014.372851897" miny="3530704.8344624713" maxx="-3678497.120711934" maxy="3571759.713936204"/>
+        <BoundingBox CRS="EPSG:5042" minx="-2.418597576852321E7" miny="-5187907.522239634" maxx="-2.3968671805923447E7" maxy="-5000157.019171413"/>
+        <Style>
+          <Name>point</Name>
+          <Title>Default Point</Title>
+          <Abstract>A sample style that draws a point</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=AZ_Test%3Apointlands"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>testworkspace:pointlands</Name>
+        <Title>pointlands</Title>
+        <Abstract/>
+        <KeywordList>
+          <Keyword>pointlands</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4269</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-105.370531</westBoundLongitude>
+          <eastBoundLongitude>-105.065309</eastBoundLongitude>
+          <southBoundLatitude>39.91435199907132</southBoundLatitude>
+          <northBoundLatitude>40.21739599906962</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-105.370531" miny="39.91435199907132" maxx="-105.065309" maxy="40.21739599906962"/>
+        <BoundingBox CRS="EPSG:4269" minx="39.914352" miny="-105.370531" maxx="40.217396" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.91435199907132" miny="-105.370531" maxx="40.21739599906962" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:3395" minx="-1.1729793855536846E7" miny="4826082.118331113" maxx="-1.1695816697917944E7" maxy="4869989.013493377"/>
+        <BoundingBox CRS="EPSG:4979" minx="39.91435199907132" miny="-105.370531" maxx="40.21739599906962" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:5041" minx="-3726014.372851897" miny="3530704.8344624713" maxx="-3678497.120711934" maxy="3571759.713936204"/>
+        <BoundingBox CRS="EPSG:5042" minx="-2.418597576852321E7" miny="-5187907.522239634" maxx="-2.3968671805923447E7" maxy="-5000157.019171413"/>
+        <Style>
+          <Name>point</Name>
+          <Title>Default Point</Title>
+          <Abstract>A sample style that draws a point</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=testworkspace%3Apointlands"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>testworkspace:pointlands1</Name>
+        <Title>pointlands</Title>
+        <Abstract/>
+        <KeywordList>
+          <Keyword>pointlands</Keyword>
+          <Keyword>features</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4269</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-105.370531</westBoundLongitude>
+          <eastBoundLongitude>-105.065309</eastBoundLongitude>
+          <southBoundLatitude>39.91435199907132</southBoundLatitude>
+          <northBoundLatitude>40.21739599906962</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-105.370531" miny="39.91435199907132" maxx="-105.065309" maxy="40.21739599906962"/>
+        <BoundingBox CRS="EPSG:4269" minx="39.914352" miny="-105.370531" maxx="40.217396" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.91435199907132" miny="-105.370531" maxx="40.21739599906962" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:3395" minx="-1.1729793855536846E7" miny="4826082.118331113" maxx="-1.1695816697917944E7" maxy="4869989.013493377"/>
+        <BoundingBox CRS="EPSG:4979" minx="39.91435199907132" miny="-105.370531" maxx="40.21739599906962" maxy="-105.065309"/>
+        <BoundingBox CRS="EPSG:5041" minx="-3726014.372851897" miny="3530704.8344624713" maxx="-3678497.120711934" maxy="3571759.713936204"/>
+        <BoundingBox CRS="EPSG:5042" minx="-2.418597576852321E7" miny="-5187907.522239634" maxx="-2.3968671805923447E7" maxy="-5000157.019171413"/>
+        <Style>
+          <Name>point</Name>
+          <Title>Default Point</Title>
+          <Abstract>A sample style that draws a point</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=testworkspace%3Apointlands1"/>
+          </LegendURL>
+        </Style>
       </Layer>
       <Layer queryable="0" opaque="0" cascaded="1">
         <Name>mrdata:points</Name>
