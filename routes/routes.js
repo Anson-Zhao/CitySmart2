@@ -623,10 +623,13 @@ module.exports = function (app, passport) {
             status: req.body.status
         };
 
+        console.log (newUser);
+
         myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
         mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
-            //newUser.id = rows.insertId;
+            console.log(rows);
+            // newUser.id = rows.insertId;
             if (err) {
                 console.log(err);
                 res.json({"error": true, "message": "An unexpected error occurred!"});
