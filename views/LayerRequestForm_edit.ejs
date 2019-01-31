@@ -31,8 +31,8 @@
             <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
                 <span class="qq-upload-drop-area-text-selector"></span>
             </div>
-            <div class="qq-upload-button-selector qq-upload-button">
-                <div id ='upload-button'>Upload a file</div>
+            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button'>
+                <div>Upload a file</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
                             <span>Processing droppeLayer Uploaderd files...</span>
@@ -444,7 +444,7 @@
                 document.getElementById('sub').disabled = true;
                 document.getElementById('LayerNameInput').disabled = true;
                 document.getElementById('main').disabled = true;
-                document.getElementById('uploader').disabled = true;
+                document.getElementById('upload-button').disabled = true;
                 document.getElementById("submit").style.backgroundColor = "lightgray";
                 document.getElementById("adminonly").style.display = "block";
                 document.getElementById("comment").placeholder = "Please describe why you are rejecting the request.";
