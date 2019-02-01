@@ -313,6 +313,7 @@ module.exports = function (app, passport) {
 
     app.get('/deleteRow', isLoggedIn, function (req, res) {
         del_recov("Delete", "Deletion failed!", "/userHome", req, res);
+        console.log();
     });
 
     app.get('/recoverRow', isLoggedIn, function (req, res) {
