@@ -438,7 +438,6 @@ requirejs(['./WorldWindShim',
                     globe.goTo(new WorldWind.Position(LayerSelected.Latitude, LayerSelected.Longitude, Altitude));
                 }
             })
->>>>>>> 3835786a44a5fd53f8369b4fc2efca0bbee86ac7
         };
 //
         globe.addEventListener("mousemove", handlePick);
