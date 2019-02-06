@@ -31,7 +31,7 @@
             <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
                 <span class="qq-upload-drop-area-text-selector"></span>
             </div>
-            <div class="qq-upload-button-selector qq-upload-button">
+            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button' disabled>
                 <div>Upload a file</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
@@ -402,9 +402,9 @@
 </div>
 
 <script>
-    var UserRole = "<%= user.userrole %>";
+    var UserRole = "<%= user.userrole %>"; //Admin or general
     var getvalue = JSON.parse(localStorage.getItem("getvalue"));
-
+    console.log(getvalue);
     $(document).ready(function() {
         document.getElementById('date').value = getvalue[0];
         document.getElementById('User ID').value = getvalue[1];
@@ -435,6 +435,17 @@
                 document.getElementById("comment").disabled = false;
                 document.getElementById("approve").disabled = false;
                 document.getElementById("reject").disabled = false;
+                document.getElementById('message').disabled = true;
+                document.getElementById('LayerFormat').disabled = true;
+                document.getElementById('City').disabled = true;
+                document.getElementById('LayerStateInput').disabled = true;
+                document.getElementById('country').disabled = true;
+                document.getElementById('DisplayName').disabled = true;
+                document.getElementById('sub').disabled = true;
+                document.getElementById('LayerNameInput').disabled = true;
+                document.getElementById('main').disabled = true;
+                document.getElementsByClassName('qq-uploader-selector').disabled = true;
+                $('#upload-button').prop('disabled','true');
                 document.getElementById("submit").style.backgroundColor = "lightgray";
                 document.getElementById("adminonly").style.display = "block";
                 document.getElementById("comment").placeholder = "Please describe why you are rejecting the request.";
