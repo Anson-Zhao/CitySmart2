@@ -31,7 +31,7 @@
             <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
                 <span class="qq-upload-drop-area-text-selector"></span>
             </div>
-            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button' disabled>
+            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button'>
                 <div>Upload a file</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
@@ -445,7 +445,8 @@
                 document.getElementById('LayerNameInput').disabled = true;
                 document.getElementById('main').disabled = true;
                 document.getElementsByClassName('qq-uploader-selector').disabled = true;
-                $('#upload-button').prop('disabled','true');
+                document.getElementById('upload-button').disabled = true;
+                // $('#upload-button').prop('disabled',true);
                 document.getElementById("submit").style.backgroundColor = "lightgray";
                 document.getElementById("adminonly").style.display = "block";
                 document.getElementById("comment").placeholder = "Please describe why you are rejecting the request.";
