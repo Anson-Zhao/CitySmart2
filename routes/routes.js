@@ -1170,11 +1170,13 @@ module.exports = function (app, passport) {
         let approvepictureStr = req.query.LUN.split(',');
 
         let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
+        console.log("hey you got this far~! '" + statement + "'");
 
         // mover folder
         for(let i = 0; i < approvepictureStr.length; i++) {
             fs.rename(''+ upload_Dir +'/' + approvepictureStr[i] + '' , '' + geoData_Dir + '/' + approvepictureStr[i] + '',  function (err) {
                 if (err) {
+                    console.log("hm...");
                     console.log(err);
                 } else {
                     console.log("success");
