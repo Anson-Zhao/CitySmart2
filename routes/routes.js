@@ -1169,14 +1169,13 @@ module.exports = function (app, passport) {
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
 
-        let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
-        console.log("hey you got this far~! '" + statement + "'");
+        let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "';";
+        // let statement2 = "INSERT INTO LayerMenu (LayerName, FirstLayer, SecondLayer, ThirdLayer, CountryName, StateName, CityName, Status) SELECT (LayerName, FirstLayer, SecondLayer, ThirdLayer, CountryName, StateName, CityName, Status) FROM Request_Form WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
         for(let i = 0; i < approvepictureStr.length; i++) {
             fs.rename(''+ upload_Dir +'/' + approvepictureStr[i] + '' , '' + geoData_Dir + '/' + approvepictureStr[i] + '',  function (err) {
                 if (err) {
-                    console.log("hm...");
                     console.log(err);
                 } else {
                     console.log("success");
@@ -1200,6 +1199,7 @@ module.exports = function (app, passport) {
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
 
+
         for (let i = 0; i < result.length; i++) {
             if (i === result.length - 1) {
                 update2 += result[i][0] + " = '" + result[i][1]+ "'";
@@ -1208,6 +1208,8 @@ module.exports = function (app, passport) {
             }
         }
 
+        console.log(req.body);
+
         let Layer_Uploader = upload_Dir + "/" + responseDataUuid;
         let Layer_Uploader_name = responseDataUuid;
         let filepathname = upload_Dir + "/" + responseDataUuid;
@@ -1215,7 +1217,7 @@ module.exports = function (app, passport) {
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, CityName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[11][1] + "','" + result[9][1] + "','" + result[10][1] + "', 'Approved');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1224,7 +1226,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, CityName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[11][1] + "','" + result[9][1] + "','" + result[10][1] + "', 'Approved');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
