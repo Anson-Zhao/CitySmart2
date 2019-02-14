@@ -84,15 +84,16 @@ requirejs(['./WorldWindShim',
 
             // Retrieve a WmsLayerCapabilities object by the desired layer name
             for (var n = 0; n < preloadWMSLayerName.length; n++) {
-                // console.log(preloadWMSLayerName[n]);
+                console.log(preloadWMSLayerName[n]);
                 var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
+
 
                 // Form a configuration object from the wmsLayerCapability object
                 var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
 
                 // Modify the configuration objects title property to a more user friendly title
                 wmsConfig.title = preloadWMSLayerName[n];
-                // console.log (wmsConfig.title);
+                console.log (wmsConfig.title);
 
                 // Create the WMS Layer from the configuration object
                 var wmsLayer = new WorldWind.WmsLayer(wmsConfig);

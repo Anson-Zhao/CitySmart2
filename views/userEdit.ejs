@@ -103,7 +103,7 @@
             </div>
         </form>
             <p style="font-size:15px">
-                <label for="password" >Do you want to change this user's password?</label>
+                <label for="password" >Do you want to change the following user's password?</label>
                 <input type="checkbox" id="password" name="password" onclick="myFunction()">
             </p>
             <div class="generalForm">
@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label">Confirm New Password</label>
+                            <label class="col-md-4 control-label">Confirm New Password</label>currentSelectedLayer
                             <div class="col-md-8 inputGroupContainer">
                                 <div class="input-group"><span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span><input id="ConfirmPassword" name="ConfirmNewPassword" class="form-control"  value="" type="password"></div>
                             </div>
@@ -141,6 +141,9 @@
 </div>
 <script>
     <!--var username = "<%= user.username %>";-->
+
+    var stringUser = "Are you sure you want to change " + user.userName + "\'s password?";
+    console.log(stringUser);
 
     var getvalue = JSON.parse(localStorage.getItem("getvalue"));
     document.getElementById('username').value = getvalue[0];

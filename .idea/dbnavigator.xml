@@ -24,18 +24,27 @@
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
     <loaded-nodes>
-      <connection connection-id="a76ab0fb-4828-4226-bcbd-60008530220f">
-        <schema name="CitySmart2" object-types="table, view" />
+      <connection connection-id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140">
+        <schema name="CitySmart" object-types="view, table" />
+        <schema name="CitySmart2" object-types="view, table" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="a76ab0fb-4828-4226-bcbd-60008530220f">
-      <console name="10.11.90.15" type="STANDARD"><![CDATA[select * from `CitySmart2`.]]></console>
+    <connection id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140">
+      <console name="90.15" type="STANDARD" schema="" session="Main">select * from `GeneralFormDatatable22`</console>
     </connection>
   </component>
+  <component name="DBNavigator.Project.DatabaseFileManager">
+    <open-files />
+  </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="a76ab0fb-4828-4226-bcbd-60008530220f" />
+    <connection id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140" />
+  </component>
+  <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-list connection-id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140" dataset="CitySmart2.Country" active-filter-id="EMPTY_FILTER" />
+    <filter-list connection-id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140" dataset="CitySmart.GeneralFormDatatable" active-filter-id="EMPTY_FILTER" />
+    <filter-list connection-id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140" dataset="CitySmart2.GeneralFormDatatable22" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -56,16 +65,14 @@
     <filters />
   </component>
   <component name="DBNavigator.Project.ScriptExecutionManager" clear-outputs="true">
-    <recently-used-interfaces>
-      <mapping database-type="MYSQL" interface-id="DEFAULT" />
-    </recently-used-interfaces>
+    <recently-used-interfaces />
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="a76ab0fb-4828-4226-bcbd-60008530220f" active="true">
+      <connection id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140" active="true">
         <database>
-          <name value="10.11.90.15" />
-          <description value="Local Dev DB Svr" />
+          <name value="90.15" />
+          <description value="Local Dev DB" />
           <database-type value="MYSQL" />
           <config-type value="BASIC" />
           <database-version value="5.7" />
@@ -78,8 +85,8 @@
           <database value="mysql" />
           <os-authentication value="false" />
           <empty-password value="false" />
-          <user value="AppUser" />
-          <password value="U3BlY2lhbDg4OCU=" />
+          <user value="root" />
+          <password value="QWRtaW4yQE15c3Fs" />
         </database>
         <properties>
           <auto-commit value="false" />
@@ -94,6 +101,12 @@
           <key-file value="" />
           <key-passphrase value="" />
         </ssh-settings>
+        <ssl-settings>
+          <active value="false" />
+          <certificate-authority-file value="" />
+          <client-certificate-file value="" />
+          <client-key-file value="" />
+        </ssl-settings>
         <details>
           <charset value="UTF-8" />
           <session-management value="true" />
@@ -264,27 +277,38 @@
       <qualified-text-editor text-length-threshold="300">
         <content-types>
           <content-type name="Text" enabled="true" />
+          <content-type name="Properties" enabled="true" />
           <content-type name="XML" enabled="true" />
           <content-type name="DTD" enabled="true" />
           <content-type name="HTML" enabled="true" />
           <content-type name="XHTML" enabled="true" />
           <content-type name="CSS" enabled="true" />
+          <content-type name="Java" enabled="true" />
           <content-type name="SQL" enabled="true" />
           <content-type name="PL/SQL" enabled="true" />
           <content-type name="JavaScript" enabled="true" />
+          <content-type name="PHP" enabled="true" />
           <content-type name="JSP" enabled="true" />
           <content-type name="JSPx" enabled="true" />
+          <content-type name="Groovy" enabled="true" />
+          <content-type name="FTL" enabled="true" />
+          <content-type name="TML" enabled="true" />
+          <content-type name="GSP" enabled="true" />
           <content-type name="ASP" enabled="true" />
+          <content-type name="VTL" enabled="true" />
+          <content-type name="AIDL" enabled="true" />
           <content-type name="YAML" enabled="true" />
+          <content-type name="Flex" enabled="true" />
+          <content-type name="Manifest" enabled="true" />
         </content-types>
       </qualified-text-editor>
       <record-navigation>
-        <navigation-target value="VIEWER" />
+        <navigation-target value="EDITOR" />
       </record-navigation>
     </dataset-editor-settings>
     <code-editor-settings>
       <general>
-        <show-object-navigation-gutter value="true" />
+        <show-object-navigation-gutter value="false" />
         <show-spec-declaration-navigation-gutter value="true" />
         <enable-spellchecking value="true" />
         <enable-reference-spellchecking value="false" />

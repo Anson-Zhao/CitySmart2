@@ -435,15 +435,15 @@
                 document.getElementById("comment").disabled = false;
                 document.getElementById("approve").disabled = false;
                 document.getElementById("reject").disabled = false;
-                document.getElementById('message').disabled = true;
-                document.getElementById('LayerFormat').disabled = true;
-                document.getElementById('City').disabled = true;
-                document.getElementById('LayerStateInput').disabled = true;
-                document.getElementById('country').disabled = true;
-                document.getElementById('DisplayName').disabled = true;
-                document.getElementById('sub').disabled = true;
-                document.getElementById('LayerNameInput').disabled = true;
-                document.getElementById('main').disabled = true;
+                document.getElementById('message').readonly = true;
+                document.getElementById('LayerFormat').readonly = true;
+                document.getElementById('City').readonly = true;
+                document.getElementById('LayerStateInput').readonly = true;
+                document.getElementById('country').readonly = true;
+                document.getElementById('DisplayName').readonly = true;
+                document.getElementById('sub').readonly = true;
+                document.getElementById('LayerNameInput').readonly = true;
+                document.getElementById('main').readonly = true;
                 document.getElementsByClassName('qq-uploader-selector').disabled = true;
                 document.getElementById('upload-button').disabled = true;
                 // $('#upload-button').prop('disabled',true);
@@ -561,6 +561,7 @@
                     data: data,
                     dataType: 'json',
                     success: function (d) {
+                        console.log(data);
                     }
                 });
                 window.location.replace('/userHome');
@@ -682,11 +683,9 @@
                 }
             }
         })
-
         //use if to check
         //false replace the <p> to the Layer Name is duplicated
         //ture --> nothing
-
     }
 
     function SearchThirdLayer(thisvalue){

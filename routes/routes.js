@@ -59,6 +59,18 @@ module.exports = function (app, passport) {
         })
     });
 
+    function downloadImage () {
+        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
+        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
+        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
+
+        request(url).pipe(fs.createWriteStream(downloadDir));
+        fs.createWriteStream(downloadDir).end();
+
+    }
+
+    downloadImage();
+
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
         let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
@@ -1196,6 +1208,7 @@ module.exports = function (app, passport) {
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
 
+
         for (let i = 0; i < result.length; i++) {
             if (i === result.length - 1) {
                 update2 += result[i][0] + " = '" + result[i][1]+ "'";
@@ -1278,6 +1291,7 @@ module.exports = function (app, passport) {
             let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
             let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
+                console.log(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '');
                 if (err) {
                     console.log(err);
                 } else {
@@ -1353,6 +1367,28 @@ module.exports = function (app, passport) {
             res.json(results);
         });
     });
+    app.get('/layerRequestContinent',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        con_CS.query("SELECT Continent,Contitent_name  FROM Country group by Continent,Contitent_name", function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+    app.get('/layerRequestCountry',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        console.log(req.query);
+        var recieveCountryData = req.query.country;
+        console.log(recieveCountryData);
+        con_CS.query("SELECT Country_name FROM Country WHERE Continent = ?", recieveCountryData, function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+
 
 
 //AddData in table
