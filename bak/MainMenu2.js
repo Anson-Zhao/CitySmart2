@@ -373,7 +373,7 @@ requirejs(['./WorldWindShim',
 
                     var popupBodyName = $('<p class="site-name"><h4>' + infobox[k].LayerName + '</h4></p>');
                     var popupBodyDesc = $('<p class="site-description">' + infobox[k].Site_Description + '</p><br>');
-                    var fillerImages = $('<img style="width:100%; height:110%;" src="../images/Pics/' + infobox[k].Picture_Location + '"/>');
+                    var fillerImages = $('<img style="width:100%; height:110%;" src=' + infobox[k].Picture_Location + '"../images/Pics"/>');
                     var imageLinks = $('<p class="site-link" <h6>Site Link: </h6></p><a href="' + infobox[k].Link_to_site_location + '">Click here to navigate to the site&#8217;s website </a>');
                     var copyrightStatus = $('<p  class="copyright" <h6>Copyright Status: </h6>' + infobox[k].Copyright + '</p><br>');
                     var coordinates = $('<p class="coordinate" <h6>Latitude and Longitude: </h6>'+ infobox[k].Latitude + infobox[k].Longitude + '</p><br>');
