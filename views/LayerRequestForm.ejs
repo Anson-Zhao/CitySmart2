@@ -20,7 +20,6 @@
     <!--<script type = "text/javascript" src="LayerNameSearch.js"></script>-->
     <script src="../src/jquery.multi-select.js"></script>
     <script src="../src/misc/Subcategory.js"></script>
-    <script src="../src/jquery.autocomplete.min.js"></script>
     <!--<script src="../src/jquery.form.min.js"></script>-->
     <!-- Change the "src" attribute according to your installation path -->
     <!--<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>-->
@@ -169,13 +168,6 @@
             border-radius: 5px;
             border: 1px solid lightgray;
         }
-        #country {
-            background-color: white;
-            padding: 5px;
-        }
-        #country:hover {
-            background-color: whitesmoke;
-        }
 
     </style>
 </head>
@@ -275,14 +267,24 @@
                 </div>
                 <!--<p id="LayerName1" style="color: palevioletred; margin-left:270px;">Please Enter the Layer Name, the Layer Name must be at least 6 characters</p>-->
                 <div class="form-group">
+                    <label class="col-md-4 control-label">Layer Continent</label>
+                    <div class="col-md-8 inputGroupContainer">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
+                            <select name="ContinentName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT COUNTRY" id="continent" onchange="ChangeContinentList(this.value)">
+                                <option selected="selected" value="AL" id="continent-option">SELECT A CONTINENT</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-md-4 control-label">Layer Country</label>
                     <div class="col-md-8 inputGroupContainer">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                            <input id="country" class="form-control" type="text" placeholder="Enter Country Name"/>
-                            <!--<select name="CountryName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT COUNTRY" id="country">-->
-                                <!--<option>United States</option>-->
-                            <!--</select>-->
+                            <select name="CountryName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT COUNTRY" id="country" disabled>
+                                <option>SELECT A COUNTRY</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -351,7 +353,7 @@
 <script>
     var RID = '<%= RID %>';
     var username = '<%= user.username %>';
-    var countries = ['Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua & Deps', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Rep', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Congo {Democratic Rep}', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'East Timor', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland {Republic}', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Korea North', 'Korea South', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar, {Burma}', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria','Norway', 'Oman', 'Pakistan', 'Palau', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russian Federation', 'Rwanda', 'St Kitts & Nevis', 'St Lucia', 'Saint Vincent & the Grenadines', 'Samoa', 'San Marino', 'Sao Tome & Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Trinidad & Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'];document.getElementById('User ID').value = username;
+    document.getElementById('User ID').value = username;
     document.getElementById('RID').value = RID;
 
     $(document).ready(function() {
@@ -372,15 +374,55 @@
         console.log(today);
         document.getElementById("date").value=today;
 
-        $("#country").autocomplete({
-            lookup: countries,
-            onSelect: function (suggestion) {
-                //alert("Select: " + suggestion.value);
-                this.liveSearch(suggestion.value);
-            }
-        })
-
     });
+
+    $(document).ready(function() {
+        let continentList = document.getElementById("continent")
+        $.ajax({
+            url: "layerRequestContinent",
+            dataType: 'json',
+            success: function (results) {
+                console.log(results);
+                var option;
+                for (let i = 0; i < results.length; i++) {
+                    option = new Option(results[i].Contitent_name, results[i].Continent);
+                    continentList.add(option);
+                    // console.log(option);
+                }
+            }
+        });
+    });
+
+    function ChangeContinentList (continentValue){
+        console.log(continentValue);
+        var country = "country="+continentValue;
+        let countryList = document.getElementById("country")
+        while (countryList.options.length) {
+            countryList.remove(0);
+        }
+
+        if(continentValue !== 'SAS'){
+            countryList.disabled = false;
+        }
+        if(continentValue === "AL"){
+            countryList.disabled = true;
+            $("#country").html("<option>SELECT A COUNTRY</option>")
+        }
+        console.log(country);
+        $.ajax({
+            url: "layerRequestCountry",
+            method: 'GET',
+            dataType: 'json',
+            data: country,
+            success: function (results) {
+                console.log(results)
+                for(var j = 0; j < results.length; j++){
+                    var option = new Option(results[j].Country_name, results[j].Country_name);
+                    countryList.add(option);
+                }
+            }
+        });
+    }
 
     function clearForm(){
         if (confirm("Are you sure you want to clear the form? All the data will be reset accordingly!") === true) {
@@ -388,6 +430,7 @@
         }
     }
 
+    //to check if the current option of main Main-Category is "other" or not
     function Check(that){
         console.log(that);
         if (that === "other"){
@@ -399,6 +442,7 @@
 
         }
     }
+
     function userHome() {
         if (confirm("Are you sure you want to leave this page? All the data will be cleared accordingly!") === true) {
             window.location.replace('/userHome')
@@ -484,6 +528,7 @@
         }
     });
 
+//to check that if there are duplicated from the layer name that layer name that you just inserted
     function SearchLayerName(value){
         $.ajax({
             url: "SearchLayerName",
