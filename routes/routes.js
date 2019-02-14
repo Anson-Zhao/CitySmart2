@@ -1048,7 +1048,7 @@ module.exports = function (app, passport) {
 
         let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
         let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-
+        console.log(statement2 + statement);
         con_CS.query(statement2 + statement, function (err, result) {
             if (err) {
                 throw err;
@@ -1284,6 +1284,7 @@ module.exports = function (app, passport) {
             let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
             let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
+                console.log(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '');
                 if (err) {
                     console.log(err);
                 } else {
@@ -1359,6 +1360,28 @@ module.exports = function (app, passport) {
             res.json(results);
         });
     });
+    app.get('/layerRequestContinent',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        con_CS.query("SELECT Continent,Contitent_name  FROM Country group by Continent,Contitent_name", function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+    app.get('/layerRequestCountry',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        console.log(req.query);
+        var recieveCountryData = req.query.country;
+        console.log(recieveCountryData);
+        con_CS.query("SELECT Country_name FROM Country WHERE Continent = ?", recieveCountryData, function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+
 
 
 //AddData in table
@@ -2036,7 +2059,7 @@ function QueryStat(myObj, scoutingStat, res) {
         };
         let resXMLRequest;
 
-        request.get(requestOptions)
+        request.get(requestOptiolayerRequestCountryns)
             .on('error',function(err){
                 console.log(err.code);
                 // process.exit(0)
