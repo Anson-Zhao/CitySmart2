@@ -20,6 +20,7 @@
     <!--<script type = "text/javascript" src="LayerNameSearch.js"></script>-->
     <script src="../src/jquery.multi-select.js"></script>
     <script src="../src/misc/Subcategory.js"></script>
+    <script src="../src/jquery.autocomplete.min.js"></script>
     <!--<script src="../src/jquery.form.min.js"></script>-->
     <!-- Change the "src" attribute according to your installation path -->
     <!--<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>-->
@@ -168,6 +169,13 @@
             border-radius: 5px;
             border: 1px solid lightgray;
         }
+        #country {
+            background-color: white;
+            padding: 5px;
+        }
+        #country:hover {
+            background-color: whitesmoke;
+        }
 
     </style>
 </head>
@@ -271,9 +279,10 @@
                     <div class="col-md-8 inputGroupContainer">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                            <select name="CountryName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT COUNTRY" id="country">
-                                <option>United States</option>
-                            </select>
+                            <input id="country" class="form-control" type="text" placeholder="Enter Country Name"/>
+                            <!--<select name="CountryName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT COUNTRY" id="country">-->
+                                <!--<option>United States</option>-->
+                            <!--</select>-->
                         </div>
                     </div>
                 </div>
@@ -342,7 +351,7 @@
 <script>
     var RID = '<%= RID %>';
     var username = '<%= user.username %>';
-    document.getElementById('User ID').value = username;
+    var countries = ['Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua & Deps', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Rep', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Congo {Democratic Rep}', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'East Timor', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland {Republic}', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Korea North', 'Korea South', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar, {Burma}', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria','Norway', 'Oman', 'Pakistan', 'Palau', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russian Federation', 'Rwanda', 'St Kitts & Nevis', 'St Lucia', 'Saint Vincent & the Grenadines', 'Samoa', 'San Marino', 'Sao Tome & Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Trinidad & Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'];document.getElementById('User ID').value = username;
     document.getElementById('RID').value = RID;
 
     $(document).ready(function() {
@@ -362,6 +371,14 @@
         today = yyyy + '-' + mm + '-' + dd;
         console.log(today);
         document.getElementById("date").value=today;
+
+        $("#country").autocomplete({
+            lookup: countries,
+            onSelect: function (suggestion) {
+                //alert("Select: " + suggestion.value);
+                this.liveSearch(suggestion.value);
+            }
+        })
 
     });
 
@@ -511,15 +528,15 @@
         })
     }
 
-    $(function() {
-        new dgCitysCountries({
-            CityVal: document.getElementById("City").val,
-            countryVal: document.getElementById("country").val,
-            City: document.getElementById("City"),
-            country: document.getElementById("country"),
-            change: true
-        });
-    });
+    // $(function() {
+    //     new dgCitysCountries({
+    //         CityVal: document.getElementById("City").val,
+    //         countryVal: document.getElementById("country").val,
+    //         City: document.getElementById("City"),
+    //         country: document.getElementById("country"),
+    //         change: true
+    //     });
+    // });
 
 </script>
 </body>
