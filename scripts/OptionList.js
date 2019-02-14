@@ -1,16 +1,17 @@
-let Continentlevel, Countrylevel,continentObj1,continentObj2,continentObj3;
+var country;
 
 $(document).ready(function() {
-    let x = document.getElementById("myListCountry");
+    let countryList = document.getElementById("myListCountry");
     $.ajax({
         url: "CountryList",
         dataType: 'json',
         success: function (results) {
             // console.log(results);
-            let option;
+            var option;
+            countryList.add(new Option("All Layer", "All Layer"));
             for (let i = 0; i < results.length; i++) {
                 option = new Option(results[i].CountryName, results[i].CountryName);
-                x.add(option);
+                countryList.add(option);
                 // console.log(option);
             }
         }
@@ -36,7 +37,7 @@ function getObjects(obj, key, val) {
     }
     return objects;
 }
-var country;
+
 function ChangeCountryList(countrylevel) {
     console.log(countrylevel);
     $('.Menu').hide();
@@ -58,7 +59,6 @@ function ChangeCountryList(countrylevel) {
         document.getElementById("myListCity").style.backgroundColor = "lightgray";
     }
     if(countrylevel === "All Layer") {
-
         $('.Menu').show();
         $('.State').show();
         $("#myListState").html("<option>All Layer</option>");
@@ -79,6 +79,7 @@ function ChangeCountryList(countrylevel) {
         data: country,
         success: function (results) {
             // console.log(results);
+            stateList.add(new Option("All Layer", "All Layer"));
             for(var j = 0; j < results.length; j++){
                     var option = new Option(results[j].StateName, results[j].StateName);
                     stateList.add(option);
@@ -105,7 +106,6 @@ function ChangeStateList(statelevel) {
         document.getElementById("myListCity").style.backgroundColor = "white";
     }
     if(statelevel === "All Layer"){
-        console.log("hhh");
         $("myListCity").html("<option>All Layer</option>");
         document.getElementById("myListCity").disabled = true;
         document.getElementById("myListCity").style.backgroundColor = "lightgray";
@@ -134,14 +134,13 @@ function ChangeStateList(statelevel) {
         dataType: 'json',
         data:country,
         success: function (results) {
-            console.log(results);
+            // console.log(results);
             if (statelevel === "All Layer") {
                 myFunction(results);
             }
         }
     });
 }
-
 
 function ChangeCityList(citylevel){
     console.log(citylevel);
@@ -163,7 +162,6 @@ function ChangeCityList(citylevel){
 }
 
 function myFunction(returnCity) {
-    console.log("hh");
     for( var i = 0; i <returnCity.length ; i++){
         var obj1 = returnCity[i].FirstLayer;
         var obj2 = returnCity[i].SecondLayer;
@@ -174,6 +172,7 @@ function myFunction(returnCity) {
         $(className1).show();
         $(className2).show();
         $(className3).show();
+        console.log(className3);
     }
 }
 

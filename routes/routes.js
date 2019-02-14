@@ -1,31 +1,27 @@
 // routes/routes.js
 const mysql = require('mysql');
-const config = require('../config/mainconf');
-const con_CS = mysql.createConnection(config.commondb_connection);
-const uploadPath = config.Upload_Path;
 const bodyParser = require('body-parser');
+const config = require('../config/mainconf');
+const fs = require("fs");
+const request = require("request");
 const bcrypt = require('bcrypt-nodejs');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const async = require('async');
 const crypto = require('crypto');
-const fs = require("fs");
 const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
+const path    = require('path');
+var exec = require('child_process').exec, child;
 const upload_Dir = config.Upload_Dir;
 const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
-// const local_URL = config.local_URL;
+const downloadPath = config.Download_Path;
+const con_CS = mysql.createConnection(config.commondb_connection);
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
-// const newmask = 0o011;
-// console.log (`Current umask: ${process.umask().toString(8)}`);
-// const oldmask = process.umask(newmask);
-// console.log(
-//    `Changed umask from ${oldmask.toString(8)} to ${process.umask().toString(8)}`
-// );
 
 let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
@@ -42,6 +38,8 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
 
+    setInterval(predownloadXml, 3660000);
+
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
     app.use(cors({
@@ -55,95 +53,28 @@ module.exports = function (app, passport) {
 
     app.get('/',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        res.render('homepage.ejs');
+        // res.render('homepage.ejs');
+        res.render('homepage.ejs', {
+            message: req.flash('loginMessage'),
+            error: "Your username and password don't match."
+        })
     });
 
-    // app.get('/app', function (req, res) {
-    //     res.render('usgs_mapsvc.ejs');
-    // });
+    app.get('/homepageLI', isLoggedIn, function (req, res) {
+        let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
+        let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
 
-    app.get('/mapsvcviewer', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        res.render('usgs_mapsvc.ejs');
-    });
-
-    app.get('/usgswt', function (req, res) {
-        res.render('usgswt.ejs');
-    });
-
-    app.get('/mapsvcviewerL', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        res.render('usgs_mapsvcL.ejs');
-    });
-
-    app.get('/usgswtL', function (req, res) {
-        res.render('usgswtL.ejs');
-    });
-
-    app.get('/uswtdb', function (req, res) {
-        // console.log("A: " + new Date());
-
-        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-
-        // var statement = "SELECT p_name, xlong, ylat, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB INNER JOIN USWTDB_COLOR ON USWTDB.case_id = USWTDB_COLOR.case_id ORDER BY p_name;";
-        var statement = "SELECT USWTDB_Sample.case_id, t_state, p_name, xlong, ylat, p_year, p_tnum, p_cap, p_avgcap, t_ttlh, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB_Sample INNER JOIN USWTDB_COLOR_Sample ON USWTDB_Sample.case_id = USWTDB_COLOR_Sample.case_id ORDER BY p_name;";
-
-        con_CS.query(statement, function (err, results, fields) {
-            if (err) {
-                console.log(err);
-                res.json({"error": true, "message": "An unexpected error occurred !"});
+        con_CS.query(myStat + state2, function (err, results, fields) {
+            if (!results[0][0].userrole) {
+                console.log("Error2");
+            } else if (!results[1][0].firstName) {
+                console.log("Error1")
             } else {
-                // console.log("success: " + new Date());
-                // console.log(results);
-                res.json({"error": false, "data": results});
-            }
-        });
-    });
-
-    app.get('/mdw', function (req, res) {
-        res.render('Mineral_Deposits.ejs');
-    });
-
-    app.get('/placemarkt', function (req, res) {
-        // console.log("A: " + new Date());
-
-        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-
-        // var statement = "SELECT p_name, xlong, ylat, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB INNER JOIN USWTDB_COLOR ON USWTDB.case_id = USWTDB_COLOR.case_id ORDER BY p_name;";
-        var statement = "SELECT * FROM Mineral_Deposits;";
-
-        con_CS.query(statement, function (err, results, fields) {
-            if (err) {
-                console.log(err);
-                res.json({"error": true, "message": "An unexpected error occurred !"});
-            } else {
-                // console.log("success: " + new Date());
-                // console.log(results);
-                res.json({"error": false, "data": results});
-            }
-        });
-    });
-
-    app.get('/mrds', function (req, res) {
-        res.render('mrds.ejs');
-    });
-
-    app.get('/mrdsData', function (req, res) {
-        // console.log("A: " + new Date());
-
-        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-
-        // var statement = "SELECT p_name, xlong, ylat, p_year_color, p_avgcap_color, t_ttlh_color FROM USWTDB INNER JOIN USWTDB_COLOR ON USWTDB.case_id = USWTDB_COLOR.case_id ORDER BY p_name;";
-        var statement = "SELECT * FROM mrds_sample;";
-
-        con_CS.query(statement, function (err, results, fields) {
-            if (err) {
-                console.log(err);
-                res.json({"error": true, "message": "An unexpected error occurred !"});
-            } else {
-                // console.log("success: " + new Date());
-                // console.log(results);
-                res.json({"error": false, "data": results});
+                console.log(req.user);
+                res.render('homepageUSER.ejs', {
+                    user: req.user, // get the user out of session and pass to template
+                    firstName: results[1][0].firstName
+                });
             }
         });
     });
@@ -151,54 +82,39 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
+        // console.log("Layername Below: ");
+        // console.log(layername);
         var parsedLayers = layername.split(",");
-        console.log (parsedLayers);
-        var returnRes = [];
-        con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu Where LayerName = ?", parsedLayers[0], function (err, results) {
-            console.log (results);
-            res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
-        })
-            //
-            //         returnRes.push(results);
-            //         if (j === parsedLayers.length - 1) {
-            //             console.log (returnRes);
-            //             res.json(returnRes);
-            //         }
-            //         // res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
-            //         // for(var i =0; i< results.length; i++) {
-            //         //     if (layername === results[i].LayerName) {
-            //         //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
-            //         //     }
-            //         // }
-        // for (var j = 0; j < parsedLayers.length; j++) {
-        //     con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM MapLayerMenu Where LayerName = ?", parsedLayers[j], function (err, results) {
-        //
-        //         returnRes.push(results);
-        //         if (j === parsedLayers.length - 1) {
-        //             console.log (returnRes);
-        //             res.json(returnRes);
-        //         }
-        //         // res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
-        //         // for(var i =0; i< results.length; i++) {
-        //         //     if (layername === results[i].LayerName) {
-        //         //         res.json({"Longitude": results[i].Longitude, "Latitude" : results[i].Latitude, "Altitude" : results[i].Altitude, "ThirdLayer": results[i].ThirdLayer, "LayerName":results[i].LayerName});
-        //         //     }
-        //         // }
-        //     });
-        // }
+        // console.log("Parsed Layers: ");
+        // console.log(parsedLayers);
+
+        con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu WHERE LayerName = ?', parsedLayers[0], function (err, results) {
+            if (err) {
+                console.log(err);
+                res.json({"error": true, "message": "no result found!"});
+            } else {
+                res.json(results);
+                console.log("Results:");
+                console.log(results);
+            }
+        });
+        // con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu Where LayerName = ?", parsedLayers[0], function (err, results) {
+        //     console.log (results);
+        //     res.json({"Longitude": results[0].Longitude, "Latitude" : results[0].Latitude, "Altitude" : results[0].Altitude, "ThirdLayer": results[0].ThirdLayer, "LayerName":results[0].LayerName});
+        // })
     });
 
     app.get('/thirdL',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var thirdlayer = req.query.thirdlayer;
-        var queryState = 'SELECT FirstLayer, SecondLayer, ThirdLayer, Longitude, Latitude, Altitude FROM MapLayerMenu WHERE ThirdLayer = ?';
+        var queryState = 'SELECT FirstLayer, SecondLayer, ThirdLayer, Longitude, Latitude, Altitude FROM LayerMenu WHERE ThirdLayer = ?';
         con_CS.query(queryState, thirdlayer, function (err, results) {
             if (err) {
                 console.log(err);
                 res.json({"error": true, "message": "An unexpected error occurred !"});
             } else {
-                console.log(results);
                 res.json(results);
+                console.log(results);
             }
         });
     });
@@ -224,7 +140,7 @@ module.exports = function (app, passport) {
     // process the login form
     app.post('/login', passport.authenticate('local-login', {
             successRedirect: '/loginUpdate', // redirect to the secure profile section
-            failureRedirect: '/login', // redirect back to the signup page if there is an error
+            failureRedirect: '/login', // redirect to the login page if there is an error
             failureFlash: true // allow flash messages
         }),
         function (req, res) {
@@ -249,6 +165,26 @@ module.exports = function (app, passport) {
         res.render('forgotPassword.ejs', {message: req.flash('forgotPassMessage')});
 
     });
+
+
+    app.get('/placemark', function(req, res) {
+        console.log("Hello traveler");
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+        var select = "SELECT * FROM CitySmart2.LayerMenu WHERE LayerType = 'Placemark'";
+        con_CS.query( select, function (err, result) {
+            if (err) throw err;
+            else {
+                console.log(result);
+                res.json({"err": false, "data": result});
+            }
+        });
+    });
+
+
+
+
+    // app.listen(3005, function(){ console.log('Example app listening on port 3005!')});
+
 
     app.post('/email', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
@@ -277,6 +213,7 @@ module.exports = function (app, passport) {
 
         con_CS.query(myStat, function (err, user) {
             dateNtime();
+            console.log(user);
 
             if (!user || dateTime > user[0].resetPasswordExpires) {
                 res.send('Password reset token is invalid or has expired. Please contact Administrator.');
@@ -349,7 +286,7 @@ module.exports = function (app, passport) {
     app.get('/signout', function (req, res) {
         req.session.destroy();
         req.logout();
-        res.redirect('/login');
+        res.redirect('/');
     });
 
     // =====================================
@@ -366,25 +303,8 @@ module.exports = function (app, passport) {
             } else if (!results[1][0].firstName) {
                 console.log("Error1")
             } else {
+                console.log(req.user);
                 res.render('userHome.ejs', {
-                    user: req.user, // get the user out of session and pass to template
-                    firstName: results[1][0].firstName
-                });
-            }
-        });
-    });
-
-    app.get('/homepage', isLoggedIn, function (req, res) {
-        let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
-        let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
-
-        con_CS.query(myStat + state2, function (err, results, fields) {
-            if (!results[0][0].userrole) {
-                console.log("Error2");
-            } else if (!results[1][0].firstName) {
-                console.log("Error1")
-            } else {
-                res.render('homepageL.ejs', {
                     user: req.user, // get the user out of session and pass to template
                     firstName: results[1][0].firstName
                 });
@@ -394,6 +314,7 @@ module.exports = function (app, passport) {
 
     app.get('/deleteRow', isLoggedIn, function (req, res) {
         del_recov("Delete", "Deletion failed!", "/userHome", req, res);
+        console.log();
     });
 
     app.get('/recoverRow', isLoggedIn, function (req, res) {
@@ -411,6 +332,7 @@ module.exports = function (app, passport) {
             });
         }
     });
+
 
     // =====================================
     // REQUEST QUERY   =====================
@@ -441,8 +363,8 @@ module.exports = function (app, passport) {
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE USGS.Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE USGS.MapLayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
+            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ geoData_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
@@ -560,7 +482,6 @@ module.exports = function (app, passport) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
-                //console.log(result);
                 if (err) {
                     console.log(err);
                     res.json({"error": true, "message": "Fail !"});
@@ -579,7 +500,7 @@ module.exports = function (app, passport) {
                 return [String(key), req.body[key]];
             });
 
-            var update1 = "UPDATE USGS.UserProfile SET ";
+            var update1 = "UPDATE UserProfile SET ";
             let update2 = "";
             var update3 = " WHERE username = '" + req.user.username + "'";
             for (let i = 1; i < result.length - 3; i++) {
@@ -600,7 +521,7 @@ module.exports = function (app, passport) {
                     let newname = req.body.username;
 
                     if (newname !== oldname) {
-                        let statement = "UPDATE USGS.UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
+                        let statement = "UPDATE UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
                         con_CS.query(statement, function (err,result) {
                             if (err) {
                                 console.log(err);
@@ -635,26 +556,12 @@ module.exports = function (app, passport) {
             ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
         };
 
-        // dateNtime();
-
-        // myStat = "UPDATE UserProfile SET firstName =?, lastName = ? ";
-        // mylogin = "UPDATE UserLogin SET dateModified  = ? WHERE username = ? ";
-        // myVal = [newPass.firstname, newPass.lastname, dateTime, user.username];
-        //
-        // con_CS.query(myStat, myVal, mylogin, function (err, rows) {
-        //     if (err) {
-        //         console.log(err);
-        //         res.json({"error": true, "message": "Fail !"});
-        //     } else {
-        // console.log(user.password);
-        // console.log(newPass.currentpassword);
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
         if (!!req.body.newpassword && passComp) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
-                //console.log(result);
                 if (err) {
                     console.log(err);
                     res.json({"error": true, "message": "Fail !"});
@@ -662,9 +569,6 @@ module.exports = function (app, passport) {
                     res.json({"error": false, "message": "Success !"});
                 }
             });
-            //         } else {
-            //             res.json({"error": false, "message": "Success !"});
-            //         }
         }
     });
 
@@ -707,7 +611,6 @@ module.exports = function (app, passport) {
     });
 
     app.post('/signup', function (req, res) {
-        // console.log("A");
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         // con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
@@ -722,11 +625,14 @@ module.exports = function (app, passport) {
             dateModified: req.body.dateCreated,
             status: req.body.status
         };
-        // console.log(newUser);
-        myStat = "INSERT INTO USGS.UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
-        mylogin = "INSERT INTO USGS.UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
+
+        console.log (newUser);
+
+        myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
+        mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
-            //newUser.id = rows.insertId;
+            console.log(rows);
+            // newUser.id = rows.insertId;
             if (err) {
                 console.log(err);
                 res.json({"error": true, "message": "An unexpected error occurred!"});
@@ -767,8 +673,8 @@ module.exports = function (app, passport) {
             status: req.body.status
         };
 
-        myStat = "INSERT INTO USGS.UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
-        mylogin = "INSERT INTO USGS.UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
+        myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
+        mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
             //newUser.id = rows.insertId;
             if (err) {
@@ -911,63 +817,8 @@ module.exports = function (app, passport) {
                 adj: req.query.Phone_Number
             }
         ];
-        // console.log(req.query.status);
+
         QueryStat(myQuery, myStat, res);
-
-        // function userQuery() {
-        //     res.setHeader("Access-Control-Allow-Origin", "*");
-        //
-        //     con_CS.query(myStat, function (err, results, fields) {
-        //
-        //         let status = [{errStatus: ""}];
-        //
-        //         if (err) {
-        //             console.log(err);
-        //             status[0].errStatus = "fail";
-        //             res.send(status);
-        //             res.end();
-        //         } else if (results.length === 0) {
-        //             status[0].errStatus = "no data entry";
-        //             res.send(status);
-        //             res.end();
-        //         } else {
-        //             let JSONresult = JSON.stringify(results, null, "\t");
-        //             // console.log(JSONresult);
-        //             res.send(JSONresult);
-        //             res.end();
-        //         }
-        //     });
-        // }
-
-        // let j = 0;
-        //
-        // for (let i = 0; i < myQuery.length; i++) {
-        //     // console.log("i = " + i);
-        //     // console.log("field Value: " + !!myQuery[i].fieldVal);
-        //     if (i === myQuery.length - 1) {
-        //         if (!!myQuery[i].fieldVal) {
-        //             if (j === 0) {
-        //                 myStat += " WHERE " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
-        //                 j = 1;
-        //                 userQuery()
-        //             } else {
-        //                 myStat += " AND " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
-        //                 userQuery()
-        //             }
-        //         } else {
-        //             userQuery()
-        //         }
-        //     } else {
-        //         if (!!myQuery[i].fieldVal) {
-        //             if (j === 0) {
-        //                 myStat += " WHERE " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
-        //                 j = 1;
-        //             } else {
-        //                 myStat += " AND " + myQuery[i].dbCol + myQuery[i].op + myQuery[i].fieldVal + "'";
-        //             }
-        //         }
-        //     }
-        // }
     });
 
     // // Retrieve user data from user management page
@@ -1001,7 +852,6 @@ module.exports = function (app, passport) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
-                //console.log(result);
                 if (err) {
                     console.log(err);
                     res.json({"error": true, "message": "Fail !"});
@@ -1020,8 +870,8 @@ module.exports = function (app, passport) {
             });
 
             // var update3 = " WHERE username = '" + req.user.username + "'";
-            let statement1 = "UPDATE USGS.UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
-            let statement2 = "UPDATE USGS.UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
+            let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
+            let statement2 = "UPDATE UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
             con_CS.query(statement1 + statement2, function (err, result) {
                 if (err) throw err;
                 res.json(result);
@@ -1125,7 +975,7 @@ module.exports = function (app, passport) {
         });
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        var update1 = "UPDATE USGS.UserProfile SET ";
+        var update1 = "UPDATE UserProfile SET ";
         let update2 = "";
         var update3 = " WHERE username = '" + req.user.username + "'";
         for (let i = 0; i < result.length - 3; i++) {
@@ -1150,7 +1000,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");//
         let oldname = req.user.username;
         let newname = req.query.UNS;
-        let statement = "UPDATE USGS.UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
+        let statement = "UPDATE UserLogin SET PendingUsername = '"+ newname + "' WHERE username = '" + oldname + "';";
         con_CS.query(statement, function (err,result) {
             if (err) {
                 console.log(err);
@@ -1189,15 +1039,15 @@ module.exports = function (app, passport) {
             }
         }
         let newImage = {
-            Layer_Uploader: uploadPath + "/" + responseDataUuid,
+            Layer_Uploader: upload_Dir + "/" + responseDataUuid,
             Layer_Uploader_name: responseDataUuid
         };
         name += ", Layer_Uploader, Layer_Uploader_name";
         valueSubmit += ", '" + newImage.Layer_Uploader + "','" + newImage.Layer_Uploader_name + "'";
-        let filepathname = uploadPath + "/" + responseDataUuid;
+        let filepathname = upload_Dir + "/" + responseDataUuid;
 
-        let statement2 = "INSERT INTO USGS.Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
-        let statement = "UPDATE USGS.Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
+        let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
+        let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
 
         con_CS.query(statement2 + statement, function (err, result) {
             if (err) {
@@ -1255,7 +1105,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         let status = req.body.status;
 
-        let update1 = "UPDATE USGS.Request_Form SET " ;
+        let update1 = "UPDATE Request_Form SET " ;
         let update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
 
@@ -1266,13 +1116,13 @@ module.exports = function (app, passport) {
                 update2 += result[i][0] + " = '" + result[i][1] + "', " ;
             }
         }
-        let Layer_Uploader = uploadPath + "/" + responseDataUuid;
+        let Layer_Uploader = upload_Dir + "/" + responseDataUuid;
         let Layer_Uploader_name = responseDataUuid;
-        let filepathname = uploadPath + "/" + responseDataUuid;
+        let filepathname = upload_Dir + "/" + responseDataUuid;
         let statement1 = update1+update2+update3;
-        let statement2 = "UPDATE USGS.Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
-        let statement3 = "UPDATE USGS.Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-        let statement4 = "UPDATE USGS.Request_Form SET Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
+        let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
+        let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
+        let statement4 = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
         if(status === "Reject"){
             con_CS.query(statement1 + statement2 + statement3 + statement4, function (err, result) {
                 if (err) {
@@ -1319,7 +1169,8 @@ module.exports = function (app, passport) {
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
 
-        let statement = "UPDATE USGS.Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
+        let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "';";
+        // let statement2 = "INSERT INTO LayerMenu (LayerName, FirstLayer, SecondLayer, ThirdLayer, CountryName, StateName, CityName, Status) SELECT (LayerName, FirstLayer, SecondLayer, ThirdLayer, CountryName, StateName, CityName, Status) FROM Request_Form WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
         for(let i = 0; i < approvepictureStr.length; i++) {
@@ -1344,9 +1195,10 @@ module.exports = function (app, passport) {
 
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        var update1 = "UPDATE USGS.Request_Form SET " ;
+        var update1 = "UPDATE Request_Form SET " ;
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
+
 
         for (let i = 0; i < result.length; i++) {
             if (i === result.length - 1) {
@@ -1356,14 +1208,16 @@ module.exports = function (app, passport) {
             }
         }
 
-        let Layer_Uploader = uploadPath + "/" + responseDataUuid;
+        console.log(req.body);
+
+        let Layer_Uploader = upload_Dir + "/" + responseDataUuid;
         let Layer_Uploader_name = responseDataUuid;
-        let filepathname = uploadPath + "/" + responseDataUuid;
+        let filepathname = upload_Dir + "/" + responseDataUuid;
         let statement1 = update1+update2+update3;
-        let statement2 = "UPDATE USGS.Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
-        let statement3 = "UPDATE USGS.Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
+        let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
+        let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO USGS.MapLayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, CityName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[11][1] + "','" + result[9][1] + "','" + result[10][1] + "', 'Approved');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1372,7 +1226,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO USGS.MapLayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, CityName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[11][1] + "','" + result[9][1] + "','" + result[10][1] + "', 'Approved');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1381,13 +1235,19 @@ module.exports = function (app, passport) {
                 }
             });
         }
+        // mv('/uploadfiles', 'dest/file', {mkdirp: true}, {clobber: false}, function(err) {
+        //     //This is supposed to do the following:
+        //     //Tries fs.rename first, then falls back to
+        //     // piping the source file to the dest file (destination)  then unlinking
+        //     // the source file.
+        // });
     });
 
     app.get('/reject',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let rejectID = req.query.reject;
         let comment = req.query.comment;
-        let statement = "UPDATE USGS.Request_Form SET Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
+        let statement = "UPDATE Request_Form SET Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
         con_CS.query(statement,function (err,results) {
             if (err) throw err;
             res.json(results);
@@ -1421,8 +1281,8 @@ module.exports = function (app, passport) {
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE USGS.Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE USGS.MapLayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
+            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
@@ -1460,74 +1320,42 @@ module.exports = function (app, passport) {
     // CitySmart Menu Filter SECTION =======
     // =====================================
 
-    //Continent level
-
-    // app.get('/ContinentList', function (req, res) {
-    //     res.setHeader("Access-Control-Allow-Origin", "*");
-    //     con_CS.query("SELECT ContinentName FROM optionList GROUP BY ContinentName", function (err, results) {
-    //         if (err) throw err;
-    //         res.json(results);
-    //     });
-    // });
-
     //Country level
-    //app.get('/CountryList', function (req, res) {
-        //     res.setHeader("Access-Control-Allow-Origin", "*");
-        //     con_CS.query('SELECT CountryName, ContinentName, COUNT (*) AS count FROM optionList GROUP BY CountryName, ContinentName', function (err, results, fields) {
-        //         if (err) throw err;
-        //         res.json(results);
-        //         // console.log(results);
-        //     });
-        // });
     app.get('/CountryList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query('SELECT CountryName FROM optionList GROUP BY CountryName', function (err, results, fields) {
+        con_CS.query('SELECT CountryName FROM LayerMenu GROUP BY CountryName', function (err, results, fields) {
             if (err) throw err;
             res.json(results);
-            // console.log(results);
         });
     });
-
-
-
-    //Depend on continent value to get the country and state value
-    // app.get('/ClassName', function (req, res) {
-    //     res.setHeader("Access-Control-Allow-Origin", "*");
-    //     con_CS.query('SELECT CountryName, FirstLayer, SecondLayer, ThirdLayer, StateName, ContinentName FROM MapLayerMenu', function (err, results) {
-    //         res.json(results);
-    //     });
-    // });
+    //Class for menu
     app.get('/ClassName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.citylevel;
-        console.log(recieveCitylist);
-        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CityName = '" + recieveCitylist + "'", function (err, results) {
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM LayerMenu WHERE CityName = '" + recieveCitylist + "'", function (err, results) {
             res.json(results);
-            console.log(results)
         });
     });
     app.get('/CountryClassName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCountrylist = req.query.countrylevel;
-        console.log(recieveCountrylist);
-        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM MapLayerMenu WHERE CountryName = '" + recieveCountrylist + "'", function (err, results) {
+        con_CS.query("SELECT FirstLayer, SecondLayer, ThirdLayer FROM LayerMenu WHERE CountryName = '" + recieveCountrylist + "'", function (err, results) {
             res.json(results);
-            console.log(results)
         });
     });
     //state level
     app.get('/StateList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCountrylist = req.query.countrylevel;
-        con_CS.query("SELECT StateName FROM optionList  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
+        con_CS.query("SELECT StateName FROM LayerMenu  WHERE CountryName = '" + recieveCountrylist + "' GROUP BY StateName", function (err, results, fields) {
             res.json(results);
-            console.log(results)
         });
     });
+    //city level
     app.get('/CityList', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var recieveCitylist = req.query.statelevel;
-        con_CS.query("SELECT CityName FROM optionList  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
+        con_CS.query("SELECT CityName FROM LayerMenu  WHERE StateName = '" + recieveCitylist + "' GROUP BY CityName", function (err, results, fields) {
             res.json(results);
         });
     });
@@ -1545,7 +1373,7 @@ module.exports = function (app, passport) {
 //check if the layer name is available
     app.get('/SearchLayerName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT ThirdLayer FROM MapLayerMenu", function (err, results) {
+        con_CS.query("SELECT ThirdLayer FROM LayerMenu", function (err, results) {
             if (err) throw err;
             res.json(results);
 
@@ -1562,7 +1390,7 @@ module.exports = function (app, passport) {
 
     app.get('/SearchLayerName', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT ThirdLayer FROM MapLayerMenu", function (err, results) {
+        con_CS.query("SELECT ThirdLayer FROM LayerMenu", function (err, results) {
             if (err) throw err;
             res.json(results);
 
@@ -1572,95 +1400,100 @@ module.exports = function (app, passport) {
     // =====================================
     // CitySmart Dynamic Menu SECTION ======
     // =====================================
-    app.get('/firstlayer', function (req, res) {
+    // app.get('/firstlayer', function (req, res) {
+    //
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //
+    //     con_CS.query("SELECT FirstLayer From LayerMenu", function (err, result) {
+    //         let JSONresult = JSON.stringify(result, null, "\t");
+    //         res.send(JSONresult);
+    //     });
+    // });
 
-        res.setHeader("Access-Control-Allow-Origin", "*");
+    // app.get('/secondlayer', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     con_CS.query("SELECT SecondLayer From LayerMenu", function (err, result) {
+    //         let JSONresult = JSON.stringify(result, null, "\t");
+    //         res.send(JSONresult);
+    //     });
+    //
+    // });
 
-        con_CS.query("SELECT FirstLayer From MapLayerMenu", function (err, result) {
-
-            console.log("recive and processing");
-
-            let JSONresult = JSON.stringify(result, null, "\t");
-            console.log(JSONresult);
-
-            res.send(JSONresult);
-
-            res.end();
-
-        });
-    });
-
-    app.get('/secondlayer', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-
-        con_CS.query("SELECT SecondLayer From MapLayerMenu", function (err, result) {
-
-            console.log("recive and processing");
-
-            let JSONresult = JSON.stringify(result, null, "\t");
-
-            res.send(JSONresult);
-            res.end();
-
-        });
-
-    });
-
-    app.get('/thirdlayer', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-
-        con_CS.query("SELECT ThirdLayer From MapLayerMenu", function (err, result) {
-
-            console.log("recive and processing");
-
-            let JSONresult = JSON.stringify(result, null, "\t");
-
-            res.send(JSONresult);
-            res.end();
-
-        });
-
-    });
-
+    // app.get('/thirdlayer', function (req, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //
+    //     con_CS.query("SELECT ThirdLayer From LayerMenu", function (err, result) {
+    //         let JSONresult = JSON.stringify(result, null, "\t");
+    //         res.send(JSONresult);
+    //     });
+    //
+    // });
 
     app.get('/layername', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-
-        con_CS.query("SELECT LayerName From MapLayerMenu", function (err, result) {
-
-            console.log("recive and processing");
-
+        con_CS.query("SELECT LayerName From LayerMenu", function (err, result) {
             let JSONresult = JSON.stringify(result, null, "\t");
-
             res.send(JSONresult);
         });
     });
 
+    app.get('/firstLayer', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        con_CS.query("SELECT FirstLayer FROM LayerMenu WHERE Status ='Approved' GROUP BY FirstLayer ", function (err, result) {
+            // let JSONresult = JSON.stringify(result, null, "\t");
+            if (err) { throw err } else {
+                // console.log(result);
+                res.json(result);
+            }
+        });
+
+    });
+    app.get('/secondLayer', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var firstlayerValue = req.query.FirstLayer;
+        con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Status ='Approved' and FirstLayer =? GROUP BY SecondLayer", firstlayerValue ,function (err, result) {
+            // let JSONresult = JSON.stringify(result, null, "\t");
+            if (err) { throw err } else {
+                // console.log(result);
+                res.json(result);
+            }
+        });
+
+    });
+    app.get('/thirdLayer', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        var secondLayerValue = req.query.SecondLayer;
+        con_CS.query("SELECT LayerType,SecondLayer,ThirdLayer,CityName,StateName,CountryName, GROUP_CONCAT(LayerName) as LayerName FROM LayerMenu WHERE Status ='Approved' and SecondLayer =? GROUP BY ThirdLayer,CityName,StateName,CountryName,SecondLayer,LayerType", secondLayerValue ,function (err, result) {
+            // let JSONresult = JSON.stringify(result, null, "\t");
+            //All layer?
+            //WHERE cityname = ''?
+            if (err) { throw err } else {
+                console.log(result.length);
+                for(var i =0; i<result.length; i++){
+                    console.log(result[i].LayerName);
+                }
+                res.json(result);
+            }
+        });
+    });
     app.get('/createlayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT * From MapLayerMenu WHERE Status = 'Approved'", function (err, result) {
-            // console.log("recive and processing");
-
+        con_CS.query("SELECT * From LayerMenu WHERE Status = 'Approved'", function (err, result) {
             let JSONresult = JSON.stringify(result, null, "\t");
-
             res.send(JSONresult);
         });
 
     });
+
 
     // =====================================
     // Others  =============================
     // =====================================
-    app.get('/scanner', function (req, res) {
-        res.render('scanner.ejs')
-    });
-
     app.get('Cancel', function (req, res) {
         res.redirect('/userHome');
         res.render('userHome', {
             user: req.user // get the user out of session and pass to template
-
         });
     });
 
@@ -1693,7 +1526,7 @@ module.exports = function (app, passport) {
     function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
 
         transactionID = req.query.transactionIDStr.split(",");
-        console.log(transactionID);
+        // console.log(transactionID);
         let statementGeneral = "UPDATE Request_Form SET Status = '" + StatusUpd + "'";
         // let statementDetailedS = "UPDATE Detailed_Scouting SET Status = '" + StatusUpd + "'";
         // let statementDetailedT = "UPDATE Detailed_Trap SET Status = '" + StatusUpd + "'";
@@ -1729,8 +1562,6 @@ module.exports = function (app, passport) {
 
     function updateDBNres(SQLstatement, Value, ErrMsg, targetURL, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        //console.log("Query Statement: " + SQLstatement);
-
         con_CS.query(SQLstatement, Value, function (err, rows) {
             if (err) {
                 console.log(err);
@@ -1743,8 +1574,6 @@ module.exports = function (app, passport) {
 
     function updateDBNredir(SQLstatement, Value, ErrMsg, failURL, redirURL, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        //console.log("Query Statement: " + SQLstatement);
-
         con_CS.query(SQLstatement, Value, function (err, rows) {
             if (err) {
                 console.log(err);
@@ -1757,12 +1586,8 @@ module.exports = function (app, passport) {
     }
 
 function QueryStat(myObj, scoutingStat, res) {
-    // console.log(myObj);
     let j = 0;
     for (let i = 0; i < myObj.length; i++) {
-        //console.log("i = " + i);
-        // console.log(!!myObj[i].fieldVal);
-
         if (!!myObj[i].adj){
 
                 let aw;
@@ -1795,7 +1620,6 @@ function QueryStat(myObj, scoutingStat, res) {
 
     function dataList(sqlStatement, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        // console.log(sqlStatement);
         con_CS.query(sqlStatement, function (err, results, fields) {
 
             errStatus = [{errMsg: ""}];
@@ -1810,12 +1634,8 @@ function QueryStat(myObj, scoutingStat, res) {
                 res.send(errStatus);
                 res.end();
             } else {
-                // console.log(results);
-                // let result = results;
                 let JSONresult = JSON.stringify(results, null, "\t");
-                // console.log(JSONresult);
                 res.send(JSONresult);
-                res.end();
             }
         });
     }
@@ -1847,7 +1667,6 @@ function QueryStat(myObj, scoutingStat, res) {
         let form = new multiparty.Form();
 
         form.parse(req, function (err, fields, files) {
-            // console.log(fields);
             let partIndex = fields.qqpartindex;
 
             // text/plain is required to ensure support for IE9 and older
@@ -1886,11 +1705,6 @@ function QueryStat(myObj, scoutingStat, res) {
         responseDataName = file.name;
         responseDataName2 = file.name;
 
-        // console.log("forth hokage: " + responseDataUuid);
-        // console.log("fifth harmony: " + responseDataName);
-        // console.log("trials 4 days: " + responseDataUuid2);
-        // console.log("pentatonic success: " + responseDataName2);
-
         if (isValid(file.size)) {
             moveUploadedFile(file, uuid, function () {
                     responseData.success = true;
@@ -1909,7 +1723,6 @@ function QueryStat(myObj, scoutingStat, res) {
     function onChunkedUpload(fields, file, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
 
-        console.log("Z");
         let size = parseInt(fields.qqtotalfilesize),
             uuid = fields.qquuid,
             index = fields.qqpartindex,
@@ -1957,7 +1770,7 @@ function QueryStat(myObj, scoutingStat, res) {
 //delete new photo
     function onDeleteFile1(req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        console.log("result=" + req.params.uuid);
+        //console.log("result=" + req.params.uuid);
         let uuid = req.params.uuid,
             dirToDelete = "uploadfiles/" + uuid;
         rimraf(dirToDelete, function(error) {
@@ -1986,7 +1799,7 @@ function QueryStat(myObj, scoutingStat, res) {
     }
 
     function moveFile(destinationDir, sourceFile, destinationFile, success, failure) {
-        console.log(destinationDir);
+        //console.log(destinationDir);
         mkdirp(destinationDir, function (error) {
             let sourceStream, destStream;
             if (error) {
@@ -2136,9 +1949,6 @@ function QueryStat(myObj, scoutingStat, res) {
                         console.log(error.message);
                         res.json({"error": true, "message": "An unexpected error occurred !"});
                     } else {
-                        // res.send('Message sent successfully! Please check your email inbox.');
-                        // console.log('Message sent successfully!');
-                        // res.redirect('/login');
                         res.json({"error": false, "message": "Message sent successfully !"});
                         // alert('An e-mail has been sent to ' + req.body.username + ' with further instructions.');
                     }
@@ -2185,17 +1995,12 @@ function QueryStat(myObj, scoutingStat, res) {
                     url + token + '\n\n' +
                     'If you did not request this, please ignore this email.\n'
                 };
-                // console.log(message);
 
                 smtpTrans.sendMail(message, function(error){
                     if(error){
                         console.log(error.message);
                         res.json({"error": true, "message": "An unexpected error occurred !"});
                     } else {
-                        // res.send('Message sent successfully! Please check your email inbox.');
-                        // console.log('Message sent successfully!');
-                        // res.redirect('/login');
-                        console.log("A");
                         res.json({"error": false, "message": "Message sent successfully !"});
                         // alert('An e-mail has been sent to ' + req.body.username + ' with further instructions.');
                     }
@@ -2203,7 +2008,6 @@ function QueryStat(myObj, scoutingStat, res) {
             }
             ], function(err) {
             if (err) return next(err);
-            // res.redirect('/forgot');
             res.json({"error": true, "message": "An unexpected error occurred !"});
         });
     }
@@ -2215,7 +2019,6 @@ function QueryStat(myObj, scoutingStat, res) {
             subject: subject,
             text: text
         };
-        console.log(username);
 
         smtpTrans.sendMail(message, function (error) {
             if(error){
@@ -2224,5 +2027,32 @@ function QueryStat(myObj, scoutingStat, res) {
                 res.render('success.ejs', {});
             }
         });
+    }
+    function predownloadXml () {
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
+        const requestOptions = {
+            uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
+            timeout: 3600000
+        };
+        let resXMLRequest;
+
+        request.get(requestOptions)
+            .on('error',function(err){
+                console.log(err.code);
+                // process.exit(0)
+            })
+            .on('response', function (res) {
+                resXMLRequest = res;
+                if (res.statusCode === 200){
+                    res.pipe(fs.createWriteStream(downloadDir))
+                } else {
+                    console.log("Respose with Error Code: " + res.statusCode);
+                    // process.exit(0)
+                }
+            })
+            .on('end', function () {
+                console.log("The End: " + resXMLRequest.statusCode);
+                // process.exit(0)
+            })
     }
 };

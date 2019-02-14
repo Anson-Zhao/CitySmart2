@@ -2,26 +2,26 @@
 <!doctype html>
 <html>
 <head>
-    <title>USGS Data Visualization - WMS Layer Customized Request</title>
+    <title>CitySmart - WMS Layer Customized Request</title>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
 
     <!--<link rel="stylesheet" href="../css/style_final.css" type="text/css">
     <link rel="stylesheet" href="../css/multi-select.css" media="screen" type="text/css">-->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../scripts/jquery-validation-1.17.0/demo/css/screen.css">
+    <link rel="stylesheet" href="../src/jquery-validation-1.17.0/demo/css/screen.css">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <link href="//cdnjs.cloudflare.com/ajax/libs/file-uploader/5.16.2/fine-uploader-gallery.css" rel="stylesheet">
-    <script src="../scripts/jquery-3.3.1.min.js"></script>
+    <script src="../src/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/file-uploader/5.16.2/all.fine-uploader/all.fine-uploader.min.js"></script>
     <!--<script type = "text/javascript" src="LayerNameSearch.js"></script>-->
     <script src="../src/jquery.multi-select.js"></script>
-    <script src="../scripts/country/dist/country.js"></script>
+    <script src="../src/country/dist/country.js"></script>
     <!--<script src="../src/jquery.form.min.js"></script>-->
     <!-- Change the "src" attribute according to your installation path -->
     <!--<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>-->
     <!--<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/jquery.validate.min.js"></script>-->
-    <script src="../scripts/jquery-validation-1.17.0/dist/jquery.validate.js"></script>
+    <script src="../src/jquery-validation-1.17.0/dist/jquery.validate.js"></script>
 
     <script type="text/template" id="qq-template">
         <div class="qq-uploader-selector qq-uploader qq-gallery" qq-drop-area-text="Drop files here">
@@ -31,7 +31,7 @@
             <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
                 <span class="qq-upload-drop-area-text-selector"></span>
             </div>
-            <div class="qq-upload-button-selector qq-upload-button">
+            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button'>
                 <div>Upload a file</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
@@ -163,7 +163,7 @@
         .selectpicker {
             height: 60px;
         }
-        #continent, #country {
+        #City, #country {
             height: 60px;
         }
         .other {
@@ -311,18 +311,6 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-4 control-label">Layer Continent</label>
-                        <div class="col-md-8 inputGroupContainer">
-                            <div class="input-group">
-                                <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
-                                <!--<input id="LayerContinentInput" name="ContinentName" placeholder="Layer Continent" class="form-control" required value="" type="text"></div>-->
-                                <select  id="continent" class="form-control selectpicker" name="ContinentName">
-                                    <option value="select">SELECT CONTINENT</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label class="col-md-4 control-label">Layer Country</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -339,6 +327,23 @@
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
                                 <input name="StateName" value="" placeholder="State Name" class="form-control" required  type="text" id="LayerStateInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">Layer City</label>
+                        <div class="col-md-8 inputGroupContainer">
+                            <!--<div class="input-group">-->
+                                <!--<span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>-->
+                                <!--&lt;!&ndash;<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>&ndash;&gt;-->
+                                <!--<select  id="City" class="form-control selectpicker" name="CityName">-->
+                                    <!--<option value="select">SELECT CONTINENT</option>-->
+                                <!--</select>-->
+                            <!--</div>-->
+                            <div class="input-group">
+                                <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
+                                <!--<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>-->
+                                <input name="CityName" id="City" value="" placeholder="Please enter full City name" class="form-control selectpicker" type="text">
                             </div>
                         </div>
                     </div>
@@ -397,9 +402,9 @@
 </div>
 
 <script>
-    var UserRole = "<%= user.userrole %>";
+    var UserRole = "<%= user.userrole %>"; //Admin or general
     var getvalue = JSON.parse(localStorage.getItem("getvalue"));
-
+    console.log(getvalue);
     $(document).ready(function() {
         document.getElementById('date').value = getvalue[0];
         document.getElementById('User ID').value = getvalue[1];
@@ -408,7 +413,7 @@
         document.getElementById('LayerStateInput').value = getvalue[6];
         document.getElementById('LayerFormat').value = getvalue[13];
         document.getElementById('message').value = getvalue[12];
-        document.getElementById('continent').options[0].innerHTML = getvalue[4];
+        document.getElementById('City').value = getvalue[4];
         document.getElementById('country').options[0].innerHTML = getvalue[5];
         document.getElementById('DisplayName').value = getvalue[11];
         document.getElementById('comment').value = getvalue[16];
@@ -430,6 +435,18 @@
                 document.getElementById("comment").disabled = false;
                 document.getElementById("approve").disabled = false;
                 document.getElementById("reject").disabled = false;
+                document.getElementById('message').readonly = true;
+                document.getElementById('LayerFormat').readonly = true;
+                document.getElementById('City').readonly = true;
+                document.getElementById('LayerStateInput').readonly = true;
+                document.getElementById('country').readonly = true;
+                document.getElementById('DisplayName').readonly = true;
+                document.getElementById('sub').readonly = true;
+                document.getElementById('LayerNameInput').readonly = true;
+                document.getElementById('main').readonly = true;
+                document.getElementsByClassName('qq-uploader-selector').disabled = true;
+                document.getElementById('upload-button').disabled = true;
+                // $('#upload-button').prop('disabled',true);
                 document.getElementById("submit").style.backgroundColor = "lightgray";
                 document.getElementById("adminonly").style.display = "block";
                 document.getElementById("comment").placeholder = "Please describe why you are rejecting the request.";
@@ -452,7 +469,7 @@
             }
         })
 
-        $("#continent").change(function () {
+        $("#City").change(function () {
             var val = $(this).val();
             if (val == "select") {
                 $("#country").html("<option value='select'>SELECT SUBCATEGORY</option>");
@@ -526,7 +543,7 @@
         }
     });
 
-    function submitForm () {
+    function submitForm() {
         if (UserRole === "Admin") {
             if (confirm("Are you sure you would like to approve this data?") === true) {
                 var tID = "tID=" + document.getElementById('RID').value;
@@ -544,6 +561,7 @@
                     data: data,
                     dataType: 'json',
                     success: function (d) {
+                        console.log(data);
                     }
                 });
                 window.location.replace('/userHome');
@@ -601,7 +619,7 @@
            $('input,select,textarea').not('[readonly],[disabled],:button').val('');
            $("#main").value = "Category";
             $("#sub").html("<option>SELECT SUBCATEGORY</option>");
-            $("#continent").html("<option>SELECT CONTINENT</option>");
+            $("#City").html("<option>SELECT CONTINENT</option>");
             $("#country").html("<option>SELECT COUNTRY</option>");
         }
     }
@@ -616,7 +634,7 @@
             Layer_Name: "required",
             StateName:"required",
             CountryName:"required",
-            ContinentName:"required",
+            CityName:"required",
             FirstLayer:"required",
             SecondLayer:"required",
             Layer_Description: "required",
@@ -628,7 +646,7 @@
             Layer_Name: "Please enter the layer name.",
             StateName:"Please enter the layer state.",
             CountryName:"Please enter the layer country.",
-            ContinentName:"Please enter the layer continent.",
+            CityName:"Please enter the layer City.",
             FirstLayer: "Please select the main category.",
             SecondLayer:"Please select the subcategory.",
             Layer_Description: "Please write the description of the layer.",
@@ -697,11 +715,11 @@
         })
     }
 
-    $("#continent").click(function () {
-        new dgContinentsCountries({
-            continentVal: document.getElementById("continent").val,
+    $("#City").click(function () {
+        new dgCitysCountries({
+            CityVal: document.getElementById("City").val,
             countryVal: document.getElementById("country").val,
-            continent: document.getElementById("continent"),
+            City: document.getElementById("City"),
             country: document.getElementById("country"),
             change: true
         });

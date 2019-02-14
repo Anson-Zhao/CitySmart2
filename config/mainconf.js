@@ -27,9 +27,12 @@ var configGlobal = {
     // 'local_URL' : "",
     // 'local_URL' : "http://viewer.usgs.aworldbridgelabs.com",
 
+    // 'Upload_Path': 'http://usgs.aworldbridgelabs.com/uploadfiles',
+    'Download_Path':'../config',
+
     //upload file--pending
     // 'Upload_Path': 'http://usgs.aworldbridgelabs.com/uploadfiles',
-    'Upload_Path':'uploadfiles',
+    // 'Upload_Path':'uploadfiles',
     // 'Upload_Dir': '/var/www/usgs/uploadfiles',
     'Upload_Dir': 'uploadfiles',
 

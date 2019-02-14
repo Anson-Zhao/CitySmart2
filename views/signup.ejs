@@ -2,14 +2,14 @@
 <!doctype html>
 <html>
 <head>
-	<title>USGS Data Visualization -  Sign Up</title>
+	<title>CitySmart -  Sign Up</title>
 	<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
 	<!-- load fontawesome -->
 	<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 	<!--<link rel="stylesheet" href="//unpkg.com/flatpickr/dist/flatpickr.min.css">-->
-	<script src="../scripts/jquery-3.3.1.min.js"></script>
+	<script src="../src/jquery-3.3.1.min.js"></script>
 	<script src="//cdn.jsdelivr.net/npm/flatpickr"></script>
 	<!--<script src="//unpkg.com/flatpickr"></script>-->
 	<style>.floatingBox {
@@ -68,7 +68,8 @@
 	</div>
 	<% } %>
 	<!-- LOGIN FORM -->
-	<form onsubmit="return checkForm()" action="/signup" method="post" id="signup">
+	<!--<form onsubmit="return checkForm()" action="/signup" method="post" id="signup">-->
+	<form  action="/signup" method="post" id="signup">
 		<div class="form-group">
 			<label>Username (email address):</label>
 			<input type="email" class="form-control" name="username" style="height: 50px;" required>
@@ -122,9 +123,12 @@
                 dateFormat: "Y-m-d H:i:S",
                 time_24hr: true
             });
+		console.log($('#signup'));
+		console.log($("#signup").serialize());
 
             $('#signup').submit(function(e) {
                 console.log($("#signup").serialize());
+				console.log($('#signup'));
                 e.preventDefault();
                 $.ajax({
                     type: "post",
@@ -132,6 +136,7 @@
                     dataType: 'json',
                     data: $("#signup").serialize(),
                     success: function (result) {
+                    	console.log(result);
                         if (!result.error) {
                             // alert(result.message);
                             alert("We are sending you the email verification. Please check it before login to your account.");

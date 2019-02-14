@@ -2,7 +2,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>USGS Data Visualization - User Home</title>
+    <title>CitySmart - User Home</title>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/buttons/1.4.2/css/buttons.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!--<link rel="stylesheet" href="//unpkg.com/flatpickr/dist/flatpickr.min.css">-->
-    <script src="../scripts/jquery-3.3.1.min.js"></script>
+    <script src="../src/jquery-3.3.1.min.js"></script>
     <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="//cdn.datatables.net/buttons/1.4.2/js/dataTables.buttons.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -148,7 +148,7 @@
     <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
         <img class="banner" src="/images/NewWBBanner.jpg" style="width: 500px;height:76px;"/>
     </a>
-    <a href="/homepage" style="width:110px;">
+    <a href="/homepageLI" style="width:110px;">
         <button class="navbutton1"> Homepage </button>
     </a>
     <a href="/newRequest" id= "Request" style="width:110px;">
@@ -180,7 +180,7 @@
 
 <div class="container center">
     <div class="page-header text-center header">
-        <h1><span class="fa fa-home"></span><strong> USGS Data Visualization - User Home </strong></h1><h4><span class="fa fa-user"></span>
+        <h1><span class="fa fa-home"></span><strong> CitySmart - User Home </strong></h1><h4><span class="fa fa-user"></span>
             <strong>Account Name</strong>: <%= user.username %></h4><br>
     </div>
 </div>
@@ -252,7 +252,7 @@
                     <th>UID</th>
                     <th>RID</th>
                     <th>Layer Type</th>
-                    <th>Layer Continent</th>
+                    <th>Layer City</th>
                     <th>Layer Country</th>
                     <th>Layer State</th>
                     <th>Main Category</th>
@@ -276,7 +276,7 @@
                     <th>UID</th>
                     <th>RID</th>
                     <th>Layer Type</th>
-                    <th>Layer Continent</th>
+                    <th>Layer City</th>
                     <th>Layer Country</th>
                     <th>Layer State</th>
                     <th>Main Category</th>
@@ -357,10 +357,10 @@
             } else {
                 // var transactionIDStr = "transactionIDStr=" + transactionID.toString();
                 var getvalue = table.rows('.selected').data();
-                // console.log(getvalue);
+                console.log(getvalue);
                 localStorage.setItem("getvalue", JSON.stringify(getvalue[0]));
                 window.location.replace('/editdata');
-                // console.log(localStorage.getItem("getvalue"));
+                console.log(localStorage.getItem("getvalue"));
             }
         });
 
@@ -378,6 +378,7 @@
                 window.location.reload();
             } else {
                 return false;
+
             }
         });
 
@@ -441,7 +442,7 @@
         //                             results[i].UID,
         //                             results[i].RID,
         //                             results[i].LayerCategory,
-        //                             results[i].ContinentName,
+        //                             results[i].CityName,
         //                             results[i].CountryName,
         //                             results[i].StateName,
         //                             results[i].FirstLayer,
@@ -462,7 +463,7 @@
         //                             results[i].UID,
         //                             results[i].RID,
         //                             results[i].LayerCategory,
-        //                             results[i].ContinentName,
+        //                             results[i].CityName,
         //                             results[i].CountryName,
         //                             results[i].StateName,
         //                             results[i].FirstLayer,
@@ -488,7 +489,7 @@
             async: false,
             data: querystr,
             success: function (results) {
-                console.log(results);
+                // console.log(results);
                 for (var i = 0; i < results.length; i++) {
                     if (UserRole === "Regular") {
                         if (results[i].UID === username) {
@@ -497,7 +498,7 @@
                                 results[i].UID,
                                 results[i].RID,
                                 results[i].LayerCategory,
-                                results[i].ContinentName,
+                                results[i].CityName,
                                 results[i].CountryName,
                                 results[i].StateName,
                                 results[i].FirstLayer,
@@ -519,7 +520,7 @@
                                 results[i].UID,
                                 results[i].RID,
                                 results[i].LayerCategory,
-                                results[i].ContinentName,
+                                results[i].CityName,
                                 results[i].CountryName,
                                 results[i].StateName,
                                 results[i].FirstLayer,

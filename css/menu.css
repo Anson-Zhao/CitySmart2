@@ -82,7 +82,7 @@ input:checked + .slider:before
 
 ul.nav {
   position: relative;
-  margin-left: 300px;
+  margin-left: 500px;
 }
 
 .dropdown-submenu {
@@ -186,6 +186,8 @@ ul.nav {
     display: block;
   }
 }
+
+
 /*
   ul.ec-menu {
     display: none;

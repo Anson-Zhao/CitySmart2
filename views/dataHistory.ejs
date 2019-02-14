@@ -2,7 +2,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>USGS Data Visualization - Approved Requests</title>
+    <title>CitySmart - Approved Layer Requests</title>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -12,7 +12,7 @@
     <!--<link rel="stylesheet" href="//unpkg.com/flatpickr/dist/flatpickr.min.css">-->
     <link rel="stylesheet" href="../css/Title.css" type="text/css">
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyBX94wEDdQ52lCDhKAhcfR-flIw1NyLTMA"></script>
-    <script src="../scripts/jquery-3.3.1.min.js"></script>
+    <script src="../src/jquery-3.3.1.min.js"></script>
     <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="//cdn.datatables.net/buttons/1.4.2/js/dataTables.buttons.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -174,7 +174,7 @@
     <a class="navul" style="background:#000000;" href="http://aworldbridge.com">
         <img class="banner" src="/images/NewWBBanner.jpg" style="width:510px;height:76px;"/>
     </a>
-    <a href="/homepage" style="width:110px;">
+    <a href="/homepageLI" style="width:110px;">
         <button class="navbutton1"> Homepage </button>
     </a>
     <a href="/userHome" style="width:110px;">
@@ -203,7 +203,7 @@
 <body>
 <div class="container">
     <div class="page-header text-center">
-        <h1><span class="fa fa-check-square-o"></span><strong> USGS Data Visualization - Approved Requests </strong></h1>
+        <h1><span class="fa fa-check-square-o"></span><strong> CitySmart - Approved Layers </strong></h1>
         <h4><span class="fa fa-user"></span>&nbsp;<strong>Account Name</strong>: <%= user.username %></h4>
     </div>
 </div>
@@ -262,7 +262,7 @@
                 <option value="LayerCategory">Layer Type</option>
                 <option value="StateName">Layer State</option>
                 <option value="CountryName">Layer Country</option>
-                <option value="ContinentName">Layer Continent</option>
+                <option value="CityName">Layer City</option>
                 <option value="FirstLayer">Main Category</option>
                 <option value="SecondLayer">Sub Category</option>
                 <option value="ThirdLayer">Layer Name</option>
@@ -289,7 +289,7 @@
                 <option value="LayerCategory">Layer Type</option>
                 <option value="StateName">Layer State</option>
                 <option value="CountryName">Layer Country</option>
-                <option value="ContinentName">Layer Continent</option>
+                <option value="CityName">Layer City</option>
                 <option value="FirstLayer">Main Category</option>
                 <option value="SecondLayer">Sub Category</option>
                 <option value="ThirdLayer">Layer Name</option>
@@ -316,7 +316,7 @@
                 <option value="LayerCategory">Layer Type</option>
                 <option value="StateName">Layer State</option>
                 <option value="CountryName">Layer Country</option>
-                <option value="ContinentName">Layer Continent</option>
+                <option value="CityName">Layer City</option>
                 <option value="FirstLayer">Main Category</option>
                 <option value="SecondLayer">Sub Category</option>
                 <option value="ThirdLayer">Layer Name</option>
@@ -356,7 +356,7 @@
                     <th>Layer Type</th>
                     <th>Layer State</th>
                     <th>Layer Country</th>
-                    <th>Layer Continent</th>
+                    <th>Layer City</th>
                     <th>Main Category</th>
                     <th>Sub Category</th>
                     <th>Layer Name</th>
@@ -377,7 +377,7 @@
                     <th>Layer Type</th>
                     <th>Layer State</th>
                     <th>Layer Country</th>
-                    <th>Layer Continent</th>
+                    <th>Layer City</th>
                     <th>Main Category</th>
                     <th>Sub Category</th>
                     <th>Layer Name</th>
@@ -534,7 +534,7 @@
                                 resp[i].LayerCategory,
                                 resp[i].StateName,
                                 resp[i].CountryName,
-                                resp[i].ContinentName,
+                                resp[i].CityName,
                                 resp[i].FirstLayer,
                                 resp[i].SecondLayer,
                                 resp[i].ThirdLayer,

@@ -45,147 +45,121 @@ requirejs(['./WorldWindShim',
 
         globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
 
-        var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.3.0";
-        //var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
-        //¡™£¢∞§¶•ªº–≠sšśßàáâäæãåāàeèéêëėoôòóœøõ
+        // Web Map Service information from NASA's Near Earth Observations WMS
+        // var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.1.1";
+        var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
+
         var layerName = [];
-        var preloadLayer = [];
+        var preloadLayer = []; //preload entire layer name
         var layers = globe.layers;
-        var checked = [];
-        var val;
+        var checked = []; //selected toogle switch value
+        // var val;
         var alertVal = true;
         var LayerSelected;
-        var ThirdLayer = [];
+        var arrMenu = [];
+        var checkedCount=0;
         var j = 0;
-        var LayerPosition = [];
+        // var LayerPosition = [];
         var Altitude;
-
-
+        var allCheckedArray=[];
 
         $(document).ready(function () {
-            document.getElementById("openedLayer").value = "No Layer Selected";
-            document.getElementById("openedLayer").disabled = true;
-            document.getElementById("previousL").disabled = true;
-            document.getElementById("nextL").disabled = true;
+            var currentSelectedLayer = document.getElementById("currentSelectedLayer");
+            var previousL = document.getElementById("previousL");
+            var nextL = document.getElementById("nextL");
 
-            $(".Wmslayer").each(function (i) {
+            currentSelectedLayer.value = "No Layer Selected";
+            currentSelectedLayer.disabled = true;
+            previousL.disabled = true;
+            nextL.disabled = true;
+
+            $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
             });
 
-            $('#previousL').click(function(){
-                document.getElementById("nextL").disabled = false;
-                if(j < 1){
-                    document.getElementById("previousL").disabled = true;
-                }else{
-                    j = j - 1;
-                    document.getElementById("openedLayer").value = ThirdLayer[j];
-                    if (j === 0){
-                        document.getElementById("previousL").disabled = true;
-                    }
-                }
-            });
-
-            $('#nextL').click(function(){
-                if(j !== ThirdLayer.length - 1){
-                    if(j === ThirdLayer.length - 2){
-                        document.getElementById("nextL").disabled = true;
-                    }
-                    j = j + 1;
-                    document.getElementById("previousL").disabled = false;
-                    document.getElementById("openedLayer").value = ThirdLayer[j];
-                }else{
-                    document.getElementById("nextL").disabled = true;
-                }
-            });
-
-            var strs = preloadLayer + '';// Converts array to string
-
-            layerName = strs.split(",");//Converts string to array
-            var checkedCount = 0;
-            var currentCheckedArray;
-            $('.Wmslayer').click(function () {
-                var layer1 = $(this).val();
-                console.log (layer1);
-                currentCheckedArray = $(':checkbox:checked');
-
-                if (currentCheckedArray.length > 0 && alertVal){
+            $(".wmsLayer").click(function () {
+                var layer1 = $(this).val(); //the most current value of the selected switch
+                allCheckedArray = $(':checkbox:checked');
+                console.log(allCheckedArray);
+                console.log(allCheckedArray.length);
+                if (alertVal){
                     confirm("Some layers may take awhile to load. Please be patient.")
                 }
 
-                var layername = "layername=" + layer1;
+                var layerRequest = "layername=" + layer1;
+
                 $.ajax({
                     url: 'position',
                     type: 'GET',
-                    // dataType: 'json',
-                    data:layername,
+                    dataType: 'json',
+                    data:layerRequest,
                     async: false,
                     success: function (results) {
-                        console.log (results);
-                        LayerSelected = results;
+                        LayerSelected = results[0]; //Longitude: " ", Latitude: "", Altitude: "", ThirdLayer: "", LayerName: ""
+                        console.log(LayerSelected);
                         Altitude = LayerSelected.Altitude * 1000;
                         globe.goTo(new WorldWind.Position(LayerSelected.Latitude,LayerSelected.Longitude,Altitude));
+
                     }
                 });
 
 
-                if (currentCheckedArray.length > checkedCount){
-                    checked.push(layer1); //insert current value to checked
-                    // val = checked[checked.length - 1];
-                    checkedCount = currentCheckedArray.length;
-                    alertVal = false;
-                    document.getElementById("openedLayer").value =  LayerSelected.ThirdLayer;
-                    ThirdLayer.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to ThirdLayer
-                    j = ThirdLayer.length - 1;
-                    if(ThirdLayer.length === 1){
-                        document.getElementById("nextL").disabled = true;
-                        document.getElementById("previousL").disabled = true;
-                        document.getElementById("openedLayer").disabled = false;
+                if (allCheckedArray.length > checkedCount){ //if there is new array was inserted into the allCheckedArray ( If user choose more than 1 switch)
+
+                    checked.push(layer1); //insert current value to "checked" array
+                    checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
+                    alertVal = false; //alert
+                    currentSelectedLayer.value =  LayerSelected.ThirdLayer; //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
+                    arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
+                    j = arrMenu.length - 1;
+                    if(arrMenu.length === 1){
+                        nextL.disabled = true;
+                        previousL.disabled = true;
+                        currentSelectedLayer.disabled = false;
                     }else{
-                        document.getElementById("previousL").disabled = false;
-                        document.getElementById("nextL").disabled = true;
+                        previousL.disabled = false;
+                        nextL.disabled = true;
                     }
-                    LayerPosition.push(LayerSelected);
+                    // LayerPosition.push(LayerSelected);
                 } else {
                     for( var i = 0 ; i < checked.length; i++) {
                         if (checked[i] === layer1) {
                             checked.splice(i,1); //remove current value from checked array
-                            ThirdLayer.splice(i,1); //remove current ThirdLayer from the array
-                            LayerPosition.splice(i,1); //remove current Latlong from the array
+                            arrMenu.splice(i,1); //remove current ThirdLayer from the array
+                            // LayerPosition.splice(i,1); //remove current Latlong from the array
                         }
                     }
                     // val = checked[checked.length - 1];
-                    checkedCount = currentCheckedArray.length;
+                    checkedCount = allCheckedArray.length;
                     alertVal = false;
-                    document.getElementById("openedLayer").value = ThirdLayer[ThirdLayer.length - 1];
-                    j = ThirdLayer.length - 1;
-                    if(ThirdLayer.length === 1){
-                        document.getElementById("nextL").disabled = true;
-                        document.getElementById("previousL").disabled = true;
+                    currentSelectedLayer.value = arrMenu[arrMenu.length - 1];
+                    j = arrMenu.length - 1;
+                    if(arrMenu.length === 1){
+                        nextL.disabled = true;
+                        previousL.disabled = true;
                     }else{
-                        if(ThirdLayer.length === 0){
-                            document.getElementById("openedLayer").value = "No Layer Selected";
-                            document.getElementById("previousL").disabled = true;
-                            document.getElementById("nextL").disabled = true;
-                            document.getElementById("openedLayer").disabled = true;
+                        if(arrMenu.length === 0){
+                            currentSelectedLayer.value = "No Layer Selected";
+                            previousL.disabled = true;
+                            nextL.disabled = true;
+                            currentSelectedLayer.disabled = true;
                             // globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
                         } else{
-                            document.getElementById("previousL").disabled = false;
-                            document.getElementById("nextL").disabled = true;
+                            previousL.disabled = false;
+                            nextL.disabled = false;
                         }
                     }
-
                 }
 
-                // The part below turns on/off the layer(s) relevant to the switch.
+                //turn on/off wmsLayer
                 for (var a = 0; a < layers.length; a++) {
                     $(':checkbox:checked').each(function () {
-                        console.log($(this).val());
                         if (layers[a].displayName === $(this).val()) {
                             layers[a].enabled = true;
                         } else {
                             let bob = $(this).val().split(",");
                             bob.forEach(function (eleValue) {
-                                if(layers[a].displayName === eleValue){
+                                if (layers[a].displayName === eleValue) {
                                     layers[a].enabled = true;
                                 }
                             });
@@ -197,26 +171,53 @@ requirejs(['./WorldWindShim',
                         } else {
                             let bob = $(this).val().split(",");
                             bob.forEach(function (ery) {
-                                if(layers[a].displayName === ery){
+                                if (layers[a].displayName === ery) {
                                     layers[a].enabled = false;
                                 }
                             });
                         }
-                    });
+                    })
                 }
             });
 
-            $('#openedLayer').click(function(){
+
+            $('#previousL').click(function(){
+                nextL.disabled = false;
+                if(j < 1){
+                    previousL.disabled = true;
+                }else{
+                    j = j - 1;
+                    currentSelectedLayer.value = arrMenu[j];
+                    if (j === 0){
+                        previousL.disabled = true;
+                    }
+                }
+            });
+
+            $('#nextL').click(function(){
+                if(j !== arrMenu.length - 1){
+                    if(j === arrMenu.length - 2){
+                        nextL.disabled = true;
+                    }
+                    j = j + 1;
+                    previousL.disabled = false;
+                    currentSelectedLayer.value = arrMenu[j];
+                }else{
+                    nextL.disabled = true;
+                }
+            });
+            //if the opened layer was clicked, the layer shows
+            $('#currentSelectedLayer').click(function(){
 
                 // $('.collapse').collapse('hide');
                 var a = document.getElementById("accordion").children; //eight layer menus
 
-                var thirdlayer = "thirdlayer=" + ThirdLayer[j];
+                var currentSelectedLayer = "thirdlayer=" + arrMenu[j];
                 $.ajax({
                     url: 'thirdL',
                     type: 'GET',
                     dataType: 'json',
-                    data:thirdlayer,
+                    data:currentSelectedLayer,
                     async: false,
                     success: function (results) {
                         var FirstLayerId = '#' + results[0].FirstLayer;
@@ -229,14 +230,14 @@ requirejs(['./WorldWindShim',
 
                     }
                 });
-
-
             });
 
             $('#globeOrigin').click(function(){
                 globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
             });
 
+            var strs = preloadLayer + '';
+            layerName = strs.split(",");
 
             var createWMSLayer = function (xmlDom) {
                 // Create a WmsCapabilities object from the XML DOM
@@ -244,20 +245,21 @@ requirejs(['./WorldWindShim',
 
                 // Retrieve a WmsLayerCapabilities object by the desired layer name
                 for (var n = 0; n < layerName.length; n++) {
-                    console.log (layerName[n]);
-                    var WmslayerCapability = wms.getNamedLayer(layerName[n]);
 
-                    // Form a configuration object from the WmsLayerCapability object
-                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(WmslayerCapability);
+                    var wmsLayerCapability = wms.getNamedLayer(layerName[n]);
+
+                    // Form a configuration object from the wmsLayerCapability object
+                    var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
 
                     // Modify the configuration objects title property to a more user friendly title
                     wmsConfig.title = layerName[n];
 
                     // Create the WMS Layer from the configuration object
-                    var Wmslayer = new WorldWind.WmsLayer(wmsConfig);
-                    console.log(Wmslayer);
+                    var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
+
+                    console.log(wmsLayer);
                     // Add the layers to WorldWind and update the layer manager
-                    globe.addLayer(Wmslayer);
+                    globe.addLayer(wmsLayer);
                     layerManager.synchronizeLayerList();
                 }
             };
