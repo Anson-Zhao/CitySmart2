@@ -13,7 +13,6 @@ const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
 const path    = require('path');
-var exec = require('child_process').exec, child;
 const upload_Dir = config.Upload_Dir;
 const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
@@ -59,6 +58,18 @@ module.exports = function (app, passport) {
             error: "Your username and password don't match."
         })
     });
+
+    function downloadImage () {
+        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
+        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
+        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
+
+        request(url).pipe(fs.createWriteStream(downloadDir));
+        fs.createWriteStream(downloadDir).end();
+
+    }
+
+    downloadImage();
 
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
@@ -314,7 +325,6 @@ module.exports = function (app, passport) {
 
     app.get('/deleteRow', isLoggedIn, function (req, res) {
         del_recov("Delete", "Deletion failed!", "/userHome", req, res);
-        console.log();
     });
 
     app.get('/recoverRow', isLoggedIn, function (req, res) {
@@ -1048,7 +1058,7 @@ module.exports = function (app, passport) {
 
         let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
         let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-        console.log(statement2 + statement);
+
         con_CS.query(statement2 + statement, function (err, result) {
             if (err) {
                 throw err;
@@ -1169,8 +1179,7 @@ module.exports = function (app, passport) {
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
 
-        let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "';";
-        // let statement2 = "INSERT INTO LayerMenu (LayerName, FirstLayer, SecondLayer, ThirdLayer, CountryName, StateName, CityName, Status) SELECT (LayerName, FirstLayer, SecondLayer, ThirdLayer, CountryName, StateName, CityName, Status) FROM Request_Form WHERE RID = '" + approveIDStr + "'";
+        let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
         for(let i = 0; i < approvepictureStr.length; i++) {
@@ -1208,8 +1217,6 @@ module.exports = function (app, passport) {
             }
         }
 
-        console.log(req.body);
-
         let Layer_Uploader = upload_Dir + "/" + responseDataUuid;
         let Layer_Uploader_name = responseDataUuid;
         let filepathname = upload_Dir + "/" + responseDataUuid;
@@ -1217,7 +1224,7 @@ module.exports = function (app, passport) {
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, CityName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[11][1] + "','" + result[9][1] + "','" + result[10][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1226,7 +1233,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, CityName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[11][1] + "','" + result[9][1] + "','" + result[10][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -2059,7 +2066,7 @@ function QueryStat(myObj, scoutingStat, res) {
         };
         let resXMLRequest;
 
-        request.get(requestOptiolayerRequestCountryns)
+        request.get(requestOptions)
             .on('error',function(err){
                 console.log(err.code);
                 // process.exit(0)
