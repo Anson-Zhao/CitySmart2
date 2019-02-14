@@ -26,7 +26,7 @@
     <loaded-nodes>
       <connection connection-id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140">
         <schema name="CitySmart" object-types="view, table" />
-        <schema name="CitySmart2" object-types="procedure, view, table, function" />
+        <schema name="CitySmart2" object-types="view, table" />
       </connection>
     </loaded-nodes>
   </component>
