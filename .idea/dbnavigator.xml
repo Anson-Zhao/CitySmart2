@@ -23,11 +23,16 @@
     <autoscroll-to-editor value="false" />
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
-    <loaded-nodes />
+    <loaded-nodes>
+      <connection connection-id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140">
+        <schema name="CitySmart" object-types="view, table" />
+        <schema name="CitySmart2" object-types="view, table" />
+      </connection>
+    </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140">
-      <console name="90.15" type="STANDARD" schema="" session="Main"><![CDATA[select * from `GeneralFormDatatable22`]]></console>
+      <console name="90.15" type="STANDARD" schema="" session="Main">select * from `GeneralFormDatatable22`</console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
