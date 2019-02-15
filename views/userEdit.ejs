@@ -104,7 +104,8 @@
         </form>
             <p style="font-size:15px">
                 <label for="password" >Do you want to change the following user's password?</label>
-                <input type="checkbox" id="password" name="password" onclick="myFunction()">
+                <input type="checkbox" id="password" name="password" onclick="myFunction()" id="myInput">
+                <!---<br><br><input type="checkbox" onclick="myFunction()">Show Password---->
             </p>
             <div class="generalForm">
                 <form id="pswchange" style="display:none;" class="well form-horizontal">
@@ -140,7 +141,7 @@
     </div>
 </div>
 <script>
-    <!--var username = "<%= user.username %>";-->
+     //var username = "<%= user.username %>";
 
     var stringUser = "Are you sure you want to change " + user.userName + "\'s password?";
     console.log(stringUser);
@@ -162,6 +163,7 @@
         changeInputs.attr("disabled", !this.checked);
     });
 
+
     function myFunction(){
         var checkbox = document.getElementById("password");
         var text = document.getElementById("pswchange");
@@ -175,6 +177,16 @@
             document.getElementById("checkit").style.backgroundColor =  "lightgray";
         }
         // document.getElementById("submit").style.marginTop = "30px";
+
+
+
+
+        // var x = document.getElementById("myInput");
+        // if (x.type === "password") {
+        //     x.type = "text";
+        // } else {
+        //     x.type = "password";
+        // }
     }
 
     function checkForm() {
