@@ -157,7 +157,7 @@
         .selectpicker {
             height: 60px;
         }
-        #City, #country{
+        #continent, #City, #country{
             height: 60px;
         }
         .other {
@@ -271,7 +271,7 @@
                     <div class="col-md-8 inputGroupContainer">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                            <select name="ContinentName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT COUNTRY" id="continent" onchange="ChangeContinentList(this.value)">
+                            <select name="ContinentName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT CONTINENT" id="continent" onchange="ChangeContinentList(this.value)">
                                 <option selected="selected" value="AL" id="continent-option">SELECT A CONTINENT</option>
                             </select>
                         </div>
@@ -295,8 +295,10 @@
                             <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
                             <!--<select name="StateName" id="two" class="crs-region form-control" data-default-option="SELECT STATE" data-blank-option="NO STATE SELECTED">-->
                             <!--<option>Please select a state</option>-->
-                            <input name="StateName" value="" placeholder="Please enter full state name" class="form-control" required  type="text">
+                            <input name="StateName" value="" placeholder="Enter state name" class="form-control" required  type="text">
                         </div>
+                        <p style="color:palevioletred;margin-top:15px;">Please enter the full state name, no abbreviations. EXAMPLE: New York</p>
+
                     </div>
                 </div>
                 <div class="form-group">
@@ -305,7 +307,7 @@
                         <div class="input-group">
                             <span class="input-group-addon" style="max-width: 100%;"><i class="glyphicon glyphicon-globe"></i></span>
                             <!--<input id="LayerCityInput" name="CityName" placeholder="Layer City" class="form-control" required value="" type="text"></div>-->
-                            <input name="CityName" id="City" value="" placeholder="Please enter full City name" class="form-control" required  type="text">
+                            <input name="CityName" id="City" value="" placeholder="Enter city name" class="form-control" required  type="text">
                         </div>
                     </div>
                 </div>
