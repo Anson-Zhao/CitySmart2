@@ -37,7 +37,8 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
 
-    setInterval(predownloadXml, 3660000);
+    // setInterval(predownloadXml, 3660000);
+    setInterval(predownloadXml, 1000);
 
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
