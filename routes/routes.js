@@ -18,6 +18,7 @@ const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
+const uploadPath = config.Upload_Path;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
@@ -465,6 +466,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let password = req.body.pass;
         let statement = "SELECT password FROM UserLogin WHERE username = '" + req.user.username + "';";
+        console.log(user.username);
         con_CS.query(statement,function (err,results) {
             res.json((!bcrypt.compareSync(password, results[0].password)));
         });
@@ -1059,7 +1061,7 @@ module.exports = function (app, passport) {
 
         let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
         let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-
+        console.log(statement2 + statement);
         con_CS.query(statement2 + statement, function (err, result) {
             if (err) {
                 throw err;
