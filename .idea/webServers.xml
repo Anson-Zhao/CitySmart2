@@ -2,10 +2,10 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="fe4c81ba-d144-4ddd-b6dc-cba945c12816" name="CS_V2" url="http://localhost:9086">
-        <fileTransfer host="cs.aworldbridgelabs.com" port="5532" rootFolder="/var/www/cs/v2" accessType="SFTP">
+      <webServer id="ee144e27-4435-43b4-833d-7c1e28e1df3e" name="V2.cs.aworldbridgelabs.com" url="http://v2.cs.aworldbridgelabs.com">
+        <fileTransfer host="v2.cs.aworldbridgelabs.com" port="5532" rootFolder="/var/www/cs/v2" accessType="SFTP">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
           <option name="port" value="5532" />
         </fileTransfer>
