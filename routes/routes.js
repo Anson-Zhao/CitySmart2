@@ -466,7 +466,8 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let password = req.body.pass;
         let statement = "SELECT password FROM UserLogin WHERE username = '" + req.user.username + "';";
-        console.log(user.username);
+        console.log(statement);
+        console.log(req.user.username);
         con_CS.query(statement,function (err,results) {
             res.json((!bcrypt.compareSync(password, results[0].password)));
         });

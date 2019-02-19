@@ -190,14 +190,21 @@
     }
 
     function checkForm() {
-        let password = "pass=" + document.getElementById("currentPassword").value;
+        // let username = "username=" + getvalue[0];
+        // let password = "&pass=" + document.getElementById("currentPassword").value;
         let oldP = document.getElementById("currentPassword").value;
         var newP = document.getElementById("newPassword").value;
         var confirmP = document.getElementById("ConfirmPassword").value;
+        // console.log(user.userName);
+        // console.log(user.userDisplayName);
+        console.log(getvalue[0]);
+        console.log(username);
+        let userEditData = "username=" + getvalue[0] + "&pass=" + document.getElementById("currentPassword").value;
+        console.log(userEditData);
         $.ajax({
             url  : '/checkpassword',
             method : "POST",
-            data : password,
+            data : userEditData,
             dataType: 'json',
             success : function(d){
                 if (d === true) {
