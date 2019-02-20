@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="ee144e27-4435-43b4-833d-7c1e28e1df3e" name="V2.cs.aworldbridgelabs.com" url="http://v2.cs.aworldbridgelabs.com">
-        <fileTransfer host="v2.cs.aworldbridgelabs.com" port="5532" rootFolder="/var/www/cs/v2" accessType="SFTP">
+        <fileTransfer host="v2.cs.aworldbridgelabs.com" port="5532" rootFolder="/usr/share/worldwind-geoserver-0.2.1/data_dir/data" accessType="SFTP">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
