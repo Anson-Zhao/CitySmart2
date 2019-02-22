@@ -859,6 +859,12 @@ module.exports = function (app, passport) {
         let user = req.user;
         console.log("User:");
         console.log(user);
+        console.log("Current Password:");
+        console.log(req.body.CurrentPassword);
+        console.log("New Password:");
+        console.log(req.body.newpassword);
+        console.log("Confirm Password:");
+        console.log(req.body.ConfirmNewPassword);
         let newPass = {
             currentpassword: req.body.CurrentPassword,
             Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
