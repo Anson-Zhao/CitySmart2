@@ -230,6 +230,7 @@
 
     function submitForm () {
             var data = $("#editForm").serialize() + "&" + $("#pswchange").serialize();
+            console.log(data);
 
             $.ajax({
                 url  : '/edituserform',

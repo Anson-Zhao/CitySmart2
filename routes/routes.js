@@ -466,11 +466,13 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let password = req.body.pass;
         let statement = "SELECT password FROM UserLogin WHERE username = '" + req.body.username + "';";
-        // console.log(password);
-        // console.log(statement);
-        // console.log(req.user.username);
+        console.log(password);
+        console.log(statement);
+        console.log(req.body.username);
         con_CS.query(statement,function (err,results) {
             res.json((!bcrypt.compareSync(password, results[0].password)));
+            console.log("Bob is " + password);
+            console.log("Password:" + results[0].password);
         });
     });
 
@@ -855,6 +857,7 @@ module.exports = function (app, passport) {
 
         // new password (User Login)
         let user = req.user;
+        console.log(user);
         let newPass = {
             currentpassword: req.body.CurrentPassword,
             Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
