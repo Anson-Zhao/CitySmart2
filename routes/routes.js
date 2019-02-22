@@ -857,9 +857,8 @@ module.exports = function (app, passport) {
 
         // new password (User Login)
         let user = req.user;
-        let otheruser = req.body.username;
-        console.log("The user requested is " + user);
-        console.log("Man " + otheruser);
+        console.log("User:");
+        console.log(user);
         let newPass = {
             currentpassword: req.body.CurrentPassword,
             Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
