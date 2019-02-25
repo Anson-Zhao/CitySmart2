@@ -50,7 +50,11 @@ var configGlobal = {
     'eyeDistance_Heatmap': 4500,
 
     // uswtdb initial eye distance (m)
-    'eyeDistance_initial': 5000000
+    'eyeDistance_initial': 5000000,
+
+    'num_backups': 2,
+
+    'download_interval':1000,
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

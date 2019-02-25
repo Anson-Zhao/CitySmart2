@@ -3,6 +3,7 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const config = require('../config/mainconf');
 const fs = require("fs");
+const fsextra = require('fs-extra');
 const request = require("request");
 const bcrypt = require('bcrypt-nodejs');
 const nodemailer = require('nodemailer');
@@ -18,12 +19,15 @@ const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
+const num_backups = config.num_backups;
+const download_interval = config.download_interval;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 
 let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
+let downloadFalse = true;
 
 const smtpTrans = nodemailer.createTransport({
     service: 'Gmail',
@@ -37,7 +41,9 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
 
-    setInterval(predownloadXml, 3660000);
+    removeFile();
+    setInterval(copyXML, download_interval); // run the function one time a (day
+    // setInterval(predownloadXml, 3660000);
 
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
@@ -59,17 +65,17 @@ module.exports = function (app, passport) {
         })
     });
 
-    function downloadImage () {
-        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
-        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
+    // function downloadImage () {
+    //     // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
+    //     const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
+    //     const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
+    //
+    //     request(url).pipe(fs.createWriteStream(downloadDir));
+    //     fs.createWriteStream(downloadDir).end();
+    //
+    // }
 
-        request(url).pipe(fs.createWriteStream(downloadDir));
-        fs.createWriteStream(downloadDir).end();
-
-    }
-
-    downloadImage();
+    // downloadImage();
 
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
@@ -2058,31 +2064,86 @@ function QueryStat(myObj, scoutingStat, res) {
             }
         });
     }
+
+
+    function copyXML(){
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); //the path of the source file
+        var today = new Date();//get the current date
+        var date = today.getFullYear()+ '_' +(today.getMonth()+1)+ '_' + today.getDate();
+        var time = today.getHours() + "_" + today.getMinutes()+'_' + today.getSeconds();
+        var dataStr = date + "_"+ time;
+        var downloadDis = 'config/geoCapacity/' + dataStr+ '.xml'; //define a file name
+
+        fsextra.copy(downloadDir, downloadDis) //copy the file and rename
+            .then(//if copy succeed, call pre-download XML function
+                console.log('copy successful'),
+                predownloadXml ()
+            )
+    }
+
     function predownloadXml () {
-        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); // the path of the destination
         const requestOptions = {
             uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
-            timeout: 3600000
+            timeout: download_interval
         };
         let resXMLRequest;
+        console.log('predownloadXML was called');
 
         request.get(requestOptions)
-            .on('error',function(err){
+            .on('error',function(err){ //called when error
                 console.log(err.code);
+                console.log('predownloadXML error');
+                removeFile();
                 // process.exit(0)
             })
             .on('response', function (res) {
+                console.log('predownloadXML res');
                 resXMLRequest = res;
                 if (res.statusCode === 200){
                     res.pipe(fs.createWriteStream(downloadDir))
                 } else {
                     console.log("Respose with Error Code: " + res.statusCode);
+                    removeFile();
                     // process.exit(0)
                 }
             })
             .on('end', function () {
+                downloadFalse = false;
                 console.log("The End: " + resXMLRequest.statusCode);
+                removeFile();
                 // process.exit(0)
             })
     }
+
+    function removeFile() {
+        console.log('the remove function was called');
+
+        const dir = 'config/geoCapacity'; //the dir of the file that I am going to remove.
+
+        fs.readdir(dir, (err, files) => {
+            var fileLength = files.length; // the total name of the file in directory
+            console.log(fileLength);
+            var fileName = []; // create an empty array
+            fileName.push(files); //push the file name into the array
+
+            if(fileLength > num_backups){ //if there are more than 100 file in the directory
+                if(!downloadFalse){ //if download succeed, run the code below
+                    fs.unlink('config/geoCapacity/'+ fileName[0][0], (err) => { //delete the first (the oldest) file in the directory
+                        if (err) {throw err} else {
+                            downloadFalse = true; //change the value of "downloadFalse" to true
+                        }
+                        console.log('download and remove copy successfully');
+                    })
+                } else { //if download failed, run the code below
+                    fs.unlink('config/geoCapacity/'+ fileName[0][fileLength-1], (err) => { //then delete the last (the latest) file in the directory
+                        if (err) {throw err}
+                        console.log('download file failed, removed copy successfully')
+                    })
+                }
+            }
+        });
+    }
+
+
 };
