@@ -2083,9 +2083,11 @@ function QueryStat(myObj, scoutingStat, res) {
 
     function predownloadXml () {
         const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); // the path of the destination
+        const timeout = 20000;
         const requestOptions = {
             uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
-            timeout: download_interval
+            // timeout: download_interval
+            timeout:timeout
         };
         let resXMLRequest;
         console.log('predownloadXML was called');
