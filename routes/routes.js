@@ -873,6 +873,13 @@ module.exports = function (app, passport) {
 
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
+        console.log("User.password ");
+        console.log(user.password);
+        console.log("newPass.currentpassword");
+        console.log(newPass.currentpassword);
+        console.log("PassComp:");
+        console.log(passComp);
+
         if (!!req.body.newpassword && passComp) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
