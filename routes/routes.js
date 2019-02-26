@@ -253,8 +253,8 @@ module.exports = function (app, passport) {
                         res.json({"error": true, 'message': 'Password reset token is invalid or has expired. Please contact Administrator.'});
                     } else {
                         let newPass = {
-                            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-                            ConfirmPassword: bcrypt.hashSync(req.body.Confirmpassword, null, null)
+                            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+                            confirmPassword: bcrypt.hashSync(req.body.Confirmpassword, null, null)
                         };
 
                         let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE resetPasswordToken = '" + req.params.token + "'";
@@ -489,13 +489,13 @@ module.exports = function (app, passport) {
         let user = req.user;
         let newPass = {
             currentpassword: req.body.CurrentPassword,
-            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-            ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+            confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
         };
 
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
-        if (!!req.body.newpassword && passComp) {
+        if (!!req.body.NewPassword && passComp) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
@@ -569,13 +569,13 @@ module.exports = function (app, passport) {
             // firstname: req.body.usernameF,
             // lastname: req.body.usernameL,
             currentpassword: req.body.CurrentPassword,
-            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-            ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+            confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
         };
 
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
-        if (!!req.body.newpassword && passComp) {
+        if (!!req.body.NewPassword && passComp) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
@@ -862,9 +862,12 @@ module.exports = function (app, passport) {
 
         let newPass = {
             currentpassword: req.body.CurrentPassword,
-            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-            ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+            confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
         };
+
+        console.log("NewPass:");
+        console.log(newPass);
 
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
@@ -875,7 +878,7 @@ module.exports = function (app, passport) {
         console.log("PassComp:");
         console.log(passComp);
 
-        if (!!req.body.newpassword && passComp) {
+        if (!!req.body.NewPassword && passComp) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
