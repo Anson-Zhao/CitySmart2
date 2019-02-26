@@ -856,15 +856,10 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
 
         // new password (User Login)
-        let user = req.user;
+        let user = req.body.Username;
         console.log("User:");
         console.log(user);
-        console.log("Current Password:");
-        console.log(req.body.CurrentPassword);
-        console.log("New Password:");
-        console.log(req.body.newpassword);
-        console.log("Confirm Password:");
-        console.log(req.body.ConfirmNewPassword);
+
         let newPass = {
             currentpassword: req.body.CurrentPassword,
             Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
