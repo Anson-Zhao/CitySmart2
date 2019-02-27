@@ -362,7 +362,7 @@
                 console.log(getvalue);
                 localStorage.setItem("getvalue", JSON.stringify(getvalue[0]));
                 console.log(localStorage);
-                // window.location.replace('/editdata');
+                window.location.replace('/editdata');
                 console.log(localStorage.getItem("getvalue"));
             }
         });
@@ -485,7 +485,6 @@
         //         }
         //     }
         // });
-
         $.ajax({
             url: '/filterQuery',
             type: 'GET',
@@ -495,52 +494,53 @@
             success: function (results) {
                 // console.log(results);
                 for (var i = 0; i < results.length; i++) {
-                    if (UserRole === "Regular") {
-                        if (results[i].UID === username) {
-                            table.row.add([
-                                results[i].Date,
-                                results[i].UID,
-                                results[i].RID,
-                                results[i].LayerCategory,
-                                results[i].CityName,
-                                results[i].CountryName,
-                                results[i].StateName,
-                                results[i].FirstLayer,
-                                results[i].FirstOther,
-                                results[i].SecondLayer,
-                                results[i].SecondOther,
-                                results[i].LayerName,
-                                results[i].Layer_Description,
-                                results[i].LayerFormat,
-                                results[i].Layer_Uploader_name,
-                                results[i].Status,
-                                results[i].Comments
-                            ]).draw(false);
-                        }
-                    } else {
-                        if (results[i].Status === "Pending") {
-                            table.row.add([
-                                results[i].Date,
-                                results[i].UID,
-                                results[i].RID,
-                                results[i].LayerCategory,
-                                results[i].CityName,
-                                results[i].CountryName,
-                                results[i].StateName,
-                                results[i].FirstLayer,
-                                results[i].FirstOther,
-                                results[i].SecondLayer,
-                                results[i].SecondOther,
-                                results[i].LayerName,
-                                results[i].Layer_Description,
-                                results[i].LayerFormat,
-                                results[i].Layer_Uploader_name,
-                                results[i].Status,
-                                results[i].Comments
-                            ]).draw(false);
+                    if(results.Status === "Pending") {
+                        if (UserRole === "Regular") {
+                            if (results[i].UID === username) {
+                                table.row.add([
+                                    results[i].Date,
+                                    results[i].UID,
+                                    results[i].RID,
+                                    results[i].LayerCategory,
+                                    results[i].CityName,
+                                    results[i].CountryName,
+                                    results[i].StateName,
+                                    results[i].FirstLayer,
+                                    results[i].FirstOther,
+                                    results[i].SecondLayer,
+                                    results[i].SecondOther,
+                                    results[i].LayerName,
+                                    results[i].Layer_Description,
+                                    results[i].LayerFormat,
+                                    results[i].Layer_Uploader_name,
+                                    results[i].Status,
+                                    results[i].Comments
+                                ]).draw(false);
+                            }
+                        } else {
+                                table.row.add([
+                                    results[i].Date,
+                                    results[i].UID,
+                                    results[i].RID,
+                                    results[i].LayerCategory,
+                                    results[i].CityName,
+                                    results[i].CountryName,
+                                    results[i].StateName,
+                                    results[i].FirstLayer,
+                                    results[i].FirstOther,
+                                    results[i].SecondLayer,
+                                    results[i].SecondOther,
+                                    results[i].LayerName,
+                                    results[i].Layer_Description,
+                                    results[i].LayerFormat,
+                                    results[i].Layer_Uploader_name,
+                                    results[i].Status,
+                                    results[i].Comments
+                                ]).draw(false);
                         }
                     }
                 }
+
             }
         });
     }

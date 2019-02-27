@@ -459,7 +459,7 @@
             }
 
         });
-
+        //SELECT MAIN CATEGORY button
         $("#main").change(function () {
             var val = $(this).val();
             if (val == "") {
@@ -628,9 +628,7 @@
     $('#layer').validate({
         // Specify validation rules
         rules: {
-            // The key name on the left side is the name attribute
-            // of an input field. Validation rules are defined
-            // on the right side
+            // The key name on the left side is the name attribute of an input field. Validation rules are define on the right side
             Layer_Name: "required",
             StateName:"required",
             CountryName:"required",
