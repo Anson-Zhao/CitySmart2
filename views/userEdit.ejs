@@ -146,7 +146,7 @@
     // var stringUser = "Are you sure you want to change " + user.userName + "\'s password?";
     // console.log(stringUser);
 
-    var getvalue = JSON.parse(localStorage.getItem("getvalue"));
+     var getvalue = JSON.parse(localStorage.getItem("getvalue"));
     document.getElementById('username').value = getvalue[0];
     document.getElementById('firstName').value = getvalue[1];
     document.getElementById('lastName').value = getvalue[2];
@@ -158,13 +158,15 @@
     var change = $("#password_change")[initial ? "removeClass" : "addClass"]("gray");
     var changeInputs = change.find("input").attr("disabled", !initial);
 
+
     password.click(function(){
         change[this.checked ? "removeClass" : "addClass"]("gray")
         changeInputs.attr("disabled", !this.checked);
     });
 
 
-    function myFunction(){
+
+     function myFunction(){
         var checkbox = document.getElementById("password");
         var text = document.getElementById("pswchange");
         if (checkbox.checked === true){

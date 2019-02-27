@@ -859,6 +859,8 @@ module.exports = function (app, passport) {
         let user = req.body.Username;
         console.log("User:");
         console.log(user);
+        console.log("Admin");
+        console.log(req.user);
 
         let newPass = {
             currentpassword: req.body.CurrentPassword,
@@ -920,6 +922,10 @@ module.exports = function (app, passport) {
             // status: edit_status,
             message: req.flash('Data Entry Message')
         });
+        console.log("Request User")
+        console.log(req.user);
+        console.log("BodyUsername");
+        console.log(req.body.username);
     });
 
     app.post('/editUser', isLoggedIn, function (req, res) {
