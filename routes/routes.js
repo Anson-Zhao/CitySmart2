@@ -315,7 +315,7 @@ module.exports = function (app, passport) {
     });
 
     app.get('/deleteRow', isLoggedIn, function (req, res) { //this is what I have been experiencing thus far
-        del_recov("Delete", "Deletion failed!", "/userHome", req, res);
+        del_recov("Deleted", "Deletion failed!", "/userHome", req, res);
     });
 
     app.get('/recoverRow', isLoggedIn, function (req, res) {
@@ -731,7 +731,6 @@ module.exports = function (app, passport) {
             if (err) {
                 console.log(err);
                 res.json({"error": true, "message": "An unexpected error occurred !"});
-                res.end();
             } else {
                 res.json({"error": false, "message": "Success"});
             }
@@ -1677,14 +1676,14 @@ function QueryStat(myObj, sqlStat, res) {
 
                 if (i === myObj.length - 1) {
                     NewsqlStat = sqlStat + "; ";
-                    // console.log(NewsqlStat);
+                    console.log(NewsqlStat);
                     dataList(NewsqlStat, res);
                 }
             } else {
             // console.log(aw);
                 if (i === myObj.length - 1) {
                     NewsqlStat = sqlStat + "; ";
-                    // console.log(NewsqlStat);
+                    console.log(NewsqlStat);
                     dataList(NewsqlStat, res);
                 }
             }
@@ -1698,22 +1697,17 @@ function QueryStat(myObj, sqlStat, res) {
 
     function dataList(sqlStatement, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        console.log("SQL:");
-        console.log(sqlStatement);
+        // console.log("SQL:");
+        console.log("SQL:" + sqlStatement);
         con_CS.query(sqlStatement, function (err, results) {
-
-            errStatus = [{errMsg: ""}];
 
             if (err) {
                 console.log(err);
-                errStatus[0].errMsg = "fail";
-                res.end(errStatus);
+                res.json({"errMsg": "fail"});
             } else if (results.length === 0) {
-                errStatus[0].errMsg = "no data entry";
-                res.end(errStatus); //send result back to client side
+                res.json({"errMsg": "no data"});
             } else {
-                // let JSONresult = JSON.stringify(results, null, "\t");
-                res.json(results);
+                res.json(results)
             }
         });
     }
