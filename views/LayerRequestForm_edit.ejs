@@ -250,7 +250,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label class="col-md-4 control-label">Main-Category</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -278,7 +278,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label class="col-md-4 control-label">Sub-Category</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -293,7 +293,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" hidden>
+                    <div class="form-group">
                         <label class="col-md-4 control-label">Main-Category</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -321,7 +321,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" hidden>
+                    <div class="form-group">
                         <label class="col-md-4 control-label">Sub-Category</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -353,7 +353,7 @@
                             <p id="LayerName2" style="color:palevioletred; margin-top:15px;"></p>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label class="col-md-4 control-label">Layer Continent</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -364,7 +364,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" hidden>
                         <label class="col-md-4 control-label">Layer Country</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -375,7 +375,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" hidden>
+                    <div class="form-group">
                         <label class="col-md-4 control-label">Layer Continent</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -386,7 +386,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" hidden>
+                    <div class="form-group">
                         <label class="col-md-4 control-label">Layer Country</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -487,6 +487,8 @@
             <button id="clear" type="reset" onclick="clearForm()" value="  Clear  ">Clear</button>
             <button id="approve" type="submit" form="layer" disabled  title="this is only for Admin Users">Approve</button>
             <button id="reject" disabled  title="this is only for Admin Users">Reject</button>
+            <button id="testButton" type="button">click pls</button>
+
         </div>
         <hr>
         <p class="text-center"><a id="cancel" onclick="userHome();">Cancel</a></p>
@@ -495,7 +497,7 @@
 <script>
     var UserRole = "<%= user.userrole %>"; //Admin or general
     var getvalue = JSON.parse(localStorage.getItem("getvalue"));
-    console.log(getvalue);
+    // console.log(getvalue);
     $(document).ready(function() {
         document.getElementById('date').value = getvalue[0];
         document.getElementById('User ID').value = getvalue[1];
@@ -506,10 +508,10 @@
         document.getElementById('LayerFormat2').value = getvalue[14];
         document.getElementById('message').value = getvalue[13];
         document.getElementById('City').value = getvalue[7];
-        document.getElementById('country').options[0].innerHTML = getvalue[5];
-        document.getElementById('continent').options[0].innerHTML = getvalue[4];
-        document.getElementById('country2').options[0].innerHTML = getvalue[5];
-        document.getElementById('continent2').options[0].innerHTML = getvalue[4];
+        $('#continent option[value="AL"]').val(getvalue[4]);
+        $('#continent2 option[value="AL"]').val(getvalue[4]);
+        $('#country option[value="select"]').val(getvalue[5]);
+        $('#country2 option[value="select"]').val(getvalue[5]);
         document.getElementById('DisplayName').value = getvalue[12];
         document.getElementById('comment').value = getvalue[17];
 
@@ -518,15 +520,15 @@
             document.getElementById('main2').value = getvalue[8];
             document.getElementById("other1").style.display = "block";
             document.getElementById("inputone").value = getvalue[9];
-            document.getElementById('sub').value = getvalue[10];
-            document.getElementById('sub2').value = getvalue[10];
+            $('#sub option[value="Category"]').val(getvalue[10]);
+            $('#sub2 option[value="Category"]').val(getvalue[10]);
             document.getElementById("other2").style.display = "block";
             document.getElementById("inputtwo").value = getvalue[11];
         }else{
             document.getElementById('main').value = getvalue[8];
-            document.getElementById('sub').options[0].innerHTML = getvalue[10];
             document.getElementById('main2').value = getvalue[8];
-            document.getElementById('sub2').options[0].innerHTML = getvalue[10];
+            $('#sub option[value="Category"]').val(getvalue[10]);
+            $('#sub2 option[value="Category"]').val(getvalue[10]);
         }
 
         $(function () {
@@ -538,12 +540,16 @@
                 document.getElementById('LayerFormat').disabled = true;
                 document.getElementById('City').readOnly = true;
                 document.getElementById('LayerStateInput').readOnly = true;
-                document.getElementById('country').disabled = true;
-                document.getElementById('continent').disabled = true;
+                document.getElementById('country').disabled = false;
+                document.getElementById('continent').disabled = false;
+                document.getElementById('country2').disabled = true;
+                document.getElementById('continent2').disabled = true;
                 document.getElementById('DisplayName').readOnly = true;
-                document.getElementById('sub').disabled = true;
+                document.getElementById('main').disabled = false;
+                document.getElementById('sub').disabled = false;
+                document.getElementById('sub2').disabled = true;
                 document.getElementById('LayerNameInput').readOnly = true;
-                document.getElementById('main').disabled = true;
+                document.getElementById('main2').disabled = true;
                 document.getElementsByClassName('qq-uploader-selector').disabled = true;
                 document.getElementById('upload-button').disabled = true;
                 // $('#upload-button').prop('disabled',true);
@@ -577,6 +583,15 @@
         })
     });
 
+    function Check(that) {
+        if (that === "other") {
+            document.getElementById("other1").style.display = "block";
+            document.getElementById("other2").style.display = "block";
+        } else {
+            document.getElementById("other1").style.display = "none";
+            document.getElementById("other2").style.display = "none";
+        }
+    }
     $(document).ready(function() {
         let continentList = document.getElementById("continent")
         $.ajax({
@@ -623,16 +638,6 @@
                 }
             }
         });
-    }
-
-    function Check(that) {
-        if (that === "other") {
-            document.getElementById("other1").style.display = "block";
-            document.getElementById("other2").style.display = "block";
-        } else {
-            document.getElementById("other1").style.display = "none";
-            document.getElementById("other2").style.display = "none";
-        }
     }
 
     //resubmit the photo
@@ -690,18 +695,33 @@
             allowedExtensions: ['tif', 'shp','jp2','adf','j2k']
         }
     });
+    $("#testButton").click(function () {
+        var data = $("#layer").serialize();
+        console.log(data);
+        $.ajax({
+            url: 'testB',
+            method: "post",
+            data: data,
+            dataType: 'json',
+            success: function (d) {
+                console.log(data);
+            }
+        });
+    })
 
     function submitForm() {
         if (UserRole === "Admin") {
             if (confirm("Are you sure you would like to approve this data?") === true) {
                 var tID = "tID=" + document.getElementById('RID').value;
-                var LUN = "LUN=" + getvalue[14];
+                var LUN = "LUN=" + getvalue[15];
+                var lForm = "lForm=" + getvalue[14];
                 var data = $("#layer").serialize();
+                console.log(data);
                 $.ajax({
                     url: 'approve',
                     type: "GET",
                     dataType: 'json',
-                    data: tID + '&' + LUN,
+                    data: tID + '&' + LUN + '&' + lForm,
                 });
                 $.ajax({
                     url: 'replace',
@@ -719,7 +739,7 @@
         }else if (UserRole === "Regular") {
             if (confirm("Are you sure you would like to submit this data?") === true) {
                 var regulardata = $("#layer").serialize();
-                var status = "status=" + getvalue[15];
+                var status = "status=" + getvalue[16];
                 $.ajax({
                     url: 'rsubmit',
                     method: "post",

@@ -13,6 +13,8 @@ const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
 const path    = require('path');
+var exec = require('child_process').exec, child;
+
 const upload_Dir = config.Upload_Dir;
 const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
@@ -373,6 +375,7 @@ module.exports = function (app, passport) {
         let transactionID = req.query.transactionIDStr.split(',');
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
+        console.log(pictureStr);
         for (let i = 0; i < transactionID.length; i++) {
             let statement = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
             let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
@@ -385,6 +388,7 @@ module.exports = function (app, passport) {
             });
             con_CS.query(statement + statement1, function (err, results) {
                 if (err) throw err;
+                console.log(results);
                 res.json(results[i]);
             });
         }
@@ -1179,6 +1183,8 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
+        let format = req.query.lForm;
+
 
         let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
 
@@ -1191,11 +1197,57 @@ module.exports = function (app, passport) {
                     console.log("success");
                 }
             });
+            console.log(statement);
             con_CS.query(statement, function (err, results) {
                 if (err) throw err;
+                // console.log(results);
+
+                if (format === "Shapefile - ESRI(tm) Shapefiles (.shp)") {
+                    console.log("name of file: " + approvepictureStr[0]);
+                    var type = "Content-type: application/zip";
+
+                    var statement = "curl -u julia:123654 -v -XPUT -H '" + type + "' --data-binary @approvedfiles/" + approvepictureStr[0] + " http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/datastore/file.shp";
+
+                    child = exec(statement,
+                        function (error, stdout, stderr) {
+                            console.log(statement);
+                            console.log('stdout: ' + stdout);
+                            console.log('stderr: ' + stderr);
+                            if (error !== null) {
+                                console.log('exec error: ' + error);
+                            }
+                        });
+                } else if (format === "GeoTIFF - Tagged Image File Format with Geographic information (.tif)") {
+                    console.log("geotiff file works :D");
+                }
+
+                // res.setHeader("Access-Control-Allow-Origin", "*");
+                //
+                // var type = "Content-type: application/zip";
+                //
+                // var statement = "curl -u julia:123654 -v -XPUT -H '" + type + "' --data-binary @approvedfiles/" + approvepictureStr[0] + " http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/datastore/file.shp";
+                //
+                // child = exec(statement,
+                //     function (error, stdout, stderr) {
+                //     console.log(statement);
+                //         console.log('stdout: ' + stdout);
+                //         console.log('stderr: ' + stderr);
+                //         if (error !== null) {
+                //             console.log('exec error: ' + error);
+                //         }
+                //     });
+
                 res.json(results[i]);
             });
         }
+    });
+
+    app.post('/testB', function (req, res) {
+        let result = Object.keys(req.body).map(function (key) {
+            return [String(key), req.body[key]];
+        });
+
+        console.log(result);
     });
 
     app.post('/replace', function (req, res) {
@@ -1208,6 +1260,8 @@ module.exports = function (app, passport) {
         var update1 = "UPDATE Request_Form SET " ;
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
+
+        // console.log("RID: " + result[1][1]);
 
 
         for (let i = 0; i < result.length; i++) {
@@ -1243,6 +1297,7 @@ module.exports = function (app, passport) {
                 }
             });
         }
+
         // mv('/uploadfiles', 'dest/file', {mkdirp: true}, {clobber: false}, function(err) {
         //     //This is supposed to do the following:
         //     //Tries fs.rename first, then falls back to
