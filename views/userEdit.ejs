@@ -141,10 +141,10 @@
     </div>
 </div>
 <script>
-     //var username = "<%= user.username %>";
+     var LoginUser = "<%= user.username %>";
 
     // var stringUser = "Are you sure you want to change " + user.userName + "\'s password?";
-    // console.log(stringUser);
+     console.log(LoginUser);
 
      var getvalue = JSON.parse(localStorage.getItem("getvalue"));
     document.getElementById('username').value = getvalue[0];
@@ -152,6 +152,10 @@
     document.getElementById('lastName').value = getvalue[2];
     document.getElementById('UsErRoLe').value = getvalue[3];
     document.getElementById('StAtUs').value = getvalue[12];
+
+    if (LoginUser !== getvalue[0]) {
+        //Verifies if the current login user is different from the one that is being edited
+    }
 
     var password = $("#password");
     var initial = password.is(":checked");
