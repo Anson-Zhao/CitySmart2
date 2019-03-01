@@ -402,32 +402,32 @@
 </div>
 
 <script>
-    var UserRole = "<%= user.userrole %>"; //Admin or general
-    var getvalue = JSON.parse(localStorage.getItem("getvalue"));
-    console.log(getvalue);
-    $(document).ready(function() {
-        document.getElementById('date').value = getvalue[0];
-        document.getElementById('User ID').value = getvalue[1];
-        document.getElementById('RID').value = getvalue[2];
-        document.getElementById('LayerNameInput').value = getvalue[11];
-        document.getElementById('LayerStateInput').value = getvalue[6];
-        document.getElementById('LayerFormat').value = getvalue[13];
-        document.getElementById('message').value = getvalue[12];
-        document.getElementById('City').value = getvalue[4];
-        document.getElementById('country').options[0].innerHTML = getvalue[5];
-        document.getElementById('DisplayName').value = getvalue[11];
-        document.getElementById('comment').value = getvalue[16];
+    let UserRole = "<%= user.userrole %>";
+    let rowSelectedValue = JSON.parse(localStorage.getItem("rowSelectedValue"));
 
-        if(getvalue[7] === "other" || getvalue[9] === "other"){
-            document.getElementById('main').value = getvalue[7];
+    $(document).ready(function() {
+        document.getElementById('date').value = rowSelectedValue[0];
+        document.getElementById('User ID').value = rowSelectedValue[1];
+        document.getElementById('RID').value = rowSelectedValue[2];
+        document.getElementById('LayerNameInput').value = rowSelectedValue[11];
+        document.getElementById('LayerStateInput').value = rowSelectedValue[6];
+        document.getElementById('LayerFormat').value = rowSelectedValue[13];
+        document.getElementById('message').value = rowSelectedValue[12];
+        document.getElementById('City').value = rowSelectedValue[4];
+        document.getElementById('country').options[0].innerHTML = rowSelectedValue[5];
+        document.getElementById('DisplayName').value = rowSelectedValue[11];
+        document.getElementById('comment').value = rowSelectedValue[16];
+
+        if(rowSelectedValue[7] === "other" || rowSelectedValue[9] === "other"){
+            document.getElementById('main').value = rowSelectedValue[7];
             document.getElementById("other1").style.display = "block";
-            document.getElementById("inputone").value = getvalue[8];
-            document.getElementById('sub').value = getvalue[9];
+            document.getElementById("inputone").value = rowSelectedValue[8];
+            document.getElementById('sub').value = rowSelectedValue[9];
             document.getElementById("other2").style.display = "block";
-            document.getElementById("inputtwo").value = getvalue[10];
+            document.getElementById("inputtwo").value = rowSelectedValue[10];
         }else{
-            document.getElementById('main').value = getvalue[7];
-            document.getElementById('sub').options[0].innerHTML = getvalue[9];
+            document.getElementById('main').value = rowSelectedValue[7];
+            document.getElementById('sub').options[0].innerHTML = rowSelectedValue[9];
         }
 
         $(function () {
@@ -457,11 +457,10 @@
                 document.getElementById("approve").style.backgroundColor = "lightgray";
                 document.getElementById("reject").style.backgroundColor = "lightgray";
             }
-
         });
         //SELECT MAIN CATEGORY button
         $("#main").change(function () {
-            var val = $(this).val();
+            let val = $(this).val();
             if (val == "") {
                 $("#sub").html("<option value='Category'>SELECT SUBCATEGORY</option>");
             }else if(val =="other") {
@@ -470,7 +469,7 @@
         })
 
         $("#City").change(function () {
-            var val = $(this).val();
+            let val = $(this).val();
             if (val == "select") {
                 $("#country").html("<option value='select'>SELECT SUBCATEGORY</option>");
             }
@@ -488,9 +487,9 @@
     }
 
     //resubmit the photo
-    var photoDiv = $("#photo");
+    let photoDiv = $("#photo");
     photoDiv.empty();
-    var editIDSr = "editIDSr=" + getvalue[2];
+    let editIDSr = "editIDSr=" + rowSelectedValue[2];
     $.ajax({
         url: 'edit',
         type: 'GET',
@@ -500,9 +499,9 @@
             if(results[0].Layer_Uploader_name !== "") {
                 if (!results.error) {
                     globalResults = results;
-                    var list = [];
-                    for (var i = 0; i < globalResults.length; i++) {
-                        var first = {
+                    let list = [];
+                    for (let i = 0; i < globalResults.length; i++) {
+                        let first = {
                             id: i,
                             size: 561276,
                             thumbnailUrl: globalResults[i].Layer_Uploader,
@@ -519,7 +518,7 @@
     });
 
 
-    var uploader = new qq.FineUploader({
+    let uploader = new qq.FineUploader({
         element: document.getElementById("uploader"),
         // debug: true,
         request: {
@@ -546,9 +545,9 @@
     function submitForm() {
         if (UserRole === "Admin") {
             if (confirm("Are you sure you would like to approve this data?") === true) {
-                var tID = "tID=" + document.getElementById('RID').value;
-                var LUN = "LUN=" + getvalue[14];
-                var data = $("#layer").serialize();
+                let tID = "tID=" + document.getElementById('RID').value;
+                let LUN = "LUN=" + rowSelectedValue[14];
+                let data = $("#layer").serialize();
                 $.ajax({
                     url: 'approve',
                     type: "GET",
@@ -561,7 +560,6 @@
                     data: data,
                     dataType: 'json',
                     success: function (d) {
-                        console.log(data);
                     }
                 });
                 window.location.replace('/userHome');
@@ -570,8 +568,8 @@
             }
         }else if (UserRole === "Regular") {
             if (confirm("Are you sure you would like to submit this data?") === true) {
-                var regulardata = $("#layer").serialize();
-                var status = "status=" + getvalue[15];
+                let regulardata = $("#layer").serialize();
+                let status = "status=" + rowSelectedValue[15];
                 $.ajax({
                     url: 'rsubmit',
                     method: "post",
@@ -588,7 +586,7 @@
     }
 
     function ChangeMainCategory(Category){
-        var subList = document.getElementById("sub");
+        let subList = document.getElementById("sub");
         while (subList.options.length){
             subList.remove(0);
         }
@@ -596,8 +594,8 @@
             url: "MainCategory",
             dataType: 'json',
             success:function (results) {
-                var option;
-                for (var i = 0; i < results.length; i++) {
+                let option;
+                for (let i = 0; i < results.length; i++) {
                     if (Category === results[i]. FirstLayer) {
                         option = new Option(results[i].SecondLayer, results[i].SecondLayer);
                         subList.add(option);
@@ -628,7 +626,9 @@
     $('#layer').validate({
         // Specify validation rules
         rules: {
-            // The key name on the left side is the name attribute of an input field. Validation rules are define on the right side
+            // The key name on the left side is the name attribute
+            // of an input field. Validation rules are defined
+            // on the right side
             Layer_Name: "required",
             StateName:"required",
             CountryName:"required",
@@ -663,7 +663,7 @@
             url: "SearchLayerName",
             dataType:"json",
             success: function (results) {
-                for(var i = 0; i < results.length; i++) {
+                for(let i = 0; i < results.length; i++) {
                     if (value === results[i].LayerName) {
                         document.getElementById("LayerName1").innerHTML = "The Layer Name has already been used";
                         document.addEventListener("keyup", function (e) {
@@ -691,7 +691,7 @@
             url: "SearchThirdLayer",
             dataType:"json",
             success: function (results) {
-                for(var i = 0; i < results.length; i++) {
+                for(let i = 0; i < results.length; i++) {
                     if (thisvalue === results[i].ThirdLayer) {
                         document.getElementById("LayerName2").innerHTML = "The ThirdLayer Name has already been used";
                         document.addEventListener("keyup", function (e) {
@@ -723,8 +723,8 @@
 
     $("#reject").click(function () {
         if (confirm("Are you sure to reject the data?") === true) {
-            var tID = "reject=" + document.getElementById('RID').value;
-            var Comment = "comment=" + document.getElementById('comment').value;
+            let tID = "reject=" + document.getElementById('RID').value;
+            let Comment = "comment=" + document.getElementById('comment').value;
             $.ajax({
                 url: 'reject',
                 type: "GET",

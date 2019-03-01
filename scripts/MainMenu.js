@@ -77,31 +77,37 @@ requirejs(['./WorldWindShim',
 
         function createWMSLayer (xmlDom) {
 
-            // console.log(xmlDom);
+            console.log(xmlDom);
             // Create a WmsCapabilities object from the XML DOM
             var wms = new WorldWind.WmsCapabilities(xmlDom);
-            // console.log(wms.getNamedLayer);
-
+            console.log(wms);
+            // console.log(preloadWMSLayerName.length);
             // Retrieve a WmsLayerCapabilities object by the desired layer name
+
             for (var n = 0; n < preloadWMSLayerName.length; n++) {
-                console.log(preloadWMSLayerName[n]);
+                console.log(n);
+
                 var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
+                console.log(preloadWMSLayerName[n]);
+                console.log(wmsLayerCapability);
 
-
-                // Form a configuration object from the wmsLayerCapability object
-                var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
-
-                // Modify the configuration objects title property to a more user friendly title
-                wmsConfig.title = preloadWMSLayerName[n];
-                console.log (wmsConfig.title);
-
-                // Create the WMS Layer from the configuration object
-                var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
-
-                // console.log(wmsLayer);
-                // Add the layers to WorldWind and update the layer manager
-                globe.addLayer(wmsLayer);
-                layerManager.synchronizeLayerList();
+                // // Form a configuration object from the wmsLayerCapability object
+                // var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
+                // console.log('hh');
+                //
+                // // Modify the configuration objects title property to a more user friendly title
+                // wmsConfig.title = preloadWMSLayerName[n];
+                // console.log(preloadWMSLayerName[n]);
+                // console.log('hh');
+                // console.log (wmsConfig.title);
+                //
+                // // Create the WMS Layer from the configuration object
+                // var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
+                //
+                // // console.log(wmsLayer);
+                // // Add the layers to WorldWind and update the layer manager
+                // globe.addLayer(wmsLayer);
+                // layerManager.synchronizeLayerList();
             }
         }
 
@@ -111,7 +117,7 @@ requirejs(['./WorldWindShim',
         };
 
         var Placemark_Creation = function (RGB,PKValue, coLat, coLong, LayerName) {
-            console.log(coLong);
+            // console.log(coLong);
 
             var placemark;
             var highlightAttributes;
@@ -331,15 +337,12 @@ requirejs(['./WorldWindShim',
 //
         globe.addEventListener("mousemove", handlePick);
 
-// globe.addEventListener("click", sitePopUp);
+        //globe.addEventListener("click", sitePopUp);
 
         globe.addEventListener("click", handleMouseCLK);
 
 
         // // Called if an error occurs during WMS Capabilities document retrieval
-        // var logError = function (jqXhr, text, exception) {
-        //     console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
-        // };
 
         var globlePosition = function(layerRequest){
             $.ajax({
@@ -437,6 +440,7 @@ requirejs(['./WorldWindShim',
             });
             var preloadLayerStr = preloadLayer + '';//change preloadLayer into a string
             preloadWMSLayerName = preloadLayerStr.split(",");//split preloadLayerStr with ","
+            console.log(preloadWMSLayerName);
 
             $.get("../config/ows.xml").done(createWMSLayer).fail(logError);// get the xml file of wmslayer and pass the file into  createLayer function.
 
@@ -460,7 +464,7 @@ requirejs(['./WorldWindShim',
                             // console.log(coLat);
 
                             var coLong = infobox[k].Longitude;
-                            console.log(coLong);
+                            // console.log(coLong);
 
                             var PK = infobox[k].PK;
                             // var ptwo = location.split(",");
