@@ -13,16 +13,16 @@ const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
 const path    = require('path');
-const upload_Dir = config.Upload_Dir;
-const geoData_Dir = config.GeoData_Dir;
-const Delete_Dir = config.Delete_Dir;
+const upload_Dir = config.Upload_Dir; //contains pending and rejected
+const geoData_Dir = config.GeoData_Dir; //approve folder
+const Delete_Dir = config.Delete_Dir; //trash folder
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 
-let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
+let transactionID, myStat, myVal, myErrMsg, token, errCurrent_Status, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
 
 const smtpTrans = nodemailer.createTransport({
@@ -364,8 +364,8 @@ module.exports = function (app, passport) {
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement = "UPDATE Request_Form SET Current_Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
+            let statement1 = "UPDATE LayerMenu SET Current_Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ geoData_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
@@ -413,17 +413,17 @@ module.exports = function (app, passport) {
                 table: 1
             },
             {
-                fieldVal: req.query.Status1,
-                dbCol: req.query.Status,
+                fieldVal: req.query.Current_Status1,
+                dbCol: req.query.Current_Status,
                 op: " = '",
-                adj: req.query.Status1,
+                adj: req.query.Current_Status1,
                 table: req.query.filter1
             },
             {
-                fieldVal: req.query.Status2,
-                dbCol: req.query.Status,
+                fieldVal: req.query.Current_Status2,
+                dbCol: req.query.Current_Status,
                 op: " = '",
-                adj: req.query.Status2,
+                adj: req.query.Current_Status2,
                 table: req.query.filter2
             },
             {
@@ -449,10 +449,10 @@ module.exports = function (app, passport) {
                 // table: 1
             },
             {
-                fieldVal: req.query.Status,
-                dbCol: "Status",
+                fieldVal: req.query.Current_Status,
+                dbCol: "Current_Status",
                 op: " = '",
-                adj: req.query.Status,
+                adj: req.query.Current_Status,
                 // table: 1
             },
             {
@@ -856,7 +856,7 @@ module.exports = function (app, passport) {
             },
             {
                 fieldVal: req.query.status,
-                dbCol: "Status",
+                dbCol: "Current_Status",
                 op: " = '",
                 adj: req.query.status
             },
@@ -880,7 +880,7 @@ module.exports = function (app, passport) {
          edit_city = req.query.City;
          edit_lastName = req.query.Last_Name;
          edit_userrole = req.query.User_Role;
-         edit_status = req.query.Status;
+         edit_status = req.query.Current_Status;
 
          res.json({"error": false, "message": "/editUser"});
      });
@@ -920,7 +920,7 @@ module.exports = function (app, passport) {
             });
 
             // var update3 = " WHERE username = '" + req.user.username + "'";
-            let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
+            let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Current_Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
             let statement2 = "UPDATE UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
             con_CS.query(statement1 + statement2, function (err, result) {
                 if (err) throw err;
@@ -950,7 +950,7 @@ module.exports = function (app, passport) {
                 firstName: req.body.First_Name,
                 lastName: req.body.Last_Name,
                 userrole: req.body.User_Role,
-                status: req.body.Status,
+                status: req.body.Current_Status,
                 newPassword: bcrypt.hashSync(req.body.newPassword, null, null)
             };
             mylogin = "UPDATE UserProfile SET firstName = ?, lastName = ?";
@@ -963,7 +963,7 @@ module.exports = function (app, passport) {
                 firstName: req.body.First_Name,
                 lastName: req.body.Last_Name,
                 userrole: req.body.User_Role,
-                status: req.body.Status
+                status: req.body.Current_Status
             };
             mylogin = "UPDATE UserProfile SET firstName = ?, lastName = ?";
             myStat = "UPDATE UserLogin SET userrole = ?, status = ?, modifiedUser = '" + req.user.username + "', dateModified = '" + dateTime + "'  WHERE username = ?";
@@ -1007,8 +1007,8 @@ module.exports = function (app, passport) {
     //     let pictureStr = req.query.pictureStr.split(',');
     //     let LayerName = req.query.LayerName.split(',');
     //     for (let i = 0; i < transactionID.length; i++) {
-    //         let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
-    //         let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+    //         let statement = "UPDATE Request_Form SET Current_Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
+    //         let statement1 = "UPDATE LayerMenu SET Current_Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
     //         fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
     //             if (err) {
     //                 console.log(err);
@@ -1199,7 +1199,7 @@ module.exports = function (app, passport) {
         let statement1 = update1+update2+update3;
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-        let statement4 = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
+        let statement4 = "UPDATE Request_Form SET Current_Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
         if(status === "Reject"){
             con_CS.query(statement1 + statement2 + statement3 + statement4, function (err, result) {
                 if (err) {
@@ -1246,9 +1246,10 @@ module.exports = function (app, passport) {
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
 
-        let statement = "UPDATE Request_Form SET Status = 'Approved' WHERE RID = '" + approveIDStr + "'";
+        let statement = "UPDATE Request_Form SET Current_Status = 'Approved' WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
+        //this creates approved folder
         for(let i = 0; i < approvepictureStr.length; i++) {
             fs.rename(''+ upload_Dir +'/' + approvepictureStr[i] + '' , '' + geoData_Dir + '/' + approvepictureStr[i] + '',  function (err) {
                 if (err) {
@@ -1290,7 +1291,7 @@ module.exports = function (app, passport) {
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Current_Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1299,7 +1300,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Current_Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1320,7 +1321,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let rejectID = req.query.reject;
         let comment = req.query.comment;
-        let statement = "UPDATE Request_Form SET Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
+        let statement = "UPDATE Request_Form SET Current_Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
         con_CS.query(statement,function (err,results) {
             if (err) throw err;
             res.json(results);
@@ -1354,9 +1355,10 @@ module.exports = function (app, passport) {
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement = "UPDATE Request_Form SET Current_Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
+            let statement1 = "UPDATE LayerMenu SET Current_Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
+                //this says rename the record to 'Delete' Current_Status
                 if (err) {
                     console.log(err);
                 } else {
@@ -1514,7 +1516,7 @@ module.exports = function (app, passport) {
 
     app.get('/firstLayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT FirstLayer FROM LayerMenu WHERE Status ='Approved' GROUP BY FirstLayer ", function (err, result) {
+        con_CS.query("SELECT FirstLayer FROM LayerMenu WHERE Current_Status ='Approved' GROUP BY FirstLayer ", function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             if (err) { throw err } else {
                 // console.log(result);
@@ -1526,7 +1528,7 @@ module.exports = function (app, passport) {
     app.get('/secondLayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var firstlayerValue = req.query.FirstLayer;
-        con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Status ='Approved' and FirstLayer =? GROUP BY SecondLayer", firstlayerValue ,function (err, result) {
+        con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Current_Status ='Approved' and FirstLayer =? GROUP BY SecondLayer", firstlayerValue ,function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             if (err) { throw err } else {
                 // console.log(result);
@@ -1538,7 +1540,7 @@ module.exports = function (app, passport) {
     app.get('/thirdLayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var secondLayerValue = req.query.SecondLayer;
-        con_CS.query("SELECT LayerType,SecondLayer,ThirdLayer,CityName,StateName,CountryName, GROUP_CONCAT(LayerName) as LayerName FROM LayerMenu WHERE Status ='Approved' and SecondLayer =? GROUP BY ThirdLayer,CityName,StateName,CountryName,SecondLayer,LayerType", secondLayerValue ,function (err, result) {
+        con_CS.query("SELECT LayerType,SecondLayer,ThirdLayer,CityName,StateName,CountryName, GROUP_CONCAT(LayerName) as LayerName FROM LayerMenu WHERE Current_Status ='Approved' and SecondLayer =? GROUP BY ThirdLayer,CityName,StateName,CountryName,SecondLayer,LayerType", secondLayerValue ,function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             //All layer?
             //WHERE cityname = ''?
@@ -1554,7 +1556,7 @@ module.exports = function (app, passport) {
     app.get('/createlayer', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
 
-        con_CS.query("SELECT * From LayerMenu WHERE Status = 'Approved'", function (err, result) {
+        con_CS.query("SELECT * From LayerMenu WHERE Current_Status = 'Approved'", function (err, result) {
             let JSONresult = JSON.stringify(result, null, "\t");
             res.send(JSONresult);
         });
@@ -1598,11 +1600,11 @@ module.exports = function (app, passport) {
         tokenExpire = date3 + ' ' + time3;
     }
 
-    function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
+    function del_recov(Current_StatusUpd, ErrMsg, targetURL, req, res) {
 
         transactionID = req.query.transactionIDStr.split(",");
         // console.log(transactionID);
-        let statementGeneral = "UPDATE Request_Form SET Status = '" + StatusUpd + "'"; //this is where the problem is
+        let statementGeneral = "UPDATE Request_Form SET Current_Status = '" + Current_StatusUpd + "'"; //this is where the problem is
 
         for (let i = 0; i < transactionID.length; i++) {
             if (i === 0) {
