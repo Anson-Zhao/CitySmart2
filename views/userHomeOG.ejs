@@ -265,6 +265,7 @@
                     <th>Layer Uploader Name</th>
                     <th>Status</th>
                     <th>Comments</th>
+                    //columns predefined in table
                 </tr>
                 </thead>
                 <tbody>
@@ -272,6 +273,7 @@
                 </tbody>
                 <tfoot>
                 <tr>
+                    //look at bottom of table for this row of columns
                     <th>Date</th>
                     <th>UID</th>
                     <th>RID</th>
@@ -297,43 +299,29 @@
     </div>
 </div>
 <script type='text/javascript'>
-    let firstName = "<%= firstName %>";
-    let lastName = "<%= lastName %>";
-    let username = "<%= user.username %>";
+    var username = "<%= user.username %>";
     // console.log(username);
-    let scoutingRowSelected, DropMenu, transactionpicturename;
-    let table = $("#dataDisplay").DataTable();
-    let UserRole = "<%= user.userrole %>";
-    let scoutingTransactionID = [];
-    let trapTransactionID = [];
-    let LayerNameStr = [];
-    let queryStr;
+    var scoutingRowSelected, DropMenu, transactionpicturename;
+    var table = $("#dataDisplay").DataTable();
+    var UserRole = "<%= user.userrole %>";
+    var scoutingTransactionID = [];
+    var trapTransactionID = [];
+    var LayerNameStr = [];
 
     $(document).ready(function() {
 
         $(function () {
-
             flatpickr(".date", {
                 dateFormat: "Y-m-d",
                 time_24hr: true
             });
+            if (UserRole === "Regular") {
+                document.getElementById('searchname').style.display = "none";
+            }
 
             table.clear();
             table.draw();
-
-            if (UserRole === "Regular") {
-                document.getElementById('searchname').style.display = "none"; //disables username search for regular members
-                queryStr = "Status=Pending&UID=" + username;
-            } else {
-                queryStr = "Status=Pending";
-            }
-            queryAndDisplay(queryStr);
-            //the console below refers to the above as querystr
-            // just for the Pending table
-            //By changing this we allow the initial table to only show pending records
-            //We change to UID b/c of column name in Layer_Request form table
-            // console.log(queryAndDisplay);
-
+            queryAndDisplay("statusDel=" + "Active" + "&firstName=" + "<%= user.firstName %>" + "&lastName=" + "<%= user.lastName %>");
         });
 
         $('#dataDisplay tbody').on('click', 'tr', function () {
@@ -354,7 +342,7 @@
                 scoutingTransactionID.push(scoutingRowSelected[i][2]); //object variable / push means insert this value into ScoutingID
                 //i means row selected from table and 2 represents the column (count starting from zero)
                 //sent request from client side to server side "hey, could you make this record go from active to deleted status" server will ask for which row
-                //client says I will give you the scoutingID so you can identify and delete
+                //client says I will give you the soutingID so you can identify and delete
                 //server side says okay I can do that
                 //server tells client side they changed it and client side also has to change
                 console.log(scoutingTransactionID[0]); //array where one length means one record and then access first element value of array
@@ -390,6 +378,7 @@
                 console.log(scoutingTransactionID); //provides the associated values of the element(record) in the array
 
                 var transactionIDStr = "transactionIDStr=" + scoutingTransactionID.concat(trapTransactionID).toString(); //combines Souting ID with the trapID
+//what are scouting and trap IDs and where did they come from
                 console.log(transactionIDStr);
                 var pictureStr = "pictureStr=" + transactionpicturename.toString();
                 var LayerName = "LayerName=" + LayerNameStr.toString();
@@ -398,10 +387,8 @@
                     type: "GET",
                     dataType: 'json',
                     data: transactionIDStr + '&' + pictureStr + '&' + LayerName
-
-
                 });
-                window.location.reload();
+                // window.location.reload();
 
             } else {
                 return false;
@@ -416,12 +403,7 @@
             $(".clearForm input[type='text']").val('');
             $(".filter").val(''); //no function here so button does nothing
             $(".date").val('');
-
-            var qStr = "UID=" + username
-            //still keep UID because it is a changing variable whereas the first two are constant
-            // console.log(table.clear);
-            // console.log(qStr);
-            queryAndDisplay(qStr);
+            console.log(table.clear);
         });
     });
 
@@ -451,8 +433,8 @@
         var startDate = document.getElementsByClassName("date")[0].value;
         var endDate = document.getElementsByClassName("date")[1].value;
 
-        queryStr = "firstName=" + firstName + "&lastName=" + lastName + "&startDate=" + startDate + "&endDate=" + endDate;
-//This queryStr is for the admin's filtering options, that's why you need first and last names
+        var queryStr = "firstName=" + firstName + "&lastName=" + lastName + "&startDate=" + startDate + "&endDate=" + endDate;
+
         table.clear();
         table.draw();
         // trapTable.clear();
@@ -460,91 +442,43 @@
         queryAndDisplay(queryStr);
     }
 
-    // var queryAndDisplay = function (query) {
-    //     console.log(query);
-    //     //this console shows me
-    //     $.ajax({
-    //         url: '/filterQuery',
-    //         type: 'GET',
-    //         dataType: 'json',
-    //         async: false,
-    //         data: query, //status="active or pending" & username=@ after deleting records, you reload table which shows a new output not including the deleted records - it's still an instance of filtering
-    //         success: function (results) {
-    //             console.log(results);
-    //             for (var i = 0; i < results.length; i++) {
-    //                 if (UserRole === "Regular") {
-    //                     if (results[i].UID === username) {
-    //                         if (results[i].Status === "Pending" || results[i].Status === "Active") {
-    //                             table.row.add([
-    //                                 results[i].Date,
-    //                                 results[i].UID,
-    //                                 results[i].RID,
-    //                                 results[i].LayerCategory,
-    //                                 results[i].CityName,
-    //                                 results[i].CountryName,
-    //                                 results[i].StateName,
-    //                                 results[i].FirstLayer,
-    //                                 results[i].FirstOther,
-    //                                 results[i].SecondLayer,
-    //                                 results[i].SecondOther,
-    //                                 results[i].LayerName,
-    //                                 results[i].Layer_Description,
-    //                                 results[i].LayerFormat,
-    //                                 results[i].Layer_Uploader_name,
-    //                                 results[i].Status,
-    //                                 results[i].Comments
-    //                             ]).draw(false);
-    //
-    //                         }
-    //
-    //                     }
-    //                 }
-    //                 //start a new set of if statements for the admin here
-    //
-    //                 if (UserRole === "Admin") {
-    //                     // if (results[i].UID === username) {
-    //                         if (results[i].Status === "Pending" || results[i].Status === "Active") {
-    //                             table.row.add([
-    //                                 results[i].Date,
-    //                                 results[i].UID,
-    //                                 results[i].RID,
-    //                                 results[i].LayerCategory,
-    //                                 results[i].CityName,
-    //                                 results[i].CountryName,
-    //                                 results[i].StateName,
-    //                                 results[i].FirstLayer,
-    //                                 results[i].FirstOther,
-    //                                 results[i].SecondLayer,
-    //                                 results[i].SecondOther,
-    //                                 results[i].LayerName,
-    //                                 results[i].Layer_Description,
-    //                                 results[i].LayerFormat,
-    //                                 results[i].Layer_Uploader_name,
-    //                                 results[i].Status,
-    //                                 results[i].Comments
-    //                             ]).draw(false);
-    //                         }
-    //
-    //                     }
-    //                 // }
-    //             }
-    //         }
-    //     })
-    // }
 
-    var queryAndDisplay = function (query) {
-        //this console shows me
+    var queryAndDisplay = function (querystr) { //bring this back!!
+
+
         $.ajax({
-            url: '/layerReqQuery',
+            url: '/filterQuery',
             type: 'GET',
             dataType: 'json',
             async: false,
-            data: query, //status="active or pending" & username=@ after deleting records, you reload table which shows a new output not including the deleted records - it's still an instance of filtering
+            data: querystr, //status="active or pending" & username=@ after deleting records, you reload table which shows a new output not including the deleted records - it's still an instance of filtering
             success: function (results) {
-                console.log(results);
+                // console.log(results);
                 for (var i = 0; i < results.length; i++) {
-
-                    if (results[i].Status === "Pending" || results[i].Status === "Active") {
+                    if (UserRole === "Regular") {
+                        if (results[i].UID === username) {
+                            table.row.add([
+                                results[i].Date,
+                                results[i].UID,
+                                results[i].RID,
+                                results[i].LayerCategory,
+                                results[i].CityName,
+                                results[i].CountryName,
+                                results[i].StateName,
+                                results[i].FirstLayer,
+                                results[i].FirstOther,
+                                results[i].SecondLayer,
+                                results[i].SecondOther,
+                                results[i].LayerName,
+                                results[i].Layer_Description,
+                                results[i].LayerFormat,
+                                results[i].Layer_Uploader_name,
+                                results[i].Status,
+                                results[i].Comments
+                            ]).draw(false);
+                        }
+                    }
+                    if (results[i].Status === "Pending") {
                         table.row.add([
                             results[i].Date,
                             results[i].UID,
@@ -565,14 +499,13 @@
                             results[i].Comments
                         ]).draw(false);
                     }
-                    //start a new set of if statements for the admin here
-
                 }
             }
         })
     }
 
-</script>
-</body>
-</html>
 
+
+    </script>
+    </body>
+    </html>

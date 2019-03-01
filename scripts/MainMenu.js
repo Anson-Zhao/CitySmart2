@@ -34,7 +34,6 @@ requirejs(['./WorldWindShim',
               HeatmapPanel) {
         "use strict";
         // Load Globe
-        // console.log(WorldWind);
         var globe = new Globe({id: "canvasOne"});
         var globeID = "canvasOne";
         var controls = new Controls(globe);
@@ -43,7 +42,6 @@ requirejs(['./WorldWindShim',
         var heatmapPanel = new HeatmapPanel(globe, gInterface.globe.navigator, gInterface.globe.worldWindowController, controls);
 
         WorldWind.Logger.setLoggingLevel(WorldWind.Logger.LEVEL_WARNING);
-
         // Create a layer manager for controlling layer visibility.
         var layerManager = new LayerManager(globe);
 
@@ -54,7 +52,7 @@ requirejs(['./WorldWindShim',
 
         // Web Map Service information from NASA's Near Earth Observations WMS
         // var serviceAddress = "http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=WMS&request=GetCapabilities&version=1.1.1";
-        // var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
+        var serviceAddress = "https://cors.aworldbridgelabs.com/http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities";
 
         var preloadWMSLayerName = [];
         var highlightedItems= [];
@@ -80,20 +78,17 @@ requirejs(['./WorldWindShim',
             // console.log(xmlDom);
             // Create a WmsCapabilities object from the XML DOM
             var wms = new WorldWind.WmsCapabilities(xmlDom);
-            // console.log(wms.getNamedLayer);
 
             // Retrieve a WmsLayerCapabilities object by the desired layer name
             for (var n = 0; n < preloadWMSLayerName.length; n++) {
-                console.log(preloadWMSLayerName[n]);
-                var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
 
+                var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
 
                 // Form a configuration object from the wmsLayerCapability object
                 var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
 
                 // Modify the configuration objects title property to a more user friendly title
                 wmsConfig.title = preloadWMSLayerName[n];
-                console.log (wmsConfig.title);
 
                 // Create the WMS Layer from the configuration object
                 var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
@@ -103,21 +98,108 @@ requirejs(['./WorldWindShim',
                 globe.addLayer(wmsLayer);
                 layerManager.synchronizeLayerList();
             }
-        }
-
-        // Called if an error occurs during WMS Capabilities document retrieval
-        var logError = function (jqXhr, text, exception) {
-            console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
         };
+        var infobox;
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '/placemark',
+                dataType: 'json',
+                success: function(result) {
+                    if (!result.err) {
+                        console.log(result.data);
+                        infobox = result.data;
+                        for (var k = 0; k < infobox.length; k++) {
+                            // alert (data[0].Color);
+
+                            var colorAttribute = infobox[k].Color;
+                            var cAtwo = colorAttribute.split(" ");
+                            // console.log(cAtwo);
+
+                            var coLat = infobox[k].Latitude;
+
+                            console.log(coLat);
+
+                            var coLong = infobox[k].Longitude;
+
+                            var PK = infobox[k].PK;
+                            // var ptwo = location.split(",");
+
+                            console.log(PK);
+
+                            var LayerName = infobox[k].LayerName;
+                            // console.log(LayerName);
+
+
+                            console.log(Placemark_Creation);
+                            Placemark_Creation(cAtwo, PK, coLat, coLong, LayerName);
+                        }
+                    }
+
+                }
+            });
+
+
+            $('.placemarkLayer').click(function(){
+
+                var val1;
+                if ($('.placemarkLayer').is(":checkbox:checked")) {
+                    alert("hi");
+
+                    $(':checkbox:checked').each(function () {
+                        val1 = $(this).val();
+                        // var str = val+'';
+                        // val2 = str.split(",");
+                        console.log(val1);
+                        console.log(layers);
+
+                        for (var a = 0; a < layers.length; a++) {
+
+                            if (layers[a].displayName === val1) {
+                                alert(layers[a].displayName + " works now!");
+
+                                layers[a].enabled = true;
+                                console.log(layers[a]);
+                                // console.log('KEA_Wind_Turbine'); //find out how to console the problem
+
+                            }
+                        }
+                    });
+                }
+
+                if($('.placemarkLayer').is(":not(:checked)")) {
+                    // console.log("enable:false");
+                    var val2;
+                    $(":checkbox:not(:checked)").each(function (i) {
+                        val2 = $(this).val();
+
+                        // console.log(str);
+                        // console.log(val2[i]);
+
+                        // alert("it doesn't works");
+                        // console.log(val);
+                        // console.log("s"+val2s[a].displayName);
+                        for (var a = 0; a < layers.length; a++) {
+                            if (layers[a].displayName === val2) {
+
+                                layers[a].enabled = false;
+
+                                // console.log("str: " + layers[a].displayName);
+                                // console.log(layers[a]);
+                            }
+                        }
+                    });
+                }
+            });
+        });
 
         var Placemark_Creation = function (RGB,PKValue, coLat, coLong, LayerName) {
-            console.log(coLong);
 
             var placemark;
             var highlightAttributes;
             var placemarkLayer = new WorldWind.RenderableLayer(LayerName);
             var placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
-            // console.log(latandlong[0]);
+// console.log(latandlong[0]);
 
 
             // Create the custom image for the placemark.
@@ -357,6 +439,18 @@ requirejs(['./WorldWindShim',
                     globe.goTo(new WorldWind.Position(LayerSelected.Latitude, LayerSelected.Longitude, Altitude));
                 }
             })
+        };
+//
+        globe.addEventListener("mousemove", handlePick);
+
+// globe.addEventListener("click", sitePopUp);
+
+        globe.addEventListener("click", handleMouseCLK);
+
+
+        // Called if an error occurs during WMS Capabilities document retrieval
+        var logError = function (jqXhr, text, exception) {
+            console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
         };
 
         var buttonControl = function(allCheckedArray,layer1){
