@@ -31,7 +31,7 @@
             <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
                 <span class="qq-upload-drop-area-text-selector"></span>
             </div>
-            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button'>
+            <div class="qq-upload-button-selector qq-upload-button">
                 <div>Upload a file</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
@@ -487,48 +487,46 @@
             <button id="clear" type="reset" onclick="clearForm()" value="  Clear  ">Clear</button>
             <button id="approve" type="submit" form="layer" disabled  title="this is only for Admin Users">Approve</button>
             <button id="reject" disabled  title="this is only for Admin Users">Reject</button>
-            <button id="testButton" type="button">click pls</button>
-
         </div>
         <hr>
         <p class="text-center"><a id="cancel" onclick="userHome();">Cancel</a></p>
 </div>
 
 <script>
-    var UserRole = "<%= user.userrole %>"; //Admin or general
-    var getvalue = JSON.parse(localStorage.getItem("getvalue"));
-    // console.log(getvalue);
+    let UserRole = "<%= user.userrole %>";
+    let rowSelectedValue = JSON.parse(localStorage.getItem("rowSelectedValue"));
+
     $(document).ready(function() {
-        document.getElementById('date').value = getvalue[0];
-        document.getElementById('User ID').value = getvalue[1];
-        document.getElementById('RID').value = getvalue[2];
-        document.getElementById('LayerNameInput').value = getvalue[12];
-        document.getElementById('LayerStateInput').value = getvalue[6];
-        document.getElementById('LayerFormat').value = getvalue[14];
-        document.getElementById('LayerFormat2').value = getvalue[14];
-        document.getElementById('message').value = getvalue[13];
-        document.getElementById('City').value = getvalue[7];
+        document.getElementById('date').value = rowSelectedValue[0];
+        document.getElementById('User ID').value = rowSelectedValue[1];
+        document.getElementById('RID').value = rowSelectedValue[2];
+        document.getElementById('LayerNameInput').value = rowSelectedValue[12];
+        document.getElementById('LayerStateInput').value = rowSelectedValue[6];
+        document.getElementById('LayerFormat').value = rowSelectedValue[14];
+        document.getElementById('LayerFormat2').value = rowSelectedValue[14];
+        document.getElementById('message').value = rowSelectedValue[13];
+        document.getElementById('City').value = rowSelectedValue[7];
         $('#continent option[value="AL"]').val(getvalue[4]);
         $('#continent2 option[value="AL"]').val(getvalue[4]);
         $('#country option[value="select"]').val(getvalue[5]);
         $('#country2 option[value="select"]').val(getvalue[5]);
-        document.getElementById('DisplayName').value = getvalue[12];
-        document.getElementById('comment').value = getvalue[17];
+        document.getElementById('DisplayName').value = rowSelectedValue[12];
+        document.getElementById('comment').value = rowSelectedValue[17];
 
-        if(getvalue[7] === "other" || getvalue[9] === "other"){
-            document.getElementById('main').value = getvalue[8];
-            document.getElementById('main2').value = getvalue[8];
+        if(rowSelectedValue[7] === "other" || rowSelectedValue[9] === "other"){
+            document.getElementById('main').value = rowSelectedValue[8];
+            document.getElementById('main2').value = rowSelectedValue[8];
             document.getElementById("other1").style.display = "block";
-            document.getElementById("inputone").value = getvalue[9];
-            $('#sub option[value="Category"]').val(getvalue[10]);
-            $('#sub2 option[value="Category"]').val(getvalue[10]);
+            document.getElementById("inputone").value = rowSelectedValue[8];
+            $('#sub option[value="Category"]').val(rowSelectedValue[10]);
+            $('#sub2 option[value="Category"]').val(rowSelectedValue[10])
             document.getElementById("other2").style.display = "block";
-            document.getElementById("inputtwo").value = getvalue[11];
+            document.getElementById("inputtwo").value = rowSelectedValue[11];
         }else{
-            document.getElementById('main').value = getvalue[8];
-            document.getElementById('main2').value = getvalue[8];
-            $('#sub option[value="Category"]').val(getvalue[10]);
-            $('#sub2 option[value="Category"]').val(getvalue[10]);
+            document.getElementById('main').value = rowSelectedValue[8];
+            document.getElementById('main2').value = rowSelectedValue[8];
+            $('#sub option[value="Category"]').val(rowSelectedValue[10]);
+            $('#sub2 option[value="Category"]').val(rowSelectedValue[10]);
         }
 
         $(function () {
@@ -563,11 +561,10 @@
                 document.getElementById("approve").style.backgroundColor = "lightgray";
                 document.getElementById("reject").style.backgroundColor = "lightgray";
             }
-
         });
 
         $("#main").change(function () {
-            var val = $(this).val();
+            let val = $(this).val();
             if (val == "") {
                 $("#sub").html("<option value='Category'>SELECT SUBCATEGORY</option>");
             }else if(val =="other") {
@@ -576,7 +573,7 @@
         })
 
         $("#City").change(function () {
-            var val = $(this).val();
+            let val = $(this).val();
             if (val == "select") {
                 $("#country").html("<option value='select'>SELECT SUBCATEGORY</option>");
             }
@@ -592,58 +589,11 @@
             document.getElementById("other2").style.display = "none";
         }
     }
-    $(document).ready(function() {
-        let continentList = document.getElementById("continent")
-        $.ajax({
-            url: "layerRequestContinent",
-            dataType: 'json',
-            success: function (results) {
-                console.log(results);
-                var option;
-                for (let i = 0; i < results.length; i++) {
-                    option = new Option(results[i].Contitent_name, results[i].Continent);
-                    continentList.add(option);
-                    // console.log(option);
-                }
-            }
-        });
-    });
-
-    function ChangeContinentList (continentValue){
-        console.log(continentValue);
-        var country = "country="+continentValue;
-        let countryList = document.getElementById("country")
-        while (countryList.options.length) {
-            countryList.remove(0);
-        }
-
-        if(continentValue !== 'SAS'){
-            countryList.disabled = false;
-        }
-        if(continentValue === "AL"){
-            countryList.disabled = true;
-            $("#country").html("<option>SELECT A COUNTRY</option>")
-        }
-        console.log(country);
-        $.ajax({
-            url: "layerRequestCountry",
-            method: 'GET',
-            dataType: 'json',
-            data: country,
-            success: function (results) {
-                console.log(results)
-                for(var j = 0; j < results.length; j++){
-                    var option = new Option(results[j].Country_name, results[j].Country_name);
-                    countryList.add(option);
-                }
-            }
-        });
-    }
 
     //resubmit the photo
-    var photoDiv = $("#photo");
+    let photoDiv = $("#photo");
     photoDiv.empty();
-    var editIDSr = "editIDSr=" + getvalue[2];
+    let editIDSr = "editIDSr=" + rowSelectedValue[2];
     $.ajax({
         url: 'edit',
         type: 'GET',
@@ -653,9 +603,9 @@
             if(results[0].Layer_Uploader_name !== "") {
                 if (!results.error) {
                     globalResults = results;
-                    var list = [];
-                    for (var i = 0; i < globalResults.length; i++) {
-                        var first = {
+                    let list = [];
+                    for (let i = 0; i < globalResults.length; i++) {
+                        let first = {
                             id: i,
                             size: 561276,
                             thumbnailUrl: globalResults[i].Layer_Uploader,
@@ -672,7 +622,7 @@
     });
 
 
-    var uploader = new qq.FineUploader({
+    let uploader = new qq.FineUploader({
         element: document.getElementById("uploader"),
         // debug: true,
         request: {
@@ -695,28 +645,14 @@
             allowedExtensions: ['tif', 'shp','jp2','adf','j2k']
         }
     });
-    $("#testButton").click(function () {
-        var data = $("#layer").serialize();
-        console.log(data);
-        $.ajax({
-            url: 'testB',
-            method: "post",
-            data: data,
-            dataType: 'json',
-            success: function (d) {
-                console.log(data);
-            }
-        });
-    })
 
     function submitForm() {
         if (UserRole === "Admin") {
             if (confirm("Are you sure you would like to approve this data?") === true) {
-                var tID = "tID=" + document.getElementById('RID').value;
-                var LUN = "LUN=" + getvalue[15];
-                var lForm = "lForm=" + getvalue[14];
-                var data = $("#layer").serialize();
-                console.log(data);
+                let tID = "tID=" + document.getElementById('RID').value;
+                let LUN = "LUN=" + rowSelectedValue[14];
+                var lForm = "lForm=" + rowSelectedValue[14];
+                let data = $("#layer").serialize();
                 $.ajax({
                     url: 'approve',
                     type: "GET",
@@ -738,8 +674,8 @@
             }
         }else if (UserRole === "Regular") {
             if (confirm("Are you sure you would like to submit this data?") === true) {
-                var regulardata = $("#layer").serialize();
-                var status = "status=" + getvalue[16];
+                let regulardata = $("#layer").serialize();
+                let status = "status=" + rowSelectedValue[16];
                 $.ajax({
                     url: 'rsubmit',
                     method: "post",
@@ -756,7 +692,7 @@
     }
 
     function ChangeMainCategory(Category){
-        var subList = document.getElementById("sub");
+        let subList = document.getElementById("sub");
         while (subList.options.length){
             subList.remove(0);
         }
@@ -764,8 +700,8 @@
             url: "MainCategory",
             dataType: 'json',
             success:function (results) {
-                var option;
-                for (var i = 0; i < results.length; i++) {
+                let option;
+                for (let i = 0; i < results.length; i++) {
                     if (Category === results[i]. FirstLayer) {
                         option = new Option(results[i].SecondLayer, results[i].SecondLayer);
                         subList.add(option);
@@ -833,7 +769,7 @@
             url: "SearchLayerName",
             dataType:"json",
             success: function (results) {
-                for(var i = 0; i < results.length; i++) {
+                for(let i = 0; i < results.length; i++) {
                     if (value === results[i].LayerName) {
                         document.getElementById("LayerName1").innerHTML = "The Layer Name has already been used";
                         document.addEventListener("keyup", function (e) {
@@ -861,7 +797,7 @@
             url: "SearchThirdLayer",
             dataType:"json",
             success: function (results) {
-                for(var i = 0; i < results.length; i++) {
+                for(let i = 0; i < results.length; i++) {
                     if (thisvalue === results[i].ThirdLayer) {
                         document.getElementById("LayerName2").innerHTML = "The ThirdLayer Name has already been used";
                         document.addEventListener("keyup", function (e) {
@@ -881,20 +817,20 @@
         })
     }
 
-    // $("#City").click(function () {
-    //     new dgCitysCountries({
-    //         CityVal: document.getElementById("City").val,
-    //         countryVal: document.getElementById("country").val,
-    //         City: document.getElementById("City"),
-    //         country: document.getElementById("country"),
-    //         change: true
-    //     });
-    // });
+    $("#City").click(function () {
+        new dgCitysCountries({
+            CityVal: document.getElementById("City").val,
+            countryVal: document.getElementById("country").val,
+            City: document.getElementById("City"),
+            country: document.getElementById("country"),
+            change: true
+        });
+    });
 
     $("#reject").click(function () {
         if (confirm("Are you sure to reject the data?") === true) {
-            var tID = "reject=" + document.getElementById('RID').value;
-            var Comment = "comment=" + document.getElementById('comment').value;
+            let tID = "reject=" + document.getElementById('RID').value;
+            let Comment = "comment=" + document.getElementById('comment').value;
             $.ajax({
                 url: 'reject',
                 type: "GET",
