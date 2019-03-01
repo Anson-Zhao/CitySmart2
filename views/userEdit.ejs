@@ -113,7 +113,7 @@
                             <label style="font-size:18px;">Password Change</label>
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 control-label">Current Password</label>
+                            <label id="displayCurrentPassword" class="col-md-4 control-label">Current Password</label>
                             <div class="col-md-8 inputGroupContainer">
                                 <div class="input-group"><span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span><input id="currentPassword" name="CurrentPassword" class="form-control"  value="" type="password"></div>
                             </div>
@@ -157,6 +157,7 @@
         //Verifies if the current login user is different from the one that is being edited
         document.getElementById("currentPassword").setAttribute("disabled", "");
         document.getElementById("currentPassword").setAttribute("readonly", "");
+        document.getElementById("displayCurrentPassword").innerHTML = "User Current Password";//Changes the value "Current Password" to nothing
     } else {
         document.getElementById("currentPassword").setAttribute("autofocus","");
     }
