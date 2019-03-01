@@ -160,7 +160,7 @@
         document.getElementById("displayCurrentPassword").innerHTML = "User Current Password";//Changes the value "Current Password" to nothing
     } else {
         document.getElementById("currentPassword").setAttribute("autofocus","");
-        document.getElementById("checkit").setAttribute("onclick", "checkAdminForm()");
+        // document.getElementById("checkit").setAttribute("onclick", "checkAdminForm()");
     }
 
     var password = $("#password");
@@ -201,44 +201,44 @@
         // }
     }
 
-     function checkAdminForm() {
-         // let username = "username=" + getvalue[0];
-         // let password = "&pass=" + document.getElementById("currentPassword").value;
-         let oldP = document.getElementById("currentPassword").value;
-         var newP = document.getElementById("newPassword").value;
-         var confirmP = document.getElementById("confirmPassword").value;
-         // console.log(user.userName);
-         // console.log(user.userDisplayName);
-         console.log(getvalue[0]);
-         console.log(username);
-         let userEditData = "username=" + getvalue[0] + "&pass=" + document.getElementById("currentPassword").value;
-         console.log(userEditData);
-         $.ajax({
-             url  : '/checkpassword',
-             method : "POST",
-             data : userEditData,
-             dataType: 'json',
-             success : function(d){
-                 if (d === true) {
-                     alert("Please make sure you typed your current password correctly.");
-                 }else if(d === false){
-                     if (oldP !== "" && confirmP !== "" && newP !== "") {
-                         if (oldP !== newP) {
-                             if (newP === confirmP) {
-                                 alert("You can submit now!");
-                             } else {
-                                 alert("New passwords do not match!");
-                             }
-                         } else {
-                             alert("Please make sure your new password is different from old one.");
-                         }
-                     } else {
-                         alert("All password fields are required.");
-                     }
-                 }
-             }
-         });
-     }
+     // function checkAdminForm() {
+     //     // let username = "username=" + getvalue[0];
+     //     // let password = "&pass=" + document.getElementById("currentPassword").value;
+     //     let oldP = document.getElementById("currentPassword").value;
+     //     var newP = document.getElementById("newPassword").value;
+     //     var confirmP = document.getElementById("confirmPassword").value;
+     //     // console.log(user.userName);
+     //     // console.log(user.userDisplayName);
+     //     console.log(getvalue[0]);
+     //     console.log(username);
+     //     let userEditData = "username=" + getvalue[0] + "&pass=" + document.getElementById("currentPassword").value;
+     //     console.log(userEditData);
+     //     $.ajax({
+     //         url  : '/checkpassword',
+     //         method : "POST",
+     //         data : userEditData,
+     //         dataType: 'json',
+     //         success : function(d){
+     //             if (d === true) {
+     //                 alert("Please make sure you typed your current password correctly.");
+     //             }else if(d === false){
+     //                 if (oldP !== "" && confirmP !== "" && newP !== "") {
+     //                     if (oldP !== newP) {
+     //                         if (newP === confirmP) {
+     //                             alert("You can submit now!");
+     //                         } else {
+     //                             alert("New passwords do not match!");
+     //                         }
+     //                     } else {
+     //                         alert("Please make sure your new password is different from old one.");
+     //                     }
+     //                 } else {
+     //                     alert("All password fields are required.");
+     //                 }
+     //             }
+     //         }
+     //     });
+     // }
 
     function checkForm() {
         // let username = "username=" + getvalue[0];
