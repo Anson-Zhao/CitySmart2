@@ -856,12 +856,15 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
 
         // new password (User Login)
-        let user = req.body.Username;
-        let editingUser = req.user;
+        let user = req.body.Username + "";
+        let editingUser = req.user.username.toString();
         console.log("User:");
         console.log(user);
         console.log("Admin");
         console.log(editingUser);
+        console.log(req.user.username);
+        // editingUser.toString();
+        console.log(req.user.username.toString());
 
         if(user === editingUser) {
             let newEditPass = {
@@ -943,9 +946,16 @@ module.exports = function (app, passport) {
                 return [String(key), req.body[key]];
             });
 
+            console.log("Result:");
+            console.log(result);
+
             // var update3 = " WHERE username = '" + req.user.username + "'";
             let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
             let statement2 = "UPDATE UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
+            //
+            console.log(statement1);
+            console.log(statement2);
+            //
             con_CS.query(statement1 + statement2, function (err, result) {
                 if (err) throw err;
                 res.json(result);
