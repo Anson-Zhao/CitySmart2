@@ -857,44 +857,86 @@ module.exports = function (app, passport) {
 
         // new password (User Login)
         let user = req.body.Username;
+        let editingUser = req.user;
         console.log("User:");
         console.log(user);
         console.log("Admin");
-        console.log(req.user);
+        console.log(editingUser);
 
-        let newPass = {
-            currentpassword: req.body.CurrentPassword,
-            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
-            confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
-        };
+        if(user === editingUser) {
+            let newEditPass = {
+                currentpassword: req.body.CurrentPassword,
+                Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+                confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            };
+            console.log("NewEditPass:");
+            console.log(newEditPass);
+            let passComp = bcrypt.compareSync(newEditPass.currentpassword, user.password);
+            console.log("User.password");
+            console.log(user.password);
+            console.log("newEditPass.currentpassword");
+            console.log(newEditPass.currentpassword);
+            console.log("PassComp:");
+            console.log(passComp);
 
-        console.log("NewPass:");
-        console.log(newPass);
+            if (!!req.body.NewPassword) {
+                let passReset = "UPDATE UserLogin SET password = '" + newEditPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
-        let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
-
-        console.log("User.password ");
-        console.log(user.password);
-        console.log("newPass.currentpassword");
-        console.log(newPass.currentpassword);
-        console.log("PassComp:");
-        console.log(passComp);
-
-        if (!!req.body.NewPassword && passComp) {
-            let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
-
-            con_CS.query(passReset, function (err, rows) {
-                if (err) {
-                    console.log(err);
-                    res.json({"error": true, "message": "Fail !"});
-                } else {
-                    // res.json({"error": false, "message": "Success !"});
-                    basicInformation();
-                }
-            });
+                con_CS.query(passReset, function (err, rows) {
+                    if (err) {
+                        console.log(err);
+                        res.json({"error": true, "message": "Fail !"});
+                    } else {
+                        // res.json({"error": false, "message": "Success !"});
+                        basicInformation();
+                    }
+                });
+            } else {
+                basicInformation();
+            }
         } else {
-            basicInformation();
+            let newPass = {
+                Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+                confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            };
+            console.log("NewPass:");
+            console.log(newPass);
+
+            if (!!req.body.NewPassword) {
+                let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
+
+                con_CS.query(passReset, function (err, rows) {
+                    if (err) {
+                        console.log(err);
+                        res.json({"error": true, "message": "Fail !"});
+                    } else {
+                        // res.json({"error": false, "message": "Success !"});
+                        basicInformation();
+                    }
+                });
+            } else {
+                basicInformation();
+            }
         }
+
+
+
+
+        // if (!!req.body.NewPassword && passComp) {
+        //     let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
+        //
+        //     con_CS.query(passReset, function (err, rows) {
+        //         if (err) {
+        //             console.log(err);
+        //             res.json({"error": true, "message": "Fail !"});
+        //         } else {
+        //             // res.json({"error": false, "message": "Success !"});
+        //             basicInformation();
+        //         }
+        //     });
+        // } else {
+        //     basicInformation();
+        // }
 
         function basicInformation() {
             let result = Object.keys(req.body).map(function (key) {
