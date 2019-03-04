@@ -160,11 +160,12 @@
         //Verifies if the current login user is different from the one that is being edited
         document.getElementById("currentPassword").setAttribute("disabled", "");
         document.getElementById("currentPassword").setAttribute("readonly", "");
-        document.getElementById("displayCurrentPassword").innerHTML = "User Current Password";//Changes the value "Current Password" to nothing
+        document.getElementById("displayCurrentPassword").innerHTML = "User Current Password";//Changes the value "Current Password" to "User Current Password"
     } else {
         document.getElementById("currentPassword").setAttribute("autofocus","");
         // document.getElementById("checkit").setAttribute("onclick", "checkAdminForm()");
     }
+
 
     var password = $("#password");
     var initial = password.is(":checked");
@@ -190,6 +191,7 @@
             text.style.display = "none";
             document.getElementById("checkit").style.display = "none";
             document.getElementById("checkit").style.backgroundColor =  "lightgray";
+            document.getElementById("updateForm").removeAttribute("disabled");
         }
         // document.getElementById("submit").style.marginTop = "30px";
 
