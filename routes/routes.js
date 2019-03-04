@@ -856,15 +856,13 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
 
         // new password (User Login)
-        let user = req.body.Username + "";
-        let editingUser = req.user.username.toString();
+        let user = req.body.Username;
+        //Converts array to string
+        let editingUser = req.user.username;
         console.log("User:");
         console.log(user);
         console.log("Admin");
         console.log(editingUser);
-        console.log(req.user.username);
-        // editingUser.toString();
-        console.log(req.user.username.toString());
 
         if(user === editingUser) {
             let newEditPass = {
@@ -883,7 +881,7 @@ module.exports = function (app, passport) {
             console.log(passComp);
 
             if (!!req.body.NewPassword) {
-                let passReset = "UPDATE UserLogin SET password = '" + newEditPass.Newpassword + "' WHERE username = '" + user.username + "'";
+                let passReset = "UPDATE UserLogin SET password = '" + newEditPass.Newpassword + "' WHERE username = '" + user + "'";
 
                 con_CS.query(passReset, function (err, rows) {
                     if (err) {
@@ -906,7 +904,7 @@ module.exports = function (app, passport) {
             console.log(newPass);
 
             if (!!req.body.NewPassword) {
-                let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
+                let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user + "'";
 
                 con_CS.query(passReset, function (err, rows) {
                     if (err) {
