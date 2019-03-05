@@ -183,6 +183,8 @@
         var checkbox = document.getElementById("password");
         var text = document.getElementById("pswchange");
         if (checkbox.checked === true){
+            alert("Please check your password by clicking \"Check\" before clicking update.");
+            alert("Please also verify that your current password is correct and your two new passwords match before submitting.");
             text.style.display = "block";
             document.getElementById("checkit").style.display = "block";
             document.getElementById("checkit").style.backgroundColor =  "#4183c4";
@@ -256,14 +258,14 @@
         // console.log(user.userDisplayName);
         console.log(getvalue[0]);
         console.log(username);
-        alert("Verify that your ");
+
         if (confirmP !== "" && newP !== "") {
                 if (newP === confirmP) {
-                    alert("You can submit now!");
+                    alert("Your new passwords match!");
                     document.getElementById("updateForm").removeAttribute("disabled");
                     xyj.style.display === "none";
                 } else {
-                    alert("New passwords do not match!");
+                    alert("New passwords do not match! Please try again.");
                 }
         }
     }
