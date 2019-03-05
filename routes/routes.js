@@ -859,10 +859,13 @@ module.exports = function (app, passport) {
         let user = req.body.Username;
         //Converts array to string
         let editingUser = req.user.username;
+        let editingUserPassword = req.user.password;
         console.log("User:");
         console.log(user);
         console.log("Admin");
         console.log(editingUser);
+        console.log("Editing User Password");
+        console.log(editingUserPassword);
 
         if(user === editingUser) {
             let newEditPass = {
@@ -872,7 +875,10 @@ module.exports = function (app, passport) {
             };
             console.log("NewEditPass:");
             console.log(newEditPass);
-            let passComp = bcrypt.compareSync(newEditPass.currentpassword, user.password);
+
+            let newEditPassCurrentPassword = newEditPass.currentpassword;
+
+            let passComp = bcrypt.compareSync(newEditPass.currentpassword, editingUserPassword);
             console.log("User.password");
             console.log(user.password);
             console.log("newEditPass.currentpassword");
@@ -881,9 +887,9 @@ module.exports = function (app, passport) {
             console.log(passComp);
 
             if (!!req.body.NewPassword) {
-                let passReset = "UPDATE UserLogin SET password = '" + newEditPass.Newpassword + "' WHERE username = '" + user + "'";
+                let passAdminReset = "UPDATE UserLogin SET password = '" + newEditPass.Newpassword + "' WHERE username = '" + user + "'";
 
-                con_CS.query(passReset, function (err, rows) {
+                con_CS.query(passAdminReset, function (err, rows) {
                     if (err) {
                         console.log(err);
                         res.json({"error": true, "message": "Fail !"});
