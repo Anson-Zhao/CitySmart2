@@ -146,8 +146,6 @@
 <script>
      var LoginUser = "<%= user.username %>";
 
-    // var stringUser = "Are you sure you want to change " + user.userName + "\'s password?";
-     console.log(LoginUser);
 
      var getvalue = JSON.parse(localStorage.getItem("getvalue"));
     document.getElementById('username').value = getvalue[0];
@@ -163,7 +161,6 @@
         document.getElementById("currentPassword").setAttribute("display", "none");
         document.getElementById("displayCurrentPassword").innerHTML = "User Current Password";//Changes the value "Current Password" to "User Current Password"
     } else {
-        // document.getElementById("checkit").setAttribute("onclick", "checkAdminForm()");
     }
 
 
@@ -188,10 +185,11 @@
          if (checkbox.checked === true){
             text.style.display = "block";
             document.getElementById("checkit").style.display = "block";
-            document.getElementById("checkit").style.backgroundColor =  "#4183c4";
+             document.getElementById("updateForm").setAttribute("disabled", "");
+             document.getElementById("checkit").style.backgroundColor =  "#4183c4";
                 alert("Please verify your password(s) by clicking \"Check\" before clicking update.");
                 alert("Please also verify that your current password is correct and your two new passwords match before submitting.");
-            document.getElementById("updateForm").setAttribute("disabled", "");
+
         } else{
             text.style.display = "none";
             document.getElementById("checkit").style.display = "none";
@@ -206,10 +204,6 @@
         let oldP = document.getElementById("currentPassword").value;
         var newP = document.getElementById("newPassword").value;
         var confirmP = document.getElementById("confirmPassword").value;
-        // console.log(user.userName);
-        // console.log(user.userDisplayName);
-        console.log(getvalue[0]);
-        console.log(username);
         let userEditData = "username=" + getvalue[0] + "&pass=" + document.getElementById("currentPassword").value;
          if (LoginUser !== getvalue[0]) {
              if (confirmP !== "" && newP !== "") {
@@ -264,9 +258,9 @@
                 success : function(d){
                     if (d.error) {
                         alert(d.message);
-                        alert("An error has occurred. Please try again later or contact an admin for help.");
+                        alert("An error has occurred. Please try again or contact an admin for help.");
                     } else {
-                        alert("Changes were updated!");
+                        alert("Changes were updated! Please verify that your password has been changed by re-signing in.");
                         window.location.replace('/userManagement');
                     }
                 }

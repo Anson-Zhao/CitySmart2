@@ -860,12 +860,7 @@ module.exports = function (app, passport) {
         //Converts array to string
         let editingUser = req.user.username;
         let editingUserPassword = req.user.password;
-        console.log("User:");
-        console.log(user);
-        console.log("Admin");
-        console.log(editingUser);
-        console.log("Editing User Password");
-        console.log(editingUserPassword);
+
 
         if(user === editingUser) {
             let newEditPass = {
@@ -873,8 +868,7 @@ module.exports = function (app, passport) {
                 Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
                 confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
             };
-            console.log("NewEditPass:");
-            console.log(newEditPass);
+
 
             let newEditPassCurrentPassword = newEditPass.currentpassword;
 
@@ -928,22 +922,6 @@ module.exports = function (app, passport) {
 
 
 
-
-        // if (!!req.body.NewPassword && passComp) {
-        //     let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
-        //
-        //     con_CS.query(passReset, function (err, rows) {
-        //         if (err) {
-        //             console.log(err);
-        //             res.json({"error": true, "message": "Fail !"});
-        //         } else {
-        //             // res.json({"error": false, "message": "Success !"});
-        //             basicInformation();
-        //         }
-        //     });
-        // } else {
-        //     basicInformation();
-        // }
 
         function basicInformation() {
             let result = Object.keys(req.body).map(function (key) {
