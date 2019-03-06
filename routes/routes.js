@@ -471,8 +471,6 @@ module.exports = function (app, passport) {
         console.log(req.body.username);
         con_CS.query(statement,function (err,results) {
             res.json((!bcrypt.compareSync(password, results[0].password)));
-            console.log("Bob is " + password);
-            console.log("Password:" + results[0].password);
         });
     });
 
@@ -870,15 +868,8 @@ module.exports = function (app, passport) {
             };
 
 
-            let newEditPassCurrentPassword = newEditPass.currentpassword;
-
             let passComp = bcrypt.compareSync(newEditPass.currentpassword, editingUserPassword);
-            console.log("User.password");
-            console.log(user.password);
-            console.log("newEditPass.currentpassword");
-            console.log(newEditPass.currentpassword);
-            console.log("PassComp:");
-            console.log(passComp);
+
 
             if (!!req.body.NewPassword) {
                 let passAdminReset = "UPDATE UserLogin SET password = '" + newEditPass.Newpassword + "' WHERE username = '" + user + "'";
@@ -900,8 +891,7 @@ module.exports = function (app, passport) {
                 Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
                 confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
             };
-            console.log("NewPass:");
-            console.log(newPass);
+
 
             if (!!req.body.NewPassword) {
                 let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user + "'";
@@ -910,6 +900,7 @@ module.exports = function (app, passport) {
                     if (err) {
                         console.log(err);
                         res.json({"error": true, "message": "Fail !"});
+                        res.json({"error": true, "message": err});
                     } else {
                         // res.json({"error": false, "message": "Success !"});
                         basicInformation();
@@ -928,16 +919,13 @@ module.exports = function (app, passport) {
                 return [String(key), req.body[key]];
             });
 
-            console.log("Result:");
-            console.log(result);
+
 
             // var update3 = " WHERE username = '" + req.user.username + "'";
             let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
             let statement2 = "UPDATE UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
-            //
-            console.log(statement1);
-            console.log(statement2);
-            //
+
+
             con_CS.query(statement1 + statement2, function (err, result) {
                 if (err) throw err;
                 res.json(result);
