@@ -254,6 +254,7 @@
                     <th>Layer Type</th>
                     <th>Layer City</th>
                     <th>Layer Country</th>
+                    <th>Layer Continent</th>
                     <th>Layer State</th>
                     <th>Main Category</th>
                     <th>Other Main Category</th>
@@ -263,7 +264,7 @@
                     <th>Layer Description</th>
                     <th>Layer Format</th>
                     <th>Layer Uploader Name</th>
-                    <th>Status</th>
+                    <th>Current_Status</th>
                     <th>Comments</th>
                 </tr>
                 </thead>
@@ -278,6 +279,7 @@
                     <th>Layer Type</th>
                     <th>Layer City</th>
                     <th>Layer Country</th>
+                    <th>Layer Continent</th>
                     <th>Layer State</th>
                     <th>Main Category</th>
                     <th>Other Main Category</th>
@@ -287,7 +289,7 @@
                     <th>Layer Description</th>
                     <th>Layer Format</th>
                     <th>Layer Uploader Name</th>
-                    <th>Status</th>
+                    <th>Current_Status</th>
                     <th>Comments</th>
                 </tr>
                 </tfoot>
@@ -303,6 +305,7 @@
     // console.log(username);
     let rowSelected, picPath;
     let table = $("#dataDisplay").DataTable();
+    console.log(table);
     let UserRole = "<%= user.userrole %>";
     let transactionID = [];
     let LayerNameStr = [];
@@ -322,9 +325,9 @@
 
             if (UserRole === "Regular") {
                 document.getElementById('searchname').style.display = "none"; //disables username search for regular members
-                queryStr = "Status=Pending&UID=" + username;
+                queryStr = "Current_Status=Pending&UID=" + username;
             } else {
-                queryStr = "Status=Pending";
+                queryStr = "Current_Status=Pending";
             }
             console.log(queryStr);
             queryAndDisplay(queryStr);
@@ -375,6 +378,7 @@
             } else {
                 // let transactionIDStr = "transactionIDStr=" + transactionID.toString();
                 let rowSelectedValue = table.rows('.selected').data();
+                console.log(rowSelectedValue)
                 localStorage.setItem("rowSelectedValue", JSON.stringify(rowSelectedValue[0]));
                 window.location.replace('/editdata');
                 // console.log(localStorage.getItem("rowSelectedValue"));
@@ -385,7 +389,7 @@
             if (confirm("Are you sure you would like to trash the row(s) you selected?") === true) {
                 // console.log(transactionID); //provides the associated values of the element(record) in the array
 
-                let transactionIDStr = "transactionIDStr=" + transactionID.toString(); //combines Souting ID with the trapID
+                let transactionIDStr = "transactionIDStr=" + transactionID.toString(); //combines Scouting ID with the trapID
                 console.log(transactionIDStr);
                 let pictureStr = "pictureStr=" + picPath.toString();
                 let LayerName = "LayerName=" + LayerNameStr.toString();
@@ -427,6 +431,7 @@
             document.getElementById("userMenuRegular").classList.toggle("show");
         }
     }
+
     window.onclick = function(event) {
         if (!event.target.matches('.dropbutton')) {
             let dropdowns = document.getElementsByClassName("dropdown-content");
@@ -468,7 +473,7 @@
     //             for (let i = 0; i < results.length; i++) {
     //                 if (UserRole === "Regular") {
     //                     if (results[i].UID === username) {
-    //                         if (results[i].Status === "Pending" || results[i].Status === "Active") {
+    //                         if (results[i].Current_Status === "Pending" || results[i].Current_Status === "Active") {
     //                             table.row.add([
     //                                 results[i].Date,
     //                                 results[i].UID,
@@ -485,7 +490,7 @@
     //                                 results[i].Layer_Description,
     //                                 results[i].LayerFormat,
     //                                 results[i].Layer_Uploader_name,
-    //                                 results[i].Status,
+    //                                 results[i].Current_Status,
     //                                 results[i].Comments
     //                             ]).draw(false);
     //
@@ -497,7 +502,7 @@
     //
     //                 if (UserRole === "Admin") {
     //                     // if (results[i].UID === username) {
-    //                         if (results[i].Status === "Pending" || results[i].Status === "Active") {
+    //                         if (results[i].Current_Status === "Pending" || results[i].Current_Status === "Active") {
     //                             table.row.add([
     //                                 results[i].Date,
     //                                 results[i].UID,
@@ -514,7 +519,7 @@
     //                                 results[i].Layer_Description,
     //                                 results[i].LayerFormat,
     //                                 results[i].Layer_Uploader_name,
-    //                                 results[i].Status,
+    //                                 results[i].Current_Status,
     //                                 results[i].Comments
     //                             ]).draw(false);
     //                         }
@@ -527,7 +532,6 @@
     // }
 
     let queryAndDisplay = function (query) {
-        //this console shows me
         $.ajax({
             url: '/layerReqQuery',
             type: 'GET',
@@ -537,7 +541,7 @@
             success: function (results) {
                 console.log(results);
                 if (results.errMsg === "no data") {
-                    alert("There is no pending data entry!");//this right here will let users know that they currently have no pending records;
+                    alert("You currently have no pending data entries!");//this right here will let users know that they currently have no pending records;
                     //clarifies that it is not an error
                     table.draw();
                 } else if (results.errMsg === "fail") {
@@ -546,7 +550,8 @@
                 } else {
                     for (let i = 0; i < results.length; i++) {
 
-                        if (results[i].Status === "Pending" || results[i].Status === "Active") {
+                        if (results[i].Current_Status === "Pending" || results[i].Current_Status === "Approved") {
+
                             table.row.add([
                                 results[i].Date,
                                 results[i].UID,
@@ -554,6 +559,7 @@
                                 results[i].LayerCategory,
                                 results[i].CityName,
                                 results[i].CountryName,
+                                results[i].ContinentName,
                                 results[i].StateName,
                                 results[i].FirstLayer,
                                 results[i].FirstOther,
@@ -563,11 +569,10 @@
                                 results[i].Layer_Description,
                                 results[i].LayerFormat,
                                 results[i].Layer_Uploader_name,
-                                results[i].Status,
+                                results[i].Current_Status,
                                 results[i].Comments
                             ]).draw(false);
                         }
-                        //start a new set of if statements for the admin here
 
                     }
                 }

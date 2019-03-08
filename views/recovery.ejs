@@ -205,6 +205,7 @@
                     <th>Layer Uploader</th>
                     <th>Layer Uploader Name</th>
                     <th>Status</th>
+                    <th>Prior_Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -225,6 +226,7 @@
                     <th>Layer Uploader</th>
                     <th>Layer Uploader Name</th>
                     <th>Status</th>
+                    <th>Prior_Status</th>
                 </tr>
                 </tfoot>
             </table>
@@ -242,6 +244,8 @@
     var d;
     var transactionID = [];
     var picturename = []
+    var priorStatus = [] ;
+
 
     $(document).ready(function(){
 
@@ -268,15 +272,17 @@
             table.draw();
             trapTable.clear();
             trapTable.draw();
-            queryAndDisplay("statusDel=" + "Deleted" + "&firstName=" + "<%= user.firstName %>" + "&lastName=" + "<%= user.lastName %>");
+            queryAndDisplay("statusDel=" + "Deleted" + "&firstName=" + "<%= firstName %>" + "&lastName=" + "<%= lastName %>");
+
 
         });
 
         $('#dataDisplay tbody').on('click', 'tr', function () {
-            if ($(this).hasClass('selected')) {
-                $(this).removeClass('selected');
+            console.log($(this).hasClass())
+            if ($(this).hasClass('selected')) { //if the row is selected already
+                $(this).removeClass('selected');//unselect it
                 d = table.row(this).data();
-                var index = transactionID.indexOf(d[0]);
+                var index = transactionID.indexOf(d[0]); //delete the transactionID in the array
                 transactionID.splice(index, 1);
             } else {
                 $(this).addClass('selected');
@@ -284,7 +290,9 @@
                 d = table.row(this).data();
                 d.counter++;
                 table.row(this).data(d).draw();
+                console.log(d[13])
 
+                priorStatus.push(d[13])
                 transactionID.push(d[1]);
                 picturename.push(d[11]);
 
@@ -293,6 +301,7 @@
                 $('#dataDisplay > thead > tr > th').each(function () {
                     thArray.push($(this).text())
                 })
+                console.log(thArray);
 
                 for (var i = 0; i < thArray.length; i++) {
                     rowSelected[i] = {};
@@ -303,6 +312,14 @@
         });
 
         $("#recoverButton").on("click", function () {
+            console.log(priorStatus)
+            if (priorStatus[0] ==='Pending'){
+                console.log('pending')
+            }else{
+                console.log('was approved')
+            }
+
+
             if (confirm("Are you sure you would like to recover this row(s)?") === true) {
                 var transactionIDStr = "transactionIDStr=";
                 for (var i = 0; i < transactionID.length; i++) {
@@ -332,16 +349,18 @@
         });
     });
 
-    var username = "<%= user.username %>";
+        var username = "<%= user.username %>";
 
     var queryAndDisplay = function (querystr) {
+        console.log(querystr);
         $.ajax({
             url: 'AddData',
             dataType: 'json',
             data: querystr,
             success: function (results) {
+                console.log(results);
                 for (var i = 0; i < results.length; i++) {
-                    if (results[i].Status === "Delete") {
+                    if (results[i].Current_Status === "Delete") {
                         if (UserRole === "Regular") {
                             if (results[i].UID === username) {
                                 table.row.add([
@@ -357,7 +376,8 @@
                                     results[i].Layer_Description,
                                     results[i].Layer_Uploader,
                                     results[i].Layer_Uploader_name,
-                                    results[i].Status
+                                    results[i].Current_Status,
+                                    results[i].Prior_Status
                                 ]).draw(false);
                             }
                         } else {
@@ -374,7 +394,8 @@
                                 results[i].Layer_Description,
                                 results[i].Layer_Uploader,
                                 results[i].Layer_Uploader_name,
-                                results[i].Status
+                                results[i].Current_Status,
+                                results[i].Prior_Status
                             ]).draw(false);
                         }
                     }
@@ -382,6 +403,7 @@
             }
         });
     }
+
 </script>
 </body>
 </html>
