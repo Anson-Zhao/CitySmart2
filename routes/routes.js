@@ -336,19 +336,86 @@ module.exports = function (app, passport) {
         del_recov("Deleted", "Deletion failed!", "/userHome", req, res);
     });
 
+    function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
+
+        transactionID = req.query.transactionIDStr.split(",");
+        // console.log(transactionID);
+        let statementGeneral = "UPDATE Request_Form SET Current_Status = '" + StatusUpd + "'"; //this is where the problem is
+
+        for (let i = 0; i < transactionID.length; i++) {
+            if (i === 0) {
+                statementGeneral += " WHERE RID = '" + transactionID[i] + "'";
+                // statementDetailedS += " WHERE transactionID = '" + transactionID[i] + "'";
+                // statementDetailedT += " WHERE transactionID = '" + transactionID[i] + "'";
+
+                if (i === transactionID.length - 1) {
+                    statementGeneral += ";";
+                    // statementDetailedS += ";";
+                    // statementDetailedT += ";";
+                    myStat = statementGeneral;
+                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
+                }
+            } else {
+                statementGeneral += " OR RID = '" + transactionID[i] + "'";
+                // statementDetailedS += " OR transactionID = '" + transactionID[i] + "'";
+                // statementDetailedT += " OR transactionID = '" + transactionID[i] + "'";
+
+                if (i === transactionID.length - 1) {
+                    statementGeneral += ";";
+                    // statementDetailedS += ";";
+                    // statementDetailedT += ";";
+                    myStat = statementGeneral;
+                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
+                }
+            }
+        }
+    }
+
+    function updateDBNres(SQLstatement, Value, ErrMsg, targetURL, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+        con_CS.query(SQLstatement, Value, function (err, rows) {
+            if (err) {
+                console.log(err);
+                res.json({"error": true, "message": ErrMsg});
+            } else {
+                res.json({"error": false, "message": targetURL});
+            }
+        })
+    }
+    //Copy the record directly to Layer Menu if the PStatus was approved.
+
     app.get('/recoverRow', isLoggedIn, function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        del_recov("Approved", "Recovery failed!", "/userHome", req, res);
         let pictureStr = req.query.pictureStr.split(',');
+        let transactionPrStatusStr = req.query.transactionStatusStr;
+        console.log("tran:"+transactionPrStatusStr);
+
         // mover folder
-        for(let i = 0; i < pictureStr.length; i++) {
-            fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '', function (err) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log("Recovery process is successful");
+        for(var a=0; a<transactionPrStatusStr.length; a++) {
+
+            if (transactionPrStatusStr[a] ==="Pending") {
+                del_recov('Pending', "Recovery failed!", "/userHome", req, res);
+                for (let i = 0; i < pictureStr.length; i++) {
+                    fs.rename('' + Delete_Dir + '/' + pictureStr[i] + '', '' + upload_Dir + '/' + pictureStr[i] + '', function (err) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log("Recovery process is successful");
+                        }
+                 });
                 }
-            });
+            }else{
+                for (let i = 0; i < pictureStr.length; i++) {
+                    del_recov('Approved', "Recovery failed!", "/userHome", req, res);
+                    fs.rename('' + Delete_Dir + '/' + pictureStr[i] + '', '' + geoData_Dir + '/' + pictureStr[i] + '', function (err) {
+                        if (err) {
+                            console.log(err);
+                        } else {//if successful
+                            console.log("Recovery process is successful");
+                        }
+                    });
+                }
+            }
         }
     });
 
@@ -1646,52 +1713,52 @@ module.exports = function (app, passport) {
         tokenExpire = date3 + ' ' + time3;
     }
 
-    function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
+    // function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
+    //
+    //     transactionID = req.query.transactionIDStr.split(",");
+    //     // console.log(transactionID);
+    //     let statementGeneral = "UPDATE Request_Form SET Status = '" + StatusUpd + "'"; //this is where the problem is
+    //
+    //     for (let i = 0; i < transactionID.length; i++) {
+    //         if (i === 0) {
+    //             statementGeneral += " WHERE RID = '" + transactionID[i] + "'";
+    //             // statementDetailedS += " WHERE transactionID = '" + transactionID[i] + "'";
+    //             // statementDetailedT += " WHERE transactionID = '" + transactionID[i] + "'";
+    //
+    //             if (i === transactionID.length - 1) {
+    //                 statementGeneral += ";";
+    //                 // statementDetailedS += ";";
+    //                 // statementDetailedT += ";";
+    //                 myStat = statementGeneral;
+    //                 updateDBNres(myStat, "", ErrMsg, targetURL, res);
+    //             }
+    //         } else {
+    //             statementGeneral += " OR RID = '" + transactionID[i] + "'";
+    //             // statementDetailedS += " OR transactionID = '" + transactionID[i] + "'";
+    //             // statementDetailedT += " OR transactionID = '" + transactionID[i] + "'";
+    //
+    //             if (i === transactionID.length - 1) {
+    //                 statementGeneral += ";";
+    //                 // statementDetailedS += ";";
+    //                 // statementDetailedT += ";";
+    //                 myStat = statementGeneral;
+    //                 updateDBNres(myStat, "", ErrMsg, targetURL, res);
+    //             }
+    //         }
+    //     }
+    // }
 
-        transactionID = req.query.transactionIDStr.split(",");
-        // console.log(transactionID);
-        let statementGeneral = "UPDATE Request_Form SET Status = '" + StatusUpd + "'"; //this is where the problem is
-
-        for (let i = 0; i < transactionID.length; i++) {
-            if (i === 0) {
-                statementGeneral += " WHERE RID = '" + transactionID[i] + "'";
-                // statementDetailedS += " WHERE transactionID = '" + transactionID[i] + "'";
-                // statementDetailedT += " WHERE transactionID = '" + transactionID[i] + "'";
-
-                if (i === transactionID.length - 1) {
-                    statementGeneral += ";";
-                    // statementDetailedS += ";";
-                    // statementDetailedT += ";";
-                    myStat = statementGeneral;
-                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
-                }
-            } else {
-                statementGeneral += " OR RID = '" + transactionID[i] + "'";
-                // statementDetailedS += " OR transactionID = '" + transactionID[i] + "'";
-                // statementDetailedT += " OR transactionID = '" + transactionID[i] + "'";
-
-                if (i === transactionID.length - 1) {
-                    statementGeneral += ";";
-                    // statementDetailedS += ";";
-                    // statementDetailedT += ";";
-                    myStat = statementGeneral;
-                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
-                }
-            }
-        }
-    }
-
-    function updateDBNres(SQLstatement, Value, ErrMsg, targetURL, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        con_CS.query(SQLstatement, Value, function (err, rows) {
-            if (err) {
-                console.log(err);
-                res.json({"error": true, "message": ErrMsg});
-            } else {
-                res.json({"error": false, "message": targetURL});
-            }
-        })
-    }
+    // function updateDBNres(SQLstatement, Value, ErrMsg, targetURL, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+    //     con_CS.query(SQLstatement, Value, function (err, rows) {
+    //         if (err) {
+    //             console.log(err);
+    //             res.json({"error": true, "message": ErrMsg});
+    //         } else {
+    //             res.json({"error": false, "message": targetURL});
+    //         }
+    //     })
+    // }
 
     function updateDBNredir(SQLstatement, Value, ErrMsg, failURL, redirURL, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
