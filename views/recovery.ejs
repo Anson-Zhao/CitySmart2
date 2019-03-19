@@ -332,10 +332,13 @@
         });
     });
 
+    var username = "<%= user.username %>";
+
     var queryAndDisplay = function (querystr) {
         $.ajax({
             url: 'AddData',
             dataType: 'json',
+            data: querystr,
             success: function (results) {
                 for (var i = 0; i < results.length; i++) {
                     if (results[i].Status === "Delete") {

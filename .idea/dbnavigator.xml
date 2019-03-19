@@ -32,7 +32,7 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="fdbf29dc-c2cb-41f6-a4a1-6a9a306d3140">
-      <console name="90.15" type="STANDARD" schema="" session="Main">select * from `GeneralFormDatatable22`</console>
+      <console name="90.15" type="STANDARD" schema="CitySmart2" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
