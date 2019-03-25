@@ -3,6 +3,7 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const config = require('../config/mainconf');
 const fs = require("fs");
+const fsextra = require('fs-extra');
 const request = require("request");
 const bcrypt = require('bcrypt-nodejs');
 const nodemailer = require('nodemailer');
@@ -20,12 +21,15 @@ const geoData_Dir = config.GeoData_Dir;
 const Delete_Dir = config.Delete_Dir;
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
+const num_backups = config.num_backups;
+const download_interval = config.download_interval;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 
 let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
+let downloadFalse = true;
 
 const smtpTrans = nodemailer.createTransport({
     service: 'Gmail',
@@ -39,8 +43,9 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
 
-    setInterval(predownloadXml, 3660000);
-    // setInterval(predownloadXml, 36000);
+    removeFile();
+    setInterval(copyXML, download_interval); // run the function one time a (day
+    // setInterval(predownloadXml, 3660000);
 
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
@@ -62,17 +67,17 @@ module.exports = function (app, passport) {
         })
     });
 
-    function downloadImage () {
-        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
-        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
+    // function downloadImage () {
+    //     // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
+    //     const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
+    //     const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
+    //
+    //     request(url).pipe(fs.createWriteStream(downloadDir));
+    //     fs.createWriteStream(downloadDir).end();
+    //
+    // }
 
-        request(url).pipe(fs.createWriteStream(downloadDir));
-        fs.createWriteStream(downloadDir).end();
-
-    }
-
-    downloadImage();
+    // downloadImage();
 
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
@@ -108,7 +113,8 @@ module.exports = function (app, passport) {
                 res.json({"error": true, "message": "no result found!"});
             } else {
                 res.json(results);
-                // console.log(results);
+                console.log("Results:");
+                console.log(results);
             }
         });
         // con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu Where LayerName = ?", parsedLayers[0], function (err, results) {
@@ -186,7 +192,7 @@ module.exports = function (app, passport) {
         con_CS.query( select, function (err, result) {
             if (err) throw err;
             else {
-                // console.log(result);
+                console.log(result);
                 res.json({"err": false, "data": result});
             }
         });
@@ -307,35 +313,30 @@ module.exports = function (app, passport) {
 
     app.get('/userhome', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
-        let state2 = "SELECT firstName, lastName FROM UserProfile WHERE username = '" + req.user.username + "';"; //define last name
+        let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
 
         con_CS.query(myStat + state2, function (err, results, fields) {
-            console.log("Users: ");
-            console.log(results);
-
             if (!results[0][0].userrole) {
                 console.log("Error2");
             } else if (!results[1][0].firstName) {
                 console.log("Error1")
             } else {
-                console.log("Yes");
-                // console.log(req.user);
+                console.log(req.user);
                 res.render('userHome.ejs', {
                     user: req.user, // get the user out of session and pass to template
-                    firstName: results[1][0].firstName,
-                    lastName: results[1][0].lastName
+                    firstName: results[1][0].firstName
                 });
             }
         });
     });
 
-    app.get('/deleteRow', isLoggedIn, function (req, res) { //this is what I have been experiencing thus far
-        del_recov("Deleted", "Deletion failed!", "/userHome", req, res);
+    app.get('/deleteRow', isLoggedIn, function (req, res) {
+        del_recov("Delete", "Deletion failed!", "/userHome", req, res);
     });
 
     app.get('/recoverRow', isLoggedIn, function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        del_recov("Approved", "Recovery failed!", "/userHome", req, res);
+        del_recov("Pending", "Recovery failed!", "/userHome", req, res);
         let pictureStr = req.query.pictureStr.split(',');
         // mover folder
         for(let i = 0; i < pictureStr.length; i++) {
@@ -373,7 +374,7 @@ module.exports = function (app, passport) {
 
     });
 
-    app.get('/deleteRow2',function (req,res) { //maybe this is the successful server side code for record deletion; should ask Mr.Anson
+    app.get('/deleteRow2',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         let transactionID = req.query.transactionIDStr.split(',');
         let pictureStr = req.query.pictureStr.split(',');
@@ -398,9 +399,8 @@ module.exports = function (app, passport) {
     });
 
     app.get('/filterQuery', isLoggedIn, function (req, res) {
-        console.log(req.query);
         var scoutingStat = "SELECT UserProfile.firstName, UserProfile.lastName, Request_Form.* FROM Request_Form INNER JOIN UserProfile ON UserProfile.username = Request_Form.UID";
-        var myQueryObj = [ //change everything because we need to make sure it matches what we want to happen in client side
+        var myQueryObj = [
             {
                 fieldVal: req.query.firstName,
                 dbCol: "firstName",
@@ -430,24 +430,24 @@ module.exports = function (app, passport) {
                 table: 1
             },
             {
-                fieldVal: req.query.Status1,
-                dbCol: req.query.Status,
+                fieldVal: req.query.content1,
+                dbCol: req.query.filter1,
                 op: " = '",
-                adj: req.query.Status1,
+                adj: req.query.filter1,
                 table: req.query.filter1
             },
             {
-                fieldVal: req.query.Status2,
-                dbCol: req.query.Status,
+                fieldVal: req.query.content2,
+                dbCol: req.query.filter2,
                 op: " = '",
-                adj: req.query.Status2,
+                adj: req.query.filter2,
                 table: req.query.filter2
             },
             {
-                fieldVal: req.query.UID,
-                dbCol: req.query.UID,
+                fieldVal: req.query.content3,
+                dbCol: req.query.filter3,
                 op: " = '",
-                adj: req.query.UID,
+                adj: req.query.filter3,
                 table: req.query.filter3
             }
         ];
@@ -697,9 +697,12 @@ module.exports = function (app, passport) {
             status: req.body.status
         };
 
+        console.log (newUser);
+
         myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
         mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
+            console.log(rows);
             // newUser.id = rows.insertId;
             if (err) {
                 console.log(err);
@@ -995,21 +998,17 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         dateNtime();
 
-        let username = req.query.usernameStr.split(","); //they receive the username string from client side
-
+        let username = req.query.usernameStr.split(",");
         myStat = "UPDATE UserLogin SET modifiedUser = '" + req.user.username + "', dateModified = '" + dateTime + "',  status = 'Suspended'";
-        // console.log(myStat);
 
         for (let i = 0; i < username.length; i++) {
             if (i === 0) {
                 myStat += " WHERE username = '" + username[i] + "'";
                 if (i === username.length - 1) {
                     updateDBNres(myStat, "", "Suspension failed!", "/userManagement", res);
-                    // console.log(myStat);
-
                 }
             } else {
-                myStat += " OR username = '" + username[i] + "'"; //is this assuming they don't try to suspend a faulty account more than twice?
+                myStat += " OR username = '" + username[i] + "'";
                 if (i === username.length - 1) {
                     updateDBNres(myStat, "", "Suspension failed!", "/userManagement", res);
                 }
@@ -1321,14 +1320,6 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.post('/testB', function (req, res) {
-        let result = Object.keys(req.body).map(function (key) {
-            return [String(key), req.body[key]];
-        });
-
-        console.log(result);
-    });
-
     app.post('/replace', function (req, res) {
         let result = Object.keys(req.body).map(function (key) {
             return [String(key), req.body[key]];
@@ -1376,7 +1367,6 @@ module.exports = function (app, passport) {
                 }
             });
         }
-
         // mv('/uploadfiles', 'dest/file', {mkdirp: true}, {clobber: false}, function(err) {
         //     //This is supposed to do the following:
         //     //Tries fs.rename first, then falls back to
@@ -1446,8 +1436,6 @@ module.exports = function (app, passport) {
         con_CS.query('SELECT * FROM Request_Form', function (err, results) {
             if (err) throw err;
             res.json(results);
-            //there are no filters here so the whole table shows up in client side
-            //this means in server side we should filter
         })
     });
 
@@ -2192,31 +2180,88 @@ function QueryStat(myObj, sqlStat, res) {
             }
         });
     }
+
+
+    function copyXML(){
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); //the path of the source file
+        var today = new Date();//get the current date
+        var date = today.getFullYear()+ '_' +(today.getMonth()+1)+ '_' + today.getDate();
+        var time = today.getHours() + "_" + today.getMinutes()+'_' + today.getSeconds();
+        var dataStr = date + "_"+ time;
+        var downloadDis = 'config/geoCapacity/' + dataStr+ '.xml'; //define a file name
+
+        fsextra.copy(downloadDir, downloadDis) //copy the file and rename
+            .then(//if copy succeed, call pre-download XML function
+                console.log('copy successful'),
+                predownloadXml ()
+            )
+    }
+
     function predownloadXml () {
-        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); // the path of the destination
+        const timeout = 20000;
         const requestOptions = {
             uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
-            timeout: 3600000
+            // timeout: download_interval
+            timeout:timeout
         };
         let resXMLRequest;
+        console.log('predownloadXML was called');
 
         request.get(requestOptions)
-            .on('error',function(err){
+            .on('error',function(err){ //called when error
                 console.log(err.code);
+                console.log('predownloadXML error');
+                removeFile();
                 // process.exit(0)
             })
             .on('response', function (res) {
+                console.log('predownloadXML res');
                 resXMLRequest = res;
                 if (res.statusCode === 200){
                     res.pipe(fs.createWriteStream(downloadDir))
                 } else {
                     console.log("Respose with Error Code: " + res.statusCode);
+                    removeFile();
                     // process.exit(0)
                 }
             })
             .on('end', function () {
+                downloadFalse = false;
                 console.log("The End: " + resXMLRequest.statusCode);
+                removeFile();
                 // process.exit(0)
             })
     }
+
+    function removeFile() {
+        console.log('the remove function was called');
+
+        const dir = 'config/geoCapacity'; //the dir of the file that I am going to remove.
+
+        fs.readdir(dir, (err, files) => {
+            var fileLength = files.length; // the total name of the file in directory
+            console.log(fileLength);
+            var fileName = []; // create an empty array
+            fileName.push(files); //push the file name into the array
+
+            if(fileLength > num_backups){ //if there are more than 100 file in the directory
+                if(!downloadFalse){ //if download succeed, run the code below
+                    fs.unlink('config/geoCapacity/'+ fileName[0][0], (err) => { //delete the first (the oldest) file in the directory
+                        if (err) {throw err} else {
+                            downloadFalse = true; //change the value of "downloadFalse" to true
+                        }
+                        console.log('download and remove copy successfully');
+                    })
+                } else { //if download failed, run the code below
+                    fs.unlink('config/geoCapacity/'+ fileName[0][fileLength-1], (err) => { //then delete the last (the latest) file in the directory
+                        if (err) {throw err}
+                        console.log('download file failed, removed copy successfully')
+                    })
+                }
+            }
+        });
+    }
+
+
 };
