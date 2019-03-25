@@ -42,9 +42,9 @@ const smtpTrans = nodemailer.createTransport({
 con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
-
-    removeFile();
-    setInterval(copyXML, download_interval); // run the function one time a (day
+    setInterval(predownloadXml, 3660000);
+    // removeFile();
+    // setInterval(copyXML, download_interval); // run the function one time a (day
     // setInterval(predownloadXml, 3660000);
 
     app.use(bodyParser.urlencoded({extended: true}));
@@ -67,17 +67,17 @@ module.exports = function (app, passport) {
         })
     });
 
-    // function downloadImage () {
-    //     // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
-    //     const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-    //     const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
-    //
-    //     request(url).pipe(fs.createWriteStream(downloadDir));
-    //     fs.createWriteStream(downloadDir).end();
-    //
-    // }
+    function downloadImage () {
+        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
+        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
+        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
 
-    // downloadImage();
+        request(url).pipe(fs.createWriteStream(downloadDir));
+        fs.createWriteStream(downloadDir).end();
+
+    }
+
+    downloadImage();
 
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
@@ -313,9 +313,12 @@ module.exports = function (app, passport) {
 
     app.get('/userhome', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
-        let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
+        let state2 = "SELECT firstName, lastName FROM UserProfile WHERE username = '" + req.user.username + "';"; //define last name
 
         con_CS.query(myStat + state2, function (err, results, fields) {
+            console.log("Users: ");
+            console.log(results);
+
             if (!results[0][0].userrole) {
                 console.log("Error2");
             } else if (!results[1][0].firstName) {
@@ -324,7 +327,8 @@ module.exports = function (app, passport) {
                 console.log(req.user);
                 res.render('userHome.ejs', {
                     user: req.user, // get the user out of session and pass to template
-                    firstName: results[1][0].firstName
+                    firstName: results[1][0].firstName,
+                    lastName: results[1][0].lastName
                 });
             }
         });
@@ -381,7 +385,7 @@ module.exports = function (app, passport) {
         let LayerName = req.query.LayerName.split(',');
         console.log(pictureStr);
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
+            let statement = "UPDATE Request_Form SET Current_Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
             let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ geoData_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
@@ -399,7 +403,7 @@ module.exports = function (app, passport) {
     });
 
     app.get('/filterQuery', isLoggedIn, function (req, res) {
-        var scoutingStat = "SELECT UserProfile.firstName, UserProfile.lastName, Request_Form.* FROM Request_Form INNER JOIN UserProfile ON UserProfile.username = Request_Form.UID";
+        var sqlStat = "SELECT UserProfile.firstName, UserProfile.lastName, Request_Form.* FROM Request_Form INNER JOIN UserProfile ON UserProfile.username = Request_Form.UID";
         var myQueryObj = [
             {
                 fieldVal: req.query.firstName,
@@ -451,7 +455,7 @@ module.exports = function (app, passport) {
                 table: req.query.filter3
             }
         ];
-        QueryStat(myQueryObj, scoutingStat, res)
+        QueryStat(myQueryObj, sqlStat, res)
     });
 
     app.get('/layerReqQuery', isLoggedIn, function (req, res) {
@@ -467,7 +471,7 @@ module.exports = function (app, passport) {
             },
             {
                 fieldVal: req.query.Status,
-                dbCol: "Status",
+                dbCol: "Current_Status",
                 op: " = '",
                 adj: req.query.Status,
                 // table: 1
@@ -1215,7 +1219,7 @@ module.exports = function (app, passport) {
         let statement1 = update1+update2+update3;
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-        let statement4 = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
+        let statement4 = "UPDATE Request_Form SET Current_Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
         if(status === "Reject"){
             con_CS.query(statement1 + statement2 + statement3 + statement4, function (err, result) {
                 if (err) {
@@ -1262,9 +1266,11 @@ module.exports = function (app, passport) {
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
         let format = req.query.lForm;
+        let fName = req.query.fName;
+        let layerName;
 
 
-        let statement = "UPDATE Request_Form SET Status = 'Approved' WHERE RID = '" + approveIDStr + "'";
+        let statement = "UPDATE Request_Form SET Current_Status = 'Approved' WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
         for(let i = 0; i < approvepictureStr.length; i++) {
@@ -1283,8 +1289,9 @@ module.exports = function (app, passport) {
                 if (format === "Shapefile - ESRI(tm) Shapefiles (.shp)") {
                     console.log("name of file: " + approvepictureStr[0]);
                     var type = "Content-type: application/zip";
+                    var datastore = "datastore" + fName;
 
-                    var statement = "curl -u julia:123654 -v -XPUT -H '" + type + "' --data-binary @approvedfiles/" + approvepictureStr[0] + " http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/datastore/file.shp";
+                    var statement = "curl -u julia:123654 -v -XPUT -H '" + type + "' --data-binary @approvedfiles/" + approvepictureStr[0] + " http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/" + datastore +"/file.shp";
 
                     child = exec(statement,
                         function (error, stdout, stderr) {
@@ -1293,6 +1300,24 @@ module.exports = function (app, passport) {
                             console.log('stderr: ' + stderr);
                             if (error !== null) {
                                 console.log('exec error: ' + error);
+                            } else {
+                                var statement = "curl -u julia:123654 -v -XGET http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/" + datastore + "/featuretypes.json";
+                                var jsonF;
+                                child = exec(statement,
+                                    function (error, stdout, stderr) {
+                                        console.log(statement);
+                                        console.log('stdout: ' + stdout);
+                                        console.log('stderr: ' + stderr);
+
+                                        jsonF = JSON.parse(stdout);
+                                        if (error !== null) {
+
+                                            console.log('exec error: ' + error);
+                                        } else {
+                                            layerName = "Approved:" + jsonF.featureTypes.featureType[0].name;
+                                            console.log(layerName);
+                                        }
+                                    });
                             }
                         });
                 } else if (format === "GeoTIFF - Tagged Image File Format with Geographic information (.tif)") {
@@ -1320,6 +1345,32 @@ module.exports = function (app, passport) {
         }
     });
 
+    app.post('/testB', function (req, res) {
+        let result = Object.keys(req.body).map(function (key) {
+            return [String(key), req.body[key]];
+        });
+
+        console.log(result);
+
+        var statement = "curl -u julia:123654 -v -XGET http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/datastoresigh/featuretypes.json";
+        var jsonF;
+        child = exec(statement,
+            function (error, stdout, stderr) {
+                console.log(statement);
+                console.log('stdout: ' + stdout);
+                console.log('stderr: ' + stderr);
+
+                jsonF = JSON.parse(stdout);
+                if (error !== null) {
+
+                    console.log('exec error: ' + error);
+                } else {
+                    console.log(jsonF.featureTypes.featureType[0].name);
+                }
+            });
+
+    });
+
     app.post('/replace', function (req, res) {
         let result = Object.keys(req.body).map(function (key) {
             return [String(key), req.body[key]];
@@ -1330,9 +1381,30 @@ module.exports = function (app, passport) {
         var update1 = "UPDATE Request_Form SET " ;
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
+        let layerName;
+        let datastore = "datastore" + result[7][1];
 
-        // console.log("RID: " + result[1][1]);
+        console.log(result);
+        console.log(datastore);
 
+        // var statement = "curl -u julia:123654 -v -XGET http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/" + datastore +"/featuretypes.json";
+        // var jsonF;
+        // child = exec(statement,
+        //     function (error, stdout, stderr) {
+        //         console.log(statement);
+        //         console.log('stdout: ' + stdout);
+        //         console.log('stderr: ' + stderr);
+        //
+        //         jsonF = JSON.parse(stdout);
+        //         if (error !== null) {
+        //
+        //             console.log('exec error: ' + error);
+        //         } else {
+        //             layerName = "Approved:" + jsonF.featureTypes.featureType[0].name;
+        //         }
+        //     });
+
+        console.log(layerName);
 
         for (let i = 0; i < result.length; i++) {
             if (i === result.length - 1) {
@@ -1349,7 +1421,7 @@ module.exports = function (app, passport) {
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status, RID) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved', '" + result[1][1] + "');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1358,7 +1430,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status, RID) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved', '" + result[1][1] + "');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1379,7 +1451,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let rejectID = req.query.reject;
         let comment = req.query.comment;
-        let statement = "UPDATE Request_Form SET Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
+        let statement = "UPDATE Request_Form SET Current_Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
         con_CS.query(statement,function (err,results) {
             if (err) throw err;
             res.json(results);
@@ -1413,7 +1485,7 @@ module.exports = function (app, passport) {
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
+            let statement = "UPDATE Request_Form SET Current_Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
             let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 console.log(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '');
@@ -1682,7 +1754,7 @@ module.exports = function (app, passport) {
 
         transactionID = req.query.transactionIDStr.split(",");
         // console.log(transactionID);
-        let statementGeneral = "UPDATE Request_Form SET Status = '" + StatusUpd + "'"; //this is where the problem is
+        let statementGeneral = "UPDATE Request_Form SET Current_Status = '" + StatusUpd + "'"; //this is where the problem is
 
         for (let i = 0; i < transactionID.length; i++) {
             if (i === 0) {
@@ -1787,6 +1859,7 @@ function QueryStat(myObj, sqlStat, res) {
             } else if (results.length === 0) {
                 res.json({"errMsg": "no data"});
             } else {
+                console.log(results);
                 res.json(results)
             }
         });
@@ -2180,56 +2253,30 @@ function QueryStat(myObj, sqlStat, res) {
             }
         });
     }
-
-
-    function copyXML(){
-        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); //the path of the source file
-        var today = new Date();//get the current date
-        var date = today.getFullYear()+ '_' +(today.getMonth()+1)+ '_' + today.getDate();
-        var time = today.getHours() + "_" + today.getMinutes()+'_' + today.getSeconds();
-        var dataStr = date + "_"+ time;
-        var downloadDis = 'config/geoCapacity/' + dataStr+ '.xml'; //define a file name
-
-        fsextra.copy(downloadDir, downloadDis) //copy the file and rename
-            .then(//if copy succeed, call pre-download XML function
-                console.log('copy successful'),
-                predownloadXml ()
-            )
-    }
-
     function predownloadXml () {
-        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); // the path of the destination
-        const timeout = 20000;
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
         const requestOptions = {
             uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
-            // timeout: download_interval
-            timeout:timeout
+            timeout: 3600000
         };
         let resXMLRequest;
-        console.log('predownloadXML was called');
 
         request.get(requestOptions)
-            .on('error',function(err){ //called when error
+            .on('error',function(err){
                 console.log(err.code);
-                console.log('predownloadXML error');
-                removeFile();
                 // process.exit(0)
             })
             .on('response', function (res) {
-                console.log('predownloadXML res');
                 resXMLRequest = res;
                 if (res.statusCode === 200){
                     res.pipe(fs.createWriteStream(downloadDir))
                 } else {
                     console.log("Respose with Error Code: " + res.statusCode);
-                    removeFile();
                     // process.exit(0)
                 }
             })
             .on('end', function () {
-                downloadFalse = false;
                 console.log("The End: " + resXMLRequest.statusCode);
-                removeFile();
                 // process.exit(0)
             })
     }
@@ -2240,7 +2287,7 @@ function QueryStat(myObj, sqlStat, res) {
         const dir = 'config/geoCapacity'; //the dir of the file that I am going to remove.
 
         fs.readdir(dir, (err, files) => {
-            var fileLength = files.length; // the total name of the file in directory
+            var fileLength = files; // the total name of the file in directory
             console.log(fileLength);
             var fileName = []; // create an empty array
             fileName.push(files); //push the file name into the array

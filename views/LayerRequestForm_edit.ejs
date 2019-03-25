@@ -17,7 +17,8 @@
     <!--<script type = "text/javascript" src="LayerNameSearch.js"></script>-->
     <script src="../src/jquery.multi-select.js"></script>
     <script src="../src/country/dist/country.js"></script>
-    <!--<script src="../src/jquery.form.min.js"></script>-->
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css">    <!--<script src="../src/jquery.form.min.js"></script>-->
     <!-- Change the "src" attribute according to your installation path -->
     <!--<script src="https://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.min.js"></script>-->
     <!--<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/jquery.validate.min.js"></script>-->
@@ -31,7 +32,7 @@
             <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
                 <span class="qq-upload-drop-area-text-selector"></span>
             </div>
-            <div class="qq-upload-button-selector qq-upload-button">
+            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button'>
                 <div>Upload a file</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
@@ -163,7 +164,7 @@
         .selectpicker {
             height: 60px;
         }
-        #continent, #City, #country {
+        #continent2, #City, #country2 {
             height: 60px;
         }
         .other {
@@ -217,7 +218,7 @@
     margin: auto; display: block;" />
     </a>
 </div>
-<body>
+<body onload="init()">
 
 <div class="container" style="width: 850px;">
     <h1 class="text-center page-header"><strong>Layer Request Form</strong></h1>
@@ -337,7 +338,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-4 control-label">Layer Display Name</label>
+                        <label class="col-md-4 control-label">Layer Name</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group"><span class="input-group-addon"><i class="glyphicon glyphicon-pencil"></i></span>
                                 <input id="LayerNameInput" name="LayerName" value="" placeholder="Layer Name.  NOTE: Do not include spaces." class="form-control" required  type="text" onchange="SearchLayerName(this.value)"></div>
@@ -345,7 +346,7 @@
                         </div>
                     </div>
                     <div class="form-group" id="adminonly">
-                        <label class="col-md-4 control-label">ThirdLayer Name</label>
+                        <label class="col-md-4 control-label">Layer Display Name</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-pencil"></i></span>
@@ -487,6 +488,8 @@
             <button id="clear" type="reset" onclick="clearForm()" value="  Clear  ">Clear</button>
             <button id="approve" type="submit" form="layer" disabled  title="this is only for Admin Users">Approve</button>
             <button id="reject" disabled  title="this is only for Admin Users">Reject</button>
+            <button id="testButton" type="button">click pls</button>
+
         </div>
         <hr>
         <p class="text-center"><a id="cancel" onclick="userHome();">Cancel</a></p>
@@ -495,6 +498,7 @@
 <script>
     let UserRole = "<%= user.userrole %>";
     let rowSelectedValue = JSON.parse(localStorage.getItem("rowSelectedValue"));
+    console.log(rowSelectedValue);
 
     $(document).ready(function() {
         document.getElementById('date').value = rowSelectedValue[0];
@@ -506,20 +510,23 @@
         document.getElementById('LayerFormat2').value = rowSelectedValue[14];
         document.getElementById('message').value = rowSelectedValue[13];
         document.getElementById('City').value = rowSelectedValue[7];
-        $('#continent option[value="AL"]').val(getvalue[4]);
-        $('#continent2 option[value="AL"]').val(getvalue[4]);
-        $('#country option[value="select"]').val(getvalue[5]);
-        $('#country2 option[value="select"]').val(getvalue[5]);
-        document.getElementById('DisplayName').value = rowSelectedValue[12];
-        document.getElementById('comment').value = rowSelectedValue[17];
+        $('#continent option[value="AL"]').val(rowSelectedValue[4]);
+        $('#continent2 option[value="AL"]').val(rowSelectedValue[4]);
+        $("#continent2").html("<option>" + rowSelectedValue[4]+ "</option>")
+        $('#country option[value="select"]').val(rowSelectedValue[5]);
+        $('#country2 option[value="select"]').val(rowSelectedValue[5]);
+        $("#country2").html("<option>" + rowSelectedValue[5]+ "</option>")
+        document.getElementById('DisplayName').value = rowSelectedValue[15];
+        document.getElementById('comment').value = rowSelectedValue[16];
 
-        if(rowSelectedValue[7] === "other" || rowSelectedValue[9] === "other"){
+        if(rowSelectedValue[8] === "other" || rowSelectedValue[10] === "other"){
             document.getElementById('main').value = rowSelectedValue[8];
             document.getElementById('main2').value = rowSelectedValue[8];
             document.getElementById("other1").style.display = "block";
-            document.getElementById("inputone").value = rowSelectedValue[8];
+            document.getElementById("inputone").value = rowSelectedValue[9];
             $('#sub option[value="Category"]').val(rowSelectedValue[10]);
             $('#sub2 option[value="Category"]').val(rowSelectedValue[10])
+            $("#sub2").html("<option>" + rowSelectedValue[10]+ "</option>")
             document.getElementById("other2").style.display = "block";
             document.getElementById("inputtwo").value = rowSelectedValue[11];
         }else{
@@ -527,6 +534,7 @@
             document.getElementById('main2').value = rowSelectedValue[8];
             $('#sub option[value="Category"]').val(rowSelectedValue[10]);
             $('#sub2 option[value="Category"]').val(rowSelectedValue[10]);
+            $("#sub2").html("<option>" + rowSelectedValue[10]+ "</option>")
         }
 
         $(function () {
@@ -543,10 +551,11 @@
                 document.getElementById('country2').disabled = true;
                 document.getElementById('continent2').disabled = true;
                 document.getElementById('DisplayName').readOnly = true;
-                document.getElementById('main').disabled = false;
+                document.getElementById('main').disabled = true;
                 document.getElementById('sub').disabled = false;
                 document.getElementById('sub2').disabled = true;
                 document.getElementById('LayerNameInput').readOnly = true;
+                document.getElementById('main').disabled = false;
                 document.getElementById('main2').disabled = true;
                 document.getElementsByClassName('qq-uploader-selector').disabled = true;
                 document.getElementById('upload-button').disabled = true;
@@ -561,6 +570,7 @@
                 document.getElementById("approve").style.backgroundColor = "lightgray";
                 document.getElementById("reject").style.backgroundColor = "lightgray";
             }
+
         });
 
         $("#main").change(function () {
@@ -588,6 +598,53 @@
             document.getElementById("other1").style.display = "none";
             document.getElementById("other2").style.display = "none";
         }
+    }
+    $(document).ready(function() {
+        let continentList = document.getElementById("continent")
+        $.ajax({
+            url: "layerRequestContinent",
+            dataType: 'json',
+            success: function (results) {
+                console.log(results);
+                var option;
+                for (let i = 0; i < results.length; i++) {
+                    option = new Option(results[i].Contitent_name, results[i].Continent);
+                    continentList.add(option);
+                    // console.log(option);
+                }
+            }
+        });
+    });
+
+    function ChangeContinentList (continentValue){
+        console.log(continentValue);
+        var country = "country="+continentValue;
+        let countryList = document.getElementById("country")
+        while (countryList.options.length) {
+            countryList.remove(0);
+        }
+
+        if(continentValue !== 'SAS'){
+            countryList.disabled = false;
+        }
+        if(continentValue === "AL"){
+            countryList.disabled = true;
+            $("#country").html("<option>SELECT A COUNTRY</option>")
+        }
+        console.log(country);
+        $.ajax({
+            url: "layerRequestCountry",
+            method: 'GET',
+            dataType: 'json',
+            data: country,
+            success: function (results) {
+                console.log(results)
+                for(var j = 0; j < results.length; j++){
+                    var option = new Option(results[j].Country_name, results[j].Country_name);
+                    countryList.add(option);
+                }
+            }
+        });
     }
 
     //resubmit the photo
@@ -646,18 +703,33 @@
         }
     });
 
+    $("#testButton").click(function () {
+        var data = $("#layer").serialize();
+        console.log(data);
+        $.ajax({
+            url: 'testB',
+            method: "post",
+            data: data,
+            dataType: 'json',
+            success: function (d) {
+                console.log(data);
+            }
+        });
+    })
+
     function submitForm() {
         if (UserRole === "Admin") {
             if (confirm("Are you sure you would like to approve this data?") === true) {
                 let tID = "tID=" + document.getElementById('RID').value;
-                let LUN = "LUN=" + rowSelectedValue[14];
-                var lForm = "lForm=" + rowSelectedValue[14];
+                let LUN = "LUN=" + rowSelectedValue[15];
+                let lForm = "lForm=" + rowSelectedValue[14];
+                let fName = "fName=" + rowSelectedValue[12];
                 let data = $("#layer").serialize();
                 $.ajax({
                     url: 'approve',
                     type: "GET",
                     dataType: 'json',
-                    data: tID + '&' + LUN + '&' + lForm,
+                    data: tID + '&' + LUN + '&' + lForm + '&' + fName,
                 });
                 $.ajax({
                     url: 'replace',
@@ -675,7 +747,7 @@
         }else if (UserRole === "Regular") {
             if (confirm("Are you sure you would like to submit this data?") === true) {
                 let regulardata = $("#layer").serialize();
-                let status = "status=" + rowSelectedValue[16];
+                let status = "status=" + rowSelectedValue[15];
                 $.ajax({
                     url: 'rsubmit',
                     method: "post",

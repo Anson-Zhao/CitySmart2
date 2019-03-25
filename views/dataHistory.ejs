@@ -458,6 +458,8 @@
                 var transactionIDStr = "transactionIDStr=" + transactionID.toString();
                 var pictureStr = "pictureStr=" + transactionpicturename.toString();
                 var LayerName = "LayerName=" + LayerNameStr.toString();
+
+                console.log(pictureStr);
                 $.ajax({
                     url: '/deleteRow2',
                     type: 'GET',
@@ -532,7 +534,7 @@
                 if (!resp[0].errMsg) {
                     console.log(resp);
                     for (var i = 0; i < resp.length; i++) {
-                        if (resp[i].Status === "Active") {
+                        if (resp[i].Current_Status === "Approved") {
                             table.row.add([
                                 resp[i].Date,
                                 resp[i].UID,
@@ -550,7 +552,7 @@
                                 resp[i].Layer_Description,
                                 resp[i].LayerFormat,
                                 resp[i].Layer_Uploader_name,
-                                resp[i].Status
+                                resp[i].Current_Status
                             ]).draw(false);
                         }
                     }

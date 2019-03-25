@@ -252,9 +252,10 @@
                     <th>UID</th>
                     <th>RID</th>
                     <th>Layer Type</th>
-                    <th>Layer City</th>
+                    <th>Layer Continent</th>
                     <th>Layer Country</th>
                     <th>Layer State</th>
+                    <th>Layer City</th>
                     <th>Main Category</th>
                     <th>Other Main Category</th>
                     <th>Sub Category</th>
@@ -276,9 +277,10 @@
                     <th>UID</th>
                     <th>RID</th>
                     <th>Layer Type</th>
-                    <th>Layer City</th>
+                    <th>Layer Continent</th>
                     <th>Layer Country</th>
                     <th>Layer State</th>
+                    <th>Layer City</th>
                     <th>Main Category</th>
                     <th>Other Main Category</th>
                     <th>Sub Category</th>
@@ -377,7 +379,7 @@
                 let rowSelectedValue = table.rows('.selected').data();
                 localStorage.setItem("rowSelectedValue", JSON.stringify(rowSelectedValue[0]));
                 window.location.replace('/editdata');
-                // console.log(localStorage.getItem("rowSelectedValue"));
+                console.log(localStorage.getItem("rowSelectedValue"));
             }
         });
 
@@ -546,15 +548,16 @@
                 } else {
                     for (let i = 0; i < results.length; i++) {
 
-                        if (results[i].Status === "Pending" || results[i].Status === "Active") {
+                        if (results[i].Current_Status === "Pending" || results[i].Current_Status === "Active") {
                             table.row.add([
                                 results[i].Date,
                                 results[i].UID,
                                 results[i].RID,
                                 results[i].LayerCategory,
-                                results[i].CityName,
+                                results[i].ContinentName,
                                 results[i].CountryName,
                                 results[i].StateName,
+                                results[i].CityName,
                                 results[i].FirstLayer,
                                 results[i].FirstOther,
                                 results[i].SecondLayer,
@@ -563,7 +566,7 @@
                                 results[i].Layer_Description,
                                 results[i].LayerFormat,
                                 results[i].Layer_Uploader_name,
-                                results[i].Status,
+                                results[i].Current_Status,
                                 results[i].Comments
                             ]).draw(false);
                         }
