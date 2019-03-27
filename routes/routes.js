@@ -13,9 +13,9 @@ const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
 const path    = require('path');
-const upload_Dir = config.Upload_Dir;
-const geoData_Dir = config.GeoData_Dir;
-const Delete_Dir = config.Delete_Dir;
+const upload_Dir = config.Upload_Dir; //contains pending and rejected
+const geoData_Dir = config.GeoData_Dir; //approve folder
+const Delete_Dir = config.Delete_Dir; //trash folder
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
 
@@ -59,18 +59,6 @@ module.exports = function (app, passport) {
         })
     });
 
-    function downloadImage () {
-        // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
-        const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
-        const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
-
-        request(url).pipe(fs.createWriteStream(downloadDir));
-        fs.createWriteStream(downloadDir).end();
-
-    }
-
-    downloadImage();
-
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
         let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
@@ -84,7 +72,8 @@ module.exports = function (app, passport) {
                 console.log(req.user);
                 res.render('homepageUSER.ejs', {
                     user: req.user, // get the user out of session and pass to template
-                    firstName: results[1][0].firstName
+                    firstName: results[1][0].firstName,
+                    lastName: results[1][0].lastName
                 });
             }
         });
@@ -105,8 +94,7 @@ module.exports = function (app, passport) {
                 res.json({"error": true, "message": "no result found!"});
             } else {
                 res.json(results);
-                console.log("Results:");
-                console.log(results);
+                // console.log(results);
             }
         });
         // con_CS.query("SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu Where LayerName = ?", parsedLayers[0], function (err, results) {
@@ -179,13 +167,12 @@ module.exports = function (app, passport) {
 
 
     app.get('/placemark', function(req, res) {
-        console.log("Hello traveler");
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var select = "SELECT * FROM CitySmart2.LayerMenu WHERE LayerType = 'Placemark'";
         con_CS.query( select, function (err, result) {
             if (err) throw err;
             else {
-                console.log(result);
+                // console.log(result);
                 res.json({"err": false, "data": result});
             }
         });
@@ -224,7 +211,7 @@ module.exports = function (app, passport) {
 
         con_CS.query(myStat, function (err, user) {
             dateNtime();
-            console.log(user);
+            // console.log(user);
 
             if (!user || dateTime > user[0].resetPasswordExpires) {
                 res.send('Password reset token is invalid or has expired. Please contact Administrator.');
@@ -306,30 +293,35 @@ module.exports = function (app, passport) {
 
     app.get('/userhome', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
-        let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
+        let state2 = "SELECT firstName, lastName FROM UserProfile WHERE username = '" + req.user.username + "';"; //define last name
 
         con_CS.query(myStat + state2, function (err, results, fields) {
+            // console.log("Users: ");
+            // console.log(results);
+
             if (!results[0][0].userrole) {
                 console.log("Error2");
             } else if (!results[1][0].firstName) {
                 console.log("Error1")
             } else {
-                console.log(req.user);
+                // console.log("Yes");
+                // console.log(req.user);
                 res.render('userHome.ejs', {
                     user: req.user, // get the user out of session and pass to template
-                    firstName: results[1][0].firstName
+                    firstName: results[1][0].firstName,
+                    lastName: results[1][0].lastName
                 });
             }
         });
     });
 
-    app.get('/deleteRow', isLoggedIn, function (req, res) {
-        del_recov("Delete", "Deletion failed!", "/userHome", req, res);
+    app.get('/deleteRow', isLoggedIn, function (req, res) { //this is what I have been experiencing thus far
+        del_recov("Deleted", "Deletion failed!", "/userHome", req, res);
     });
 
     app.get('/recoverRow', isLoggedIn, function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        del_recov("Pending", "Recovery failed!", "/userHome", req, res);
+        del_recov("Approved", "Recovery failed!", "/userHome", req, res);
         let pictureStr = req.query.pictureStr.split(',');
         // mover folder
         for(let i = 0; i < pictureStr.length; i++) {
@@ -337,8 +329,19 @@ module.exports = function (app, passport) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log("success");
+                    console.log("Recovery process is successful");
                 }
+                // if (Current_Status = 'Pending') {
+                //
+                //     let statementpractice = "UPDATE Request_Form SET Layer_Uploader = 'uploadfolder/'";
+                //
+                //     con_CS.query(statementpractice, function (err, results) {
+                //         if (err) throw err;
+                //         res.json(results[i]);
+                //     });
+                //
+                //
+                // }
             });
         }
     });
@@ -367,19 +370,19 @@ module.exports = function (app, passport) {
 
     });
 
-    app.get('/deleteRow2',function (req,res) {
+    app.get('/deleteRow2',function (req,res) { //maybe this is the successful server side code for record deletion; should ask Mr.Anson
         res.setHeader("Access-Control-Allow-Origin", "*");
         let transactionID = req.query.transactionIDStr.split(',');
         let pictureStr = req.query.pictureStr.split(',');
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
+            let statement = "UPDATE Request_Form SET Current_Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
             let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ geoData_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log("success");
+                    console.log("Delete successfully!");
                 }
             });
             con_CS.query(statement + statement1, function (err, results) {
@@ -390,8 +393,9 @@ module.exports = function (app, passport) {
     });
 
     app.get('/filterQuery', isLoggedIn, function (req, res) {
+        console.log(req.query);
         var scoutingStat = "SELECT UserProfile.firstName, UserProfile.lastName, Request_Form.* FROM Request_Form INNER JOIN UserProfile ON UserProfile.username = Request_Form.UID";
-        var myQueryObj = [
+        var myQueryObj = [ //change everything because we need to make sure it matches what we want to happen in client side
             {
                 fieldVal: req.query.firstName,
                 dbCol: "firstName",
@@ -421,28 +425,84 @@ module.exports = function (app, passport) {
                 table: 1
             },
             {
-                fieldVal: req.query.content1,
-                dbCol: req.query.filter1,
+                fieldVal: req.query.Current_Status1,
+                dbCol: req.query.Current_Status,
                 op: " = '",
-                adj: req.query.filter1,
+                adj: req.query.Current_Status1,
                 table: req.query.filter1
             },
             {
-                fieldVal: req.query.content2,
-                dbCol: req.query.filter2,
+                fieldVal: req.query.Current_Status2,
+                dbCol: req.query.Current_Status,
                 op: " = '",
-                adj: req.query.filter2,
+                adj: req.query.Current_Status2,
                 table: req.query.filter2
             },
             {
-                fieldVal: req.query.content3,
-                dbCol: req.query.filter3,
+                fieldVal: req.query.UID,
+                dbCol: req.query.UID,
                 op: " = '",
-                adj: req.query.filter3,
+                adj: req.query.UID,
                 table: req.query.filter3
             }
         ];
         QueryStat(myQueryObj, scoutingStat, res)
+    });
+
+    app.get('/layerReqQuery', isLoggedIn, function (req, res) {
+        console.log(req.query);
+        let iniStat = "SELECT * FROM Request_Form";
+        let myQueryObj = [ //change everything because we need to make sure it matches what we want to happen in client side
+            //one big object that stores everything and the QueryStat creates the full statement request//work to display everything in User Home
+            {
+                fieldVal: req.query.UID,
+                dbCol: "UID",
+                op: " = '",
+                adj: req.query.UID,
+                // table: 1
+            },
+            {
+                fieldVal: req.query.Status,
+                dbCol: "Current_Status",
+                op: " = '",
+                adj: req.query.Status,
+                // table: 1
+            },
+            {
+                fieldVal: req.query.firstName,
+                dbCol: "firstName",
+                op: " = '",
+                adj: req.query.firstName,
+                // table: req.query.filter2
+            },
+            {
+                fieldVal: req.query.lastName,
+                dbCol: "lastName",
+                op: " = '",
+                adj: req.query.lastName,
+                // table: req.query.filter3
+            },
+            {
+                fieldVal: req.query.startDate,
+                dbCol: "date",
+                op: " >= '",
+                adj: req.query.startDate,
+                // table: 1
+            },
+            {
+                fieldVal: req.query.endDate,
+                dbCol: "date",
+                op: " <= '",
+                adj: req.query.endDate,
+                // table: 1
+            }
+        ];
+        // console.log("MyQueryObj: ");
+        // console.log(myQueryObj);
+        QueryStat(myQueryObj, iniStat, res)
+        //this loop creates the exact statement depending on request; it tells the conditions for different pages and different required conditions
+        //we do not need UID b/c empty so we just use Date
+
     });
 
     // =====================================
@@ -636,12 +696,9 @@ module.exports = function (app, passport) {
             status: req.body.status
         };
 
-        console.log (newUser);
-
         myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
         mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
-            console.log(rows);
             // newUser.id = rows.insertId;
             if (err) {
                 console.log(err);
@@ -690,7 +747,6 @@ module.exports = function (app, passport) {
             if (err) {
                 console.log(err);
                 res.json({"error": true, "message": "An unexpected error occurred !"});
-                res.end();
             } else {
                 res.json({"error": false, "message": "Success"});
             }
@@ -938,23 +994,50 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         dateNtime();
 
-        let username = req.query.usernameStr.split(",");
+        let username = req.query.usernameStr.split(","); //they receive the username string from client side
+
         myStat = "UPDATE UserLogin SET modifiedUser = '" + req.user.username + "', dateModified = '" + dateTime + "',  status = 'Suspended'";
+        // console.log(myStat);
 
         for (let i = 0; i < username.length; i++) {
             if (i === 0) {
                 myStat += " WHERE username = '" + username[i] + "'";
                 if (i === username.length - 1) {
                     updateDBNres(myStat, "", "Suspension failed!", "/userManagement", res);
+                    // console.log(myStat);
+
                 }
             } else {
-                myStat += " OR username = '" + username[i] + "'";
+                myStat += " OR username = '" + username[i] + "'"; //is this assuming they don't try to suspend a faulty account more than twice?
                 if (i === username.length - 1) {
                     updateDBNres(myStat, "", "Suspension failed!", "/userManagement", res);
                 }
             }
         }
     });
+    //approve picture in the folder and approve record in the table
+    // //Delete button
+    // app.get('/deleteData', function (req, res) { //is this deleteData for the records?
+    //     res.setHeader("Access-Control-Allow-Origin", "*");
+    //     let transactionID = req.query.transactionIDStr.split(',');
+    //     let pictureStr = req.query.pictureStr.split(',');
+    //     let LayerName = req.query.LayerName.split(',');
+    //     for (let i = 0; i < transactionID.length; i++) {
+    //         let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
+    //         let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+    //         fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
+    //             if (err) {
+    //                 console.log(err);
+    //             } else {
+    //                 console.log("success");
+    //             }
+    //         });
+    //         con_CS.query(statement + statement1, function (err, results) {
+    //             if (err) throw err;
+    //             res.json(results[i]);
+    //         });
+    //     }
+    // });
 
     app.get('/recovery', isLoggedIn, function (req, res) {
         let state2 = "SELECT firstName FROM UserProfile WHERE username = '" + req.user.username + "';";
@@ -1132,7 +1215,7 @@ module.exports = function (app, passport) {
         let statement1 = update1+update2+update3;
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-        let statement4 = "UPDATE Request_Form SET Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
+        let statement4 = "UPDATE Request_Form SET Current_Status = 'Pending' WHERE RID = '" + result[1][1] + "'";
         if(status === "Reject"){
             con_CS.query(statement1 + statement2 + statement3 + statement4, function (err, result) {
                 if (err) {
@@ -1179,15 +1262,16 @@ module.exports = function (app, passport) {
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
 
-        let statement = "UPDATE Request_Form SET Status = 'Active' WHERE RID = '" + approveIDStr + "'";
+        let statement = "UPDATE Request_Form SET Current_Status = 'Approved' WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
+        //this creates approved folder
         for(let i = 0; i < approvepictureStr.length; i++) {
             fs.rename(''+ upload_Dir +'/' + approvepictureStr[i] + '' , '' + geoData_Dir + '/' + approvepictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log("success");
+                    console.log("Approval success");
                 }
             });
             con_CS.query(statement, function (err, results) {
@@ -1207,7 +1291,6 @@ module.exports = function (app, passport) {
         var update1 = "UPDATE Request_Form SET " ;
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
-
 
         for (let i = 0; i < result.length; i++) {
             if (i === result.length - 1) {
@@ -1254,7 +1337,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let rejectID = req.query.reject;
         let comment = req.query.comment;
-        let statement = "UPDATE Request_Form SET Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
+        let statement = "UPDATE Request_Form SET Current_Status = 'Reject', Comments = '" + comment + "' WHERE RID = '" + rejectID + "'";
         con_CS.query(statement,function (err,results) {
             if (err) throw err;
             res.json(results);
@@ -1286,16 +1369,22 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         let transactionID = req.query.transactionIDStr.split(',');
         let pictureStr = req.query.pictureStr.split(',');
-        let LayerName = req.query.LayerName.split(',');
+        let LayerName = req.query.LayerName.split(','); //convert the string to array
+        console.log("LayerName");
+        console.log(LayerName);
+
         for (let i = 0; i < transactionID.length; i++) {
-            let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
-            fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
-                console.log(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '');
+
+            let statement = "UPDATE Request_Form SET Layer_Uploader = 'trashfolder/', Prior_Status = Current_Status, Current_Status = 'Delete'  WHERE RID = '" + transactionID[i] + "';";
+            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName[i]  + "';";
+            // let statement1 = "DELETE FROM LayerMenu WHERE ThirdLayer = '" + LayerName[i]  + "';"; // the [i] is converting the array back to string so it can be used
+        ////transferred value from client side to server side and then be used in SQL
+        //parsed during the client to server exchange
+            fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , ''  + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log("success");
+                    console.log("Delete button working fine!");
                 }
             });
             con_CS.query(statement + statement1, function (err, results) {
@@ -1311,6 +1400,8 @@ module.exports = function (app, passport) {
         con_CS.query('SELECT * FROM Request_Form', function (err, results) {
             if (err) throw err;
             res.json(results);
+            //there are no filters here so the whole table shows up in client side
+            //this means in server side we should filter
         })
     });
 
@@ -1367,28 +1458,6 @@ module.exports = function (app, passport) {
             res.json(results);
         });
     });
-    app.get('/layerRequestContinent',function(req,res){
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT Continent,Contitent_name  FROM Country group by Continent,Contitent_name", function (err, results) {
-            console.log(results);
-            if (err) throw err;
-            res.json(results);
-        });
-    });
-
-    app.get('/layerRequestCountry',function(req,res){
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        console.log(req.query);
-        var recieveCountryData = req.query.country;
-        console.log(recieveCountryData);
-        con_CS.query("SELECT Country_name FROM Country WHERE Continent = ?", recieveCountryData, function (err, results) {
-            console.log(results);
-            if (err) throw err;
-            res.json(results);
-        });
-    });
-
-
 
 
 //AddData in table
@@ -1498,9 +1567,9 @@ module.exports = function (app, passport) {
             //All layer?
             //WHERE cityname = ''?
             if (err) { throw err } else {
-                console.log(result.length);
+                // console.log(result.length);
                 for(var i =0; i<result.length; i++){
-                    console.log(result[i].LayerName);
+                    // console.log(result[i].LayerName);
                 }
                 res.json(result);
             }
@@ -1557,9 +1626,9 @@ module.exports = function (app, passport) {
 
         transactionID = req.query.transactionIDStr.split(",");
         // console.log(transactionID);
-        let statementGeneral = "UPDATE Request_Form SET Status = '" + StatusUpd + "'";
-        // let statementDetailedS = "UPDATE Detailed_Scouting SET Status = '" + StatusUpd + "'";
-        // let statementDetailedT = "UPDATE Detailed_Trap SET Status = '" + StatusUpd + "'";
+        let statementGeneral = "UPDATE Request_Form SET Current_Status = Prior_Status"; //this is where the problem is OH! set current = prior here!
+        //some variables can be parameters that are defined later
+        //string values must always be ordered first in an array of parameters
 
         for (let i = 0; i < transactionID.length; i++) {
             if (i === 0) {
@@ -1615,12 +1684,13 @@ module.exports = function (app, passport) {
         })
     }
 
-function QueryStat(myObj, scoutingStat, res) {
+function QueryStat(myObj, sqlStat, res) {
     let j = 0;
+    let NewsqlStat = sqlStat;
+    let aw;
     for (let i = 0; i < myObj.length; i++) {
         if (!!myObj[i].adj){
 
-                let aw;
                 if (j === 0) {
                     aw = " WHERE ";
                     j = 1;
@@ -1628,16 +1698,19 @@ function QueryStat(myObj, scoutingStat, res) {
                     aw = " AND ";
                 }
 
-                scoutingStat = editStat(scoutingStat, aw, myObj[i].dbCol, myObj[i].op, myObj[i].fieldVal);
+                sqlStat = editStat(sqlStat, aw, myObj[i].dbCol, myObj[i].op, myObj[i].fieldVal); //scoutingStat is initial statement and the rest says if the column equals the value
 
                 if (i === myObj.length - 1) {
-                    let sqlStatement = scoutingStat + "; ";
-                    dataList(sqlStatement, res);
+                    NewsqlStat = sqlStat + "; ";
+                    console.log(NewsqlStat);
+                    dataList(NewsqlStat, res);
                 }
             } else {
+            // console.log(aw);
                 if (i === myObj.length - 1) {
-                    let sqlStatement = scoutingStat + "; ";
-                    dataList(sqlStatement, res);
+                    NewsqlStat = sqlStat + "; ";
+                    console.log(NewsqlStat);
+                    dataList(NewsqlStat, res);
                 }
             }
         }
@@ -1650,22 +1723,17 @@ function QueryStat(myObj, scoutingStat, res) {
 
     function dataList(sqlStatement, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        con_CS.query(sqlStatement, function (err, results, fields) {
-
-            errStatus = [{errMsg: ""}];
+        // console.log("SQL:");
+        console.log("SQL:" + sqlStatement);
+        con_CS.query(sqlStatement, function (err, results) {
 
             if (err) {
                 console.log(err);
-                errStatus[0].errMsg = "fail";
-                res.send(errStatus);
-                res.end();
+                res.json({"errMsg": "fail"});
             } else if (results.length === 0) {
-                errStatus[0].errMsg = "no data entry";
-                res.send(errStatus);
-                res.end();
+                res.json({"errMsg": "no data"});
             } else {
-                let JSONresult = JSON.stringify(results, null, "\t");
-                res.send(JSONresult);
+                res.json(results)
             }
         });
     }

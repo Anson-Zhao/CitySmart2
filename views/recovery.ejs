@@ -266,9 +266,20 @@
 
             table.clear();
             table.draw();
+
+            // if (UserRole === "Regular") {
+            //     // document.getElementById('searchname').style.display = "none"; //disables username search for regular members
+            //     queryStr = "Current_Status=Pending&UID=" + username;
+            // } else {
+            //     queryStr = "Current_Status=Pending";//this line is for the admin, who does not need to only see a specific UID, but all records
+            // }
+            // console.log(queryStr);
+            // queryAndDisplay(queryStr);
             trapTable.clear();
             trapTable.draw();
-            queryAndDisplay("statusDel=" + "Deleted" + "&firstName=" + "<%= user.firstName %>" + "&lastName=" + "<%= user.lastName %>");
+            queryAndDisplay();//this is client
+            //got rid of the string b/c AddData will not process any query string b/c will return all records and will be filtered by clientside downstairs
+            console.log()
 
         });
 
@@ -332,13 +343,16 @@
         });
     });
 
+    var username = "<%= user.username %>";
+
     var queryAndDisplay = function (querystr) {
         $.ajax({
-            url: 'AddData',
+            url: '/AddData',
             dataType: 'json',
+            data: querystr,
             success: function (results) {
                 for (var i = 0; i < results.length; i++) {
-                    if (results[i].Status === "Delete") {
+                    if (results[i].Current_Status === "Delete") {
                         if (UserRole === "Regular") {
                             if (results[i].UID === username) {
                                 table.row.add([
@@ -350,34 +364,39 @@
                                     results[i].CityName,
                                     results[i].FirstLayer,
                                     results[i].SecondLayer,
-                                    results[i].ThirdLayer,
+                                    results[i].LayerName,
                                     results[i].Layer_Description,
                                     results[i].Layer_Uploader,
                                     results[i].Layer_Uploader_name,
-                                    results[i].Status
+                                    results[i].Current_Status,
+                                    results[i].ThirdLayer
+
                                 ]).draw(false);
                             }
                         } else {
-                            table.row.add([
-                                results[i].UID,
-                                results[i].RID,
-                                results[i].LayerCategory,
-                                results[i].StateName,
-                                results[i].CountryName,
-                                results[i].CityName,
-                                results[i].FirstLayer,
-                                results[i].SecondLayer,
-                                results[i].ThirdLayer,
-                                results[i].Layer_Description,
-                                results[i].Layer_Uploader,
-                                results[i].Layer_Uploader_name,
-                                results[i].Status
-                            ]).draw(false);
+                                table.row.add([
+                                    results[i].UID,
+                                    results[i].RID,
+                                    results[i].LayerCategory,
+                                    results[i].StateName,
+                                    results[i].CountryName,
+                                    results[i].CityName,
+                                    results[i].FirstLayer,
+                                    results[i].SecondLayer,
+                                    results[i].LayerName,
+                                    results[i].Layer_Description,
+                                    results[i].Layer_Uploader,
+                                    results[i].Layer_Uploader_name,
+                                    results[i].Current_Status,
+                                    results[i].ThirdLayer
+
+                                ]).draw(false);
+
                         }
                     }
                 }
             }
-        });
+        })
     }
 </script>
 </body>
