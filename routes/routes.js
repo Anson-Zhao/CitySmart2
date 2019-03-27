@@ -37,6 +37,8 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
 
+    setInterval(predownloadXml, 3660000);
+
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
     app.use(cors({
@@ -91,11 +93,11 @@ module.exports = function (app, passport) {
     app.get('/position',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         var layername = req.query.layername;
-        console.log("Layername Below: ");
-        console.log(layername);
+        // console.log("Layername Below: ");
+        // console.log(layername);
         var parsedLayers = layername.split(",");
-        console.log("Parsed Layers: ");
-        console.log(parsedLayers);
+        // console.log("Parsed Layers: ");
+        // console.log(parsedLayers);
 
         con_CS.query('SELECT LayerName, Longitude, Latitude, Altitude, ThirdLayer FROM LayerMenu WHERE LayerName = ?', parsedLayers[0], function (err, results) {
             if (err) {
@@ -340,6 +342,7 @@ module.exports = function (app, passport) {
             });
         }
     });
+
 
     // =====================================
     // REQUEST QUERY   =====================
@@ -633,10 +636,13 @@ module.exports = function (app, passport) {
             status: req.body.status
         };
 
+        console.log (newUser);
+
         myStat = "INSERT INTO UserLogin ( username, password, userrole, dateCreated, dateModified, createdUser, status) VALUES ( '" + newUser.username + "','" + newUser.password+ "','" + newUser.userrole+ "','" + newUser.dateCreated+ "','" + newUser.dateModified+ "','" + newUser.createdUser + "','" + newUser.status + "');";
         mylogin = "INSERT INTO UserProfile ( username, firstName, lastName) VALUES ('"+ newUser.username + "','" + newUser.firstName+ "','" + newUser.lastName + "');";
         con_CS.query(myStat + mylogin, function (err, rows) {
-            //newUser.id = rows.insertId;
+            console.log(rows);
+            // newUser.id = rows.insertId;
             if (err) {
                 console.log(err);
                 res.json({"error": true, "message": "An unexpected error occurred!"});
@@ -1202,6 +1208,7 @@ module.exports = function (app, passport) {
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
 
+
         for (let i = 0; i < result.length; i++) {
             if (i === result.length - 1) {
                 update2 += result[i][0] + " = '" + result[i][1]+ "'";
@@ -1284,6 +1291,7 @@ module.exports = function (app, passport) {
             let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
             let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
+                console.log(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '');
                 if (err) {
                     console.log(err);
                 } else {
@@ -1359,6 +1367,28 @@ module.exports = function (app, passport) {
             res.json(results);
         });
     });
+    app.get('/layerRequestContinent',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        con_CS.query("SELECT Continent,Contitent_name  FROM Country group by Continent,Contitent_name", function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+    app.get('/layerRequestCountry',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        console.log(req.query);
+        var recieveCountryData = req.query.country;
+        console.log(recieveCountryData);
+        con_CS.query("SELECT Country_name FROM Country WHERE Continent = ?", recieveCountryData, function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+
 
 
 //AddData in table
@@ -1442,7 +1472,7 @@ module.exports = function (app, passport) {
         con_CS.query("SELECT FirstLayer FROM LayerMenu WHERE Status ='Approved' GROUP BY FirstLayer ", function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             if (err) { throw err } else {
-                console.log(result);
+                // console.log(result);
                 res.json(result);
             }
         });
@@ -1454,7 +1484,7 @@ module.exports = function (app, passport) {
         con_CS.query("SELECT SecondLayer,FirstLayer FROM LayerMenu WHERE Status ='Approved' and FirstLayer =? GROUP BY SecondLayer", firstlayerValue ,function (err, result) {
             // let JSONresult = JSON.stringify(result, null, "\t");
             if (err) { throw err } else {
-                console.log(result);
+                // console.log(result);
                 res.json(result);
             }
         });
@@ -2027,5 +2057,32 @@ function QueryStat(myObj, scoutingStat, res) {
                 res.render('success.ejs', {});
             }
         });
+    }
+    function predownloadXml () {
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
+        const requestOptions = {
+            uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
+            timeout: 3600000
+        };
+        let resXMLRequest;
+
+        request.get(requestOptions)
+            .on('error',function(err){
+                console.log(err.code);
+                // process.exit(0)
+            })
+            .on('response', function (res) {
+                resXMLRequest = res;
+                if (res.statusCode === 200){
+                    res.pipe(fs.createWriteStream(downloadDir))
+                } else {
+                    console.log("Respose with Error Code: " + res.statusCode);
+                    // process.exit(0)
+                }
+            })
+            .on('end', function () {
+                console.log("The End: " + resXMLRequest.statusCode);
+                // process.exit(0)
+            })
     }
 };

@@ -31,7 +31,7 @@
             <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
                 <span class="qq-upload-drop-area-text-selector"></span>
             </div>
-            <div class="qq-upload-button-selector qq-upload-button">
+            <div class="qq-upload-button-selector qq-upload-button"  id ='upload-button'>
                 <div>Upload a file</div>
             </div>
             <span class="qq-drop-processing-selector qq-drop-processing">
@@ -402,9 +402,9 @@
 </div>
 
 <script>
-    var UserRole = "<%= user.userrole %>";
+    var UserRole = "<%= user.userrole %>"; //Admin or general
     var getvalue = JSON.parse(localStorage.getItem("getvalue"));
-
+    console.log(getvalue);
     $(document).ready(function() {
         document.getElementById('date').value = getvalue[0];
         document.getElementById('User ID').value = getvalue[1];
@@ -435,6 +435,18 @@
                 document.getElementById("comment").disabled = false;
                 document.getElementById("approve").disabled = false;
                 document.getElementById("reject").disabled = false;
+                document.getElementById('message').readonly = true;
+                document.getElementById('LayerFormat').readonly = true;
+                document.getElementById('City').readonly = true;
+                document.getElementById('LayerStateInput').readonly = true;
+                document.getElementById('country').readonly = true;
+                document.getElementById('DisplayName').readonly = true;
+                document.getElementById('sub').readonly = true;
+                document.getElementById('LayerNameInput').readonly = true;
+                document.getElementById('main').readonly = true;
+                document.getElementsByClassName('qq-uploader-selector').disabled = true;
+                document.getElementById('upload-button').disabled = true;
+                // $('#upload-button').prop('disabled',true);
                 document.getElementById("submit").style.backgroundColor = "lightgray";
                 document.getElementById("adminonly").style.display = "block";
                 document.getElementById("comment").placeholder = "Please describe why you are rejecting the request.";
@@ -549,6 +561,7 @@
                     data: data,
                     dataType: 'json',
                     success: function (d) {
+                        console.log(data);
                     }
                 });
                 window.location.replace('/userHome');
@@ -670,11 +683,9 @@
                 }
             }
         })
-
         //use if to check
         //false replace the <p> to the Layer Name is duplicated
         //ture --> nothing
-
     }
 
     function SearchThirdLayer(thisvalue){

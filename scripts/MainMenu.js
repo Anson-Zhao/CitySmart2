@@ -84,15 +84,16 @@ requirejs(['./WorldWindShim',
 
             // Retrieve a WmsLayerCapabilities object by the desired layer name
             for (var n = 0; n < preloadWMSLayerName.length; n++) {
-                // console.log(preloadWMSLayerName[n]);
+                console.log(preloadWMSLayerName[n]);
                 var wmsLayerCapability = wms.getNamedLayer(preloadWMSLayerName[n]);
+
 
                 // Form a configuration object from the wmsLayerCapability object
                 var wmsConfig = WorldWind.WmsLayer.formLayerConfiguration(wmsLayerCapability);
 
                 // Modify the configuration objects title property to a more user friendly title
                 wmsConfig.title = preloadWMSLayerName[n];
-                // console.log (wmsConfig.title);
+                console.log (wmsConfig.title);
 
                 // Create the WMS Layer from the configuration object
                 var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
@@ -326,7 +327,19 @@ requirejs(['./WorldWindShim',
             //     //.
             //     // }
             // }
-        };//
+        };
+//
+        globe.addEventListener("mousemove", handlePick);
+
+// globe.addEventListener("click", sitePopUp);
+
+        globe.addEventListener("click", handleMouseCLK);
+
+
+        // // Called if an error occurs during WMS Capabilities document retrieval
+        // var logError = function (jqXhr, text, exception) {
+        //     console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
+        // };
 
         var globlePosition = function(layerRequest){
             $.ajax({
@@ -418,14 +431,6 @@ requirejs(['./WorldWindShim',
             nextL.prop('disabled',true);
             previousL.prop('disabled',true);
 
-            // $.ajax({
-            //     url:'/download',
-            //     dataType:'json',
-            //     success:function (result) {
-            //         console.log(result)
-            //     }
-            // });
-
             //preload wmsLayer
             $(".wmsLayer").each(function (i) {
                 preloadLayer[i] = $(this).val();
@@ -474,69 +479,6 @@ requirejs(['./WorldWindShim',
                 }
             });
 
-            // $('.placemarkLayer').click(function(){
-            //     var val1 = $(this).val();
-            //     allCheckedArray = $(':checkbox:checked');
-            //     console.log(allCheckedArray);
-            //
-            //     var layerRequest = 'layername=' + val1;
-            //     globlePosition(layerRequest);
-            //     buttonControl(allCheckedArray,val1);
-            //
-            //     for (var a = 0; a < layers.length; a++) {
-            //         $(':checkbox:checked').each(function () {
-            //             if (layers[a].displayName === $(this).val()) {
-            //                 layers[a].enabled = true;
-            //             } else {
-            //                 bob = $(this).val().split(",");
-            //                 bob.forEach(function (eleValue) {
-            //                     if (layers[a].displayName === eleValue) {
-            //                         layers[a].enabled = true;
-            //                     }
-            //                 });
-            //             }
-            //         });
-            //         $(':checkbox:not(:checked)').each(function () {
-            //             if (layers[a].displayName === $(this).val()) {
-            //                 layers[a].enabled = false;
-            //             } else {
-            //                 bob = $(this).val().split(",");
-            //                 bob.forEach(function (ery) {
-            //                     if (layers[a].displayName === ery) {
-            //                         layers[a].enabled = false;
-            //                     }
-            //                 });
-            //             }
-            //         })
-            //     }
-            //
-            //     // if ($('.placemarkLayer').is(":checkbox:checked")) {
-            //     //
-            //     //     $(':checkbox:checked').each(function () {
-            //     //         for (var a = 0; a < layers.length; a++) {
-            //     //             if (layers[a].displayName === val1) {
-            //     //                 layers[a].enabled = true;
-            //     //                 console.log('KEA_Wind_Turbine'); //find out how to console the problem
-            //     //             }
-            //     //         }
-            //     //     });
-            //     // }else{
-            //     //     console.log("enable:false");
-            //     //     var val2;
-            //     //     $(":checkbox:not(:checked)").each(function () {
-            //     //         val2 = $(this).val();
-            //     //
-            //     //         for (var a = 0; a < layers.length; a++) {
-            //     //             if (layers[a].displayName === val2) {
-            //     //                 layers[a].enabled = false;
-            //     //                 // console.log("str: " + layers[a].displayName);
-            //     //                 // console.log(layers[a]);
-            //     //             }
-            //     //         }
-            //     //     });
-            //     // }
-            //
-            // });
 
             $(".wmsLayer,.placemarkLayer").click(function () {
                 var layer1 = $(this).val(); //the most current value of the selected switch
@@ -546,57 +488,6 @@ requirejs(['./WorldWindShim',
                 var layerRequest = 'layername=' + layer1;
                 globlePosition(layerRequest);
                 buttonControl(allCheckedArray,layer1);
-
-                // if (allCheckedArray.length > checkedCount){ //if there is new array was inserted into the allCheckedArray ( If user choose more than 1 switch)
-                //     console.log(LayerSelected.ThirdLayer);
-                //     checked.push(layer1); //insert current value to "checked" array
-                //     checkedCount = allCheckedArray.length; //checkedCount now equals to the numbers of arrays that were inserted to allCheckedArray
-                //     alertVal = false; //alert (only appear at the first time)
-                //     currentSelectedLayer.prop('value', LayerSelected.ThirdLayer); //if there are new array was inserted into the allCheckedArray,the value of the opened layer button equals to the name of the switch that user selected
-                //     console.log(currentSelectedLayer);
-                //     arrMenu.push(LayerSelected.ThirdLayer);//insert current ThirdLayer value to arrMenu
-                //     j = arrMenu.length - 1; //count
-                //     console.log(arrMenu.length);
-                //     if(arrMenu.length === 1){ //if the length of arrMenu is equal to 1 /if user only checks one switch.
-                //         nextL.prop('disabled',true);
-                //         previousL.prop('disabled',true);
-                //         currentSelectedLayer.prop('disabled',false);
-                //     }else{//if user checks over 1 switch
-                //         previousL.prop('disabled',false);
-                //         nextL.prop('disabled',true);
-                //     }
-                //     // LayerPosition.push(LayerSelected);
-                // } else { //if there is not new array was inserted into the allCheckedArray / If user un-checks a switch)
-                //     for( var i = 0 ; i < checked.length; i++) {
-                //         if (checked[i] === layer1) {
-                //             checked.splice(i,1); //remove current value from checked array
-                //             arrMenu.splice(i,1); //remove current ThirdLayer from the array
-                //             // LayerPosition.splice(i,1); //remove current Latlong from the array
-                //         }
-                //     }
-                //     // val = checked[checked.length - 1];
-                //     checkedCount = allCheckedArray.length;
-                //     alertVal = false;
-                //     currentSelectedLayer.prop('value',arrMenu[arrMenu.length - 1]);
-                //     // currentSelectedLayer.value = arrMenu[arrMenu.length - 1];
-                //     j = arrMenu.length - 1;
-                //     if(arrMenu.length === 1){
-                //         nextL.prop('disabled',true);
-                //         previousL.prop('disabled',true)
-                //     }else{
-                //         if(arrMenu.length === 0){
-                //             // currentSelectedLayer.value = "No Layer Selected";
-                //             currentSelectedLayer.prop('value','No Layer Selected');
-                //             currentSelectedLayer.prop('disabled',true);
-                //             previousL.prop('disabled',true);
-                //             nextL.prop('disabled',true);
-                //             // globe.goTo(new WorldWind.Position(37.0902, -95.7129, 9000000));
-                //         } else{
-                //             previousL.prop('disabled',false);
-                //             nextL.prop('disabled',true);
-                //         }
-                //     }
-                // }
 
                 //turn on/off wmsLayer and placemark layer
                 for (var a = 0; a < layers.length; a++) {
