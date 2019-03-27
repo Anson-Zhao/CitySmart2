@@ -254,6 +254,7 @@
                     <th>Layer Type</th>
                     <th>Layer City</th>
                     <th>Layer Country</th>
+                    <th>Layer Continent</th>
                     <th>Layer State</th>
                     <th>Main Category</th>
                     <th>Other Main Category</th>
@@ -263,7 +264,7 @@
                     <th>Layer Description</th>
                     <th>Layer Format</th>
                     <th>Layer Uploader Name</th>
-                    <th>Status</th>
+                    <th>Current_Status</th>
                     <th>Comments</th>
                 </tr>
                 </thead>
@@ -278,6 +279,7 @@
                     <th>Layer Type</th>
                     <th>Layer City</th>
                     <th>Layer Country</th>
+                    <th>Layer Continent</th>
                     <th>Layer State</th>
                     <th>Main Category</th>
                     <th>Other Main Category</th>
@@ -287,7 +289,7 @@
                     <th>Layer Description</th>
                     <th>Layer Format</th>
                     <th>Layer Uploader Name</th>
-                    <th>Status</th>
+                    <th>Current_Status</th>
                     <th>Comments</th>
                 </tr>
                 </tfoot>
@@ -322,9 +324,9 @@
 
             if (UserRole === "Regular") {
                 document.getElementById('searchname').style.display = "none"; //disables username search for regular members
-                queryStr = "Status=Pending&UID=" + username;
+                queryStr = "Current_Status=Pending&UID=" + username;
             } else {
-                queryStr = "Status=Pending";//this line is for the admin, who does not need to only see a specific UID, but all records
+                queryStr = "Current_Status=Pending";
             }
             console.log(queryStr);
             queryAndDisplay(queryStr);
@@ -389,12 +391,11 @@
                 console.log(transactionIDStr);
                 let pictureStr = "pictureStr=" + picPath.toString();
                 let LayerName = "LayerName=" + LayerNameStr.toString();
-               console.log(transactionIDStr + '&' + pictureStr + '&' + LayerName);
-               $.ajax({
+                $.ajax({
                     url: 'deleteData',
                     type: "GET",
                     dataType: 'json',
-                    data: transactionIDStr + '&' + pictureStr + '&' + LayerName,
+                    data: transactionIDStr + '&' + pictureStr + '&' + LayerName
                 });
                 window.location.reload();
 
@@ -405,6 +406,7 @@
         });
 
         $("#showButton").on("click", function () {
+            let qStr;
             table.clear();
             table.draw();
             // queryAndDisplay(hjkhjkhk);
@@ -412,22 +414,21 @@
             $(".filter").val(''); //no function here so button does nothing
             $(".date").val('');
 
-            // if (UserRole === "Regular") {
-            //     document.getElementById('searchname').style.display = "none"; //disables username search for regular members
-            //     queryStr = "Status=Pending&UID=" + username;
-            // } else {
-            //     queryStr = "Status=Pending";//this line is for the admin, who does not need to only see a specific UID, but all records
-            // }
+            if (UserRole === "Regular") {
+                document.getElementById('searchname').style.display = "none"; //disables username search for regular members
+                qStr = "UID=" + username;
+            } else {
+                qStr = "";;//this line is for the admin, who does not need to only see a specific UID, but all records
+            }
 
             // let qStr = "UID=" + username;
-            let qStr = ""; //must be blank so you can get everyone's records and then the filters down below will distinguish between approved, pending, and deleted records
+             //must be blank so you can get everyone's records and then the filters down below will distinguish between approved, pending, and deleted records
             //still keep UID because it is a changing variable whereas the first two are constant
             // console.log(table.clear);
             // console.log(qStr);
             queryAndDisplay(qStr);
         });
     });
-
 
     function dropDown() {
         console.log(UserRole);
@@ -478,7 +479,7 @@
     //             for (let i = 0; i < results.length; i++) {
     //                 if (UserRole === "Regular") {
     //                     if (results[i].UID === username) {
-    //                         if (results[i].Status === "Pending" || results[i].Status === "Active") {
+    //                         if (results[i].Current_Status === "Pending" || results[i].Current_Status === "Active") {
     //                             table.row.add([
     //                                 results[i].Date,
     //                                 results[i].UID,
@@ -495,7 +496,7 @@
     //                                 results[i].Layer_Description,
     //                                 results[i].LayerFormat,
     //                                 results[i].Layer_Uploader_name,
-    //                                 results[i].Status,
+    //                                 results[i].Current_Status,
     //                                 results[i].Comments
     //                             ]).draw(false);
     //
@@ -507,7 +508,7 @@
     //
     //                 if (UserRole === "Admin") {
     //                     // if (results[i].UID === username) {
-    //                         if (results[i].Status === "Pending" || results[i].Status === "Active") {
+    //                         if (results[i].Current_Status === "Pending" || results[i].Current_Status === "Active") {
     //                             table.row.add([
     //                                 results[i].Date,
     //                                 results[i].UID,
@@ -524,7 +525,7 @@
     //                                 results[i].Layer_Description,
     //                                 results[i].LayerFormat,
     //                                 results[i].Layer_Uploader_name,
-    //                                 results[i].Status,
+    //                                 results[i].Current_Status,
     //                                 results[i].Comments
     //                             ]).draw(false);
     //                         }
@@ -564,6 +565,7 @@
                                 results[i].LayerCategory,
                                 results[i].CityName,
                                 results[i].CountryName,
+                                results[i].ContinentName,
                                 results[i].StateName,
                                 results[i].FirstLayer,
                                 results[i].FirstOther,

@@ -311,6 +311,17 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-md-4 control-label">Layer Continent</label>
+                        <div class="col-md-8 inputGroupContainer">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
+                                <select name="ContinentName" class="crs-country form-control" data-region-id="two" data-default-option="SELECT COUNTRY" id="continent" onchange="ChangeContinentList(this.value)">
+                                    <option selected="selected" value="AL" id="continent-option">SELECT A CONTINENT</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-md-4 control-label">Layer Country</label>
                         <div class="col-md-8 inputGroupContainer">
                             <div class="input-group">
@@ -404,30 +415,32 @@
 <script>
     let UserRole = "<%= user.userrole %>";
     let rowSelectedValue = JSON.parse(localStorage.getItem("rowSelectedValue"));
+    console.log(rowSelectedValue)
 
     $(document).ready(function() {
         document.getElementById('date').value = rowSelectedValue[0];
         document.getElementById('User ID').value = rowSelectedValue[1];
         document.getElementById('RID').value = rowSelectedValue[2];
         document.getElementById('LayerNameInput').value = rowSelectedValue[11];
-        document.getElementById('LayerStateInput').value = rowSelectedValue[6];
+        document.getElementById('LayerStateInput').value = rowSelectedValue[7];
         document.getElementById('LayerFormat').value = rowSelectedValue[13];
         document.getElementById('message').value = rowSelectedValue[12];
         document.getElementById('City').value = rowSelectedValue[4];
         document.getElementById('country').options[0].innerHTML = rowSelectedValue[5];
         document.getElementById('DisplayName').value = rowSelectedValue[11];
-        document.getElementById('comment').value = rowSelectedValue[16];
+        document.getElementById('comment').value = rowSelectedValue[17];
+        document.getElementById('continent').options[0].innerHTML = rowSelectedValue[6];
 
         if(rowSelectedValue[7] === "other" || rowSelectedValue[9] === "other"){
-            document.getElementById('main').value = rowSelectedValue[7];
+            document.getElementById('main').value = rowSelectedValue[8];
             document.getElementById("other1").style.display = "block";
-            document.getElementById("inputone").value = rowSelectedValue[8];
-            document.getElementById('sub').value = rowSelectedValue[9];
+            document.getElementById("inputone").value = rowSelectedValue[9];
+            document.getElementById('sub').value = rowSelectedValue[10];
             document.getElementById("other2").style.display = "block";
-            document.getElementById("inputtwo").value = rowSelectedValue[10];
+            document.getElementById("inputtwo").value = rowSelectedValue[11];
         }else{
-            document.getElementById('main').value = rowSelectedValue[7];
-            document.getElementById('sub').options[0].innerHTML = rowSelectedValue[9];
+            document.getElementById('main').value = rowSelectedValue[8];
+            document.getElementById('sub').options[0].innerHTML = rowSelectedValue[10];
         }
 
         $(function () {
@@ -447,6 +460,7 @@
             }
         });
 
+        //SELECT MAIN CATEGORY button
         $("#main").change(function () {
             let val = $(this).val();
             if (val == "") {
@@ -462,7 +476,54 @@
                 $("#country").html("<option value='select'>SELECT SUBCATEGORY</option>");
             }
         })
+
+        let continentList = document.getElementById("continent")
+        $.ajax({
+            url: "layerRequestContinent",
+            dataType: 'json',
+            success: function (results) {
+                console.log(results);
+                var option;
+                for (let i = 0; i < results.length; i++) {
+                    option = new Option(results[i].Contitent_name, results[i].Continent);
+                    continentList.add(option);
+                    // console.log(option);
+                }
+            }
+        });
     });
+
+    function ChangeContinentList (continentValue){
+        console.log('h');
+        console.log(continentValue);
+        var country = "country="+continentValue;
+        let countryList = document.getElementById("country")
+        while (countryList.options.length) {
+            countryList.remove(0);
+        }
+
+        if(continentValue !== 'SAS'){
+            countryList.disabled = false;
+        }
+        if(continentValue === "AL"){
+            countryList.disabled = true;
+            $("#country").html("<option>SELECT A COUNTRY</option>")
+        }
+        console.log(country);
+        $.ajax({
+            url: "layerRequestCountry",
+            method: 'GET',
+            dataType: 'json',
+            data: country,
+            success: function (results) {
+                console.log(results)
+                for(var j = 0; j < results.length; j++){
+                    var option = new Option(results[j].Country_name, results[j].Country_name);
+                    countryList.add(option);
+                }
+            }
+        });
+    }
 
     function Check(that) {
         if (that === "other") {
@@ -645,6 +706,7 @@
             submitForm();
         }
     });
+
 
     function SearchLayerName(value){
         $.ajax({

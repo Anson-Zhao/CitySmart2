@@ -198,7 +198,7 @@ $(document).ready(function () {
                             var checkboxh5 = document.createElement("h5");
                             var checkboxa = document.createElement("a");
                             var checkaboxat = document.createTextNode(res3[i].ThirdLayer);
-                            console.log(checkboxdiv);
+                            // console.log(checkboxdiv);
                             var checkboxlabel = document.createElement("label");
                             checkboxlabel.className = "switch right";
                             var checkboxinput = document.createElement("input");

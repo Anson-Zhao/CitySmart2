@@ -3,6 +3,7 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const config = require('../config/mainconf');
 const fs = require("fs");
+const fsextra = require('fs-extra');
 const request = require("request");
 const bcrypt = require('bcrypt-nodejs');
 const nodemailer = require('nodemailer');
@@ -19,12 +20,15 @@ const Delete_Dir = config.Delete_Dir; //trash folder
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
 const uploadPath = config.Upload_Path;
+const num_backups = config.num_backups;
+const download_interval = config.download_interval;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 
-let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
+let transactionID, myStat, myVal, myErrMsg, token, errCurrent_Status, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
+let downloadFalse = true;
 
 const smtpTrans = nodemailer.createTransport({
     service: 'Gmail',
@@ -38,8 +42,9 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 
 module.exports = function (app, passport) {
 
-    setInterval(predownloadXml, 3660000);
-    // setInterval(predownloadXml, 36000);
+    removeFile();
+    setInterval(copyXML, download_interval); // run the function one time a (day
+    // setInterval(predownloadXml, 3660000);
 
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
@@ -60,6 +65,18 @@ module.exports = function (app, passport) {
             error: "Your username and password don't match."
         })
     });
+
+    // function downloadImage () {
+    //     // const url = 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities';
+    //     const url = 'https://unsplash.com/photos/AaEQmoufHLk/download?force=true';
+    //     const downloadDir = path.resolve(__dirname, downloadPath, 'code1.jpg');
+    //
+    //     request(url).pipe(fs.createWriteStream(downloadDir));
+    //     fs.createWriteStream(downloadDir).end();
+    //
+    // }
+
+    // downloadImage();
 
     app.get('/homepageLI', isLoggedIn, function (req, res) {
         let myStat = "SELECT userrole FROM UserLogin WHERE username = '" + req.user.username + "';";
@@ -321,30 +338,86 @@ module.exports = function (app, passport) {
         del_recov("Deleted", "Deletion failed!", "/userHome", req, res);
     });
 
+    function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
+
+        transactionID = req.query.transactionIDStr.split(",");
+        // console.log(transactionID);
+        let statementGeneral = "UPDATE Request_Form SET Current_Status = '" + StatusUpd + "'"; //this is where the problem is
+
+        for (let i = 0; i < transactionID.length; i++) {
+            if (i === 0) {
+                statementGeneral += " WHERE RID = '" + transactionID[i] + "'";
+                // statementDetailedS += " WHERE transactionID = '" + transactionID[i] + "'";
+                // statementDetailedT += " WHERE transactionID = '" + transactionID[i] + "'";
+
+                if (i === transactionID.length - 1) {
+                    statementGeneral += ";";
+                    // statementDetailedS += ";";
+                    // statementDetailedT += ";";
+                    myStat = statementGeneral;
+                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
+                }
+            } else {
+                statementGeneral += " OR RID = '" + transactionID[i] + "'";
+                // statementDetailedS += " OR transactionID = '" + transactionID[i] + "'";
+                // statementDetailedT += " OR transactionID = '" + transactionID[i] + "'";
+
+                if (i === transactionID.length - 1) {
+                    statementGeneral += ";";
+                    // statementDetailedS += ";";
+                    // statementDetailedT += ";";
+                    myStat = statementGeneral;
+                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
+                }
+            }
+        }
+    }
+
+    function updateDBNres(SQLstatement, Value, ErrMsg, targetURL, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+        con_CS.query(SQLstatement, Value, function (err, rows) {
+            if (err) {
+                console.log(err);
+                res.json({"error": true, "message": ErrMsg});
+            } else {
+                res.json({"error": false, "message": targetURL});
+            }
+        })
+    }
+    //Copy the record directly to Layer Menu if the PStatus was approved.
+
     app.get('/recoverRow', isLoggedIn, function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        del_recov("Approved", "Recovery failed!", "/userHome", req, res);
         let pictureStr = req.query.pictureStr.split(',');
+        let transactionPrStatusStr = req.query.transactionStatusStr;
+        console.log("tran:"+transactionPrStatusStr);
+
         // mover folder
-        for(let i = 0; i < pictureStr.length; i++) {
-            fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '', function (err) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log("Recovery process is successful");
+        for(var a=0; a<transactionPrStatusStr.length; a++) {
+
+            if (transactionPrStatusStr[a] ==="Pending") {
+                del_recov('Pending', "Recovery failed!", "/userHome", req, res);
+                for (let i = 0; i < pictureStr.length; i++) {
+                    fs.rename('' + Delete_Dir + '/' + pictureStr[i] + '', '' + upload_Dir + '/' + pictureStr[i] + '', function (err) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log("Recovery process is successful");
+                        }
+                 });
                 }
-                // if (Current_Status = 'Pending') {
-                //
-                //     let statementpractice = "UPDATE Request_Form SET Layer_Uploader = 'uploadfolder/'";
-                //
-                //     con_CS.query(statementpractice, function (err, results) {
-                //         if (err) throw err;
-                //         res.json(results[i]);
-                //     });
-                //
-                //
-                // }
-            });
+            }else{
+                for (let i = 0; i < pictureStr.length; i++) {
+                    del_recov('Approved', "Recovery failed!", "/userHome", req, res);
+                    fs.rename('' + Delete_Dir + '/' + pictureStr[i] + '', '' + geoData_Dir + '/' + pictureStr[i] + '', function (err) {
+                        if (err) {
+                            console.log(err);
+                        } else {//if successful
+                            console.log("Recovery process is successful");
+                        }
+                    });
+                }
+            }
         }
     });
 
@@ -379,7 +452,7 @@ module.exports = function (app, passport) {
         let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
             let statement = "UPDATE Request_Form SET Current_Status = 'Pending' WHERE RID = '" + transactionID[i] + "';";
-            let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+            let statement1 = "UPDATE LayerMenu SET Current_Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
             fs.rename(''+ geoData_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
                 if (err) {
                     console.log(err);
@@ -464,10 +537,10 @@ module.exports = function (app, passport) {
                 // table: 1
             },
             {
-                fieldVal: req.query.Status,
+                fieldVal: req.query.Current_Status,
                 dbCol: "Current_Status",
                 op: " = '",
-                adj: req.query.Status,
+                adj: req.query.Current_Status,
                 // table: 1
             },
             {
@@ -526,9 +599,9 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let password = req.body.pass;
         let statement = "SELECT password FROM UserLogin WHERE username = '" + req.body.username + "';";
-        console.log(password);
-        console.log(statement);
-        console.log(req.body.username);
+        // console.log(password);
+        // console.log(statement);
+        // console.log(req.body.username);
         con_CS.query(statement,function (err,results) {
             res.json((!bcrypt.compareSync(password, results[0].password)));
         });
@@ -826,6 +899,16 @@ module.exports = function (app, passport) {
         ]);
     });
 
+    //AddData to table
+    app.get('/AddData', function (req, res) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        con_CS.query('SELECT * FROM Request_Form', function (err, results) {
+            if (err) throw err;
+            res.json(results);
+            //there are no filters here so the whole table shows up in client side
+            //this means in server side we should filter
+        })
+    });
     // Filter by search criteria
     app.get('/filterUser', isLoggedIn, function (req, res) {
         // res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
@@ -877,7 +960,7 @@ module.exports = function (app, passport) {
             },
             {
                 fieldVal: req.query.status,
-                dbCol: "Status",
+                dbCol: "Current_Status",
                 op: " = '",
                 adj: req.query.status
             },
@@ -901,7 +984,7 @@ module.exports = function (app, passport) {
          edit_city = req.query.City;
          edit_lastName = req.query.Last_Name;
          edit_userrole = req.query.User_Role;
-         edit_status = req.query.Status;
+         edit_status = req.query.Current_Status;
 
          res.json({"error": false, "message": "/editUser"});
      });
@@ -967,21 +1050,14 @@ module.exports = function (app, passport) {
             }
         }
 
-
-
-
         function basicInformation() {
             let result = Object.keys(req.body).map(function (key) {
                 return [String(key), req.body[key]];
             });
 
-
-
             // var update3 = " WHERE username = '" + req.user.username + "'";
-            let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
+            let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Current_Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
             let statement2 = "UPDATE UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
-
-
             con_CS.query(statement1 + statement2, function (err, result) {
                 if (err) throw err;
                 res.json(result);
@@ -1000,10 +1076,6 @@ module.exports = function (app, passport) {
             // status: edit_status,
             message: req.flash('Data Entry Message')
         });
-        console.log("Request User")
-        console.log(req.user);
-        console.log("BodyUsername");
-        console.log(req.body.username);
     });
 
     app.post('/editUser', isLoggedIn, function (req, res) {
@@ -1071,8 +1143,8 @@ module.exports = function (app, passport) {
     //     let pictureStr = req.query.pictureStr.split(',');
     //     let LayerName = req.query.LayerName.split(',');
     //     for (let i = 0; i < transactionID.length; i++) {
-    //         let statement = "UPDATE Request_Form SET Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
-    //         let statement1 = "UPDATE LayerMenu SET Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
+    //         let statement = "UPDATE Request_Form SET Current_Status = 'Delete' WHERE RID = '" + transactionID[i] + "';";
+    //         let statement1 = "UPDATE LayerMenu SET Current_Status = 'Disapproved' WHERE ThirdLayer = '" + LayerName  + "';";
     //         fs.rename(''+ Delete_Dir + '/' + pictureStr[i] + '' , '' + upload_Dir + '/' + pictureStr[i] + '',  function (err) {
     //             if (err) {
     //                 console.log(err);
@@ -1096,7 +1168,8 @@ module.exports = function (app, passport) {
                 res.render('recovery.ejs', {
                     user: req.user,
                     message: req.flash('restoreMessage'),
-                    firstName: results[0].firstName
+                    firstName: results[0].firstName,
+                    lastName:results[0].lastName
                 });
             }
         });
@@ -1189,7 +1262,7 @@ module.exports = function (app, passport) {
 
         let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
         let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-        console.log(statement2 + statement);
+
         con_CS.query(statement2 + statement, function (err, result) {
             if (err) {
                 throw err;
@@ -1417,10 +1490,7 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         let transactionID = req.query.transactionIDStr.split(',');
         let pictureStr = req.query.pictureStr.split(',');
-        let LayerName = req.query.LayerName.split(','); //convert the string to array
-        console.log("LayerName");
-        console.log(LayerName);
-
+        let LayerName = req.query.LayerName.split(',');
         for (let i = 0; i < transactionID.length; i++) {
 
             let statement = "UPDATE Request_Form SET Layer_Uploader = 'trashfolder/', Prior_Status = Current_Status, Current_Status = 'Delete'  WHERE RID = '" + transactionID[i] + "';";
@@ -1441,18 +1511,6 @@ module.exports = function (app, passport) {
             });
         }
     });
-
-    //AddData in table
-    app.get('/AddData', function (req, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query('SELECT * FROM Request_Form', function (err, results) {
-            if (err) throw err;
-            res.json(results);
-            //there are no filters here so the whole table shows up in client side
-            //this means in server side we should filter
-        })
-    });
-
 
     app.get('/editdata',function (req,res){
         // var d = new Date();
@@ -1506,12 +1564,35 @@ module.exports = function (app, passport) {
             res.json(results);
         });
     });
+    app.get('/layerRequestContinent',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        con_CS.query("SELECT Continent,Contitent_name  FROM Country group by Continent,Contitent_name", function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+    app.get('/layerRequestCountry',function(req,res){
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        console.log(req.query);
+        var recieveCountryData = req.query.country;
+        console.log(recieveCountryData);
+        con_CS.query("SELECT Country_name FROM Country WHERE Continent = ?", recieveCountryData, function (err, results) {
+            console.log(results);
+            if (err) throw err;
+            res.json(results);
+        });
+    });
+
+
 
 
 //AddData in table
     app.get('/AddData', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        con_CS.query("SELECT * FROM GeneralFormDatatable", function (err, results) {
+        con_CS.query("SELECT * FROM Request_Form", function (err, results) {
+            // console.log('hh');
             if (err) throw err;
             res.json(results);
         })
@@ -1670,54 +1751,52 @@ module.exports = function (app, passport) {
         tokenExpire = date3 + ' ' + time3;
     }
 
-    function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
+    // function del_recov(StatusUpd, ErrMsg, targetURL, req, res) {
+    //
+    //     transactionID = req.query.transactionIDStr.split(",");
+    //     // console.log(transactionID);
+    //     let statementGeneral = "UPDATE Request_Form SET Status = '" + StatusUpd + "'"; //this is where the problem is
+    //
+    //     for (let i = 0; i < transactionID.length; i++) {
+    //         if (i === 0) {
+    //             statementGeneral += " WHERE RID = '" + transactionID[i] + "'";
+    //             // statementDetailedS += " WHERE transactionID = '" + transactionID[i] + "'";
+    //             // statementDetailedT += " WHERE transactionID = '" + transactionID[i] + "'";
+    //
+    //             if (i === transactionID.length - 1) {
+    //                 statementGeneral += ";";
+    //                 // statementDetailedS += ";";
+    //                 // statementDetailedT += ";";
+    //                 myStat = statementGeneral;
+    //                 updateDBNres(myStat, "", ErrMsg, targetURL, res);
+    //             }
+    //         } else {
+    //             statementGeneral += " OR RID = '" + transactionID[i] + "'";
+    //             // statementDetailedS += " OR transactionID = '" + transactionID[i] + "'";
+    //             // statementDetailedT += " OR transactionID = '" + transactionID[i] + "'";
+    //
+    //             if (i === transactionID.length - 1) {
+    //                 statementGeneral += ";";
+    //                 // statementDetailedS += ";";
+    //                 // statementDetailedT += ";";
+    //                 myStat = statementGeneral;
+    //                 updateDBNres(myStat, "", ErrMsg, targetURL, res);
+    //             }
+    //         }
+    //     }
+    // }
 
-        transactionID = req.query.transactionIDStr.split(",");
-        // console.log(transactionID);
-        let statementGeneral = "UPDATE Request_Form SET Current_Status = Prior_Status"; //this is where the problem is OH! set current = prior here!
-        //some variables can be parameters that are defined later
-        //string values must always be ordered first in an array of parameters
-
-        for (let i = 0; i < transactionID.length; i++) {
-            if (i === 0) {
-                statementGeneral += " WHERE RID = '" + transactionID[i] + "'";
-                // statementDetailedS += " WHERE transactionID = '" + transactionID[i] + "'";
-                // statementDetailedT += " WHERE transactionID = '" + transactionID[i] + "'";
-
-                if (i === transactionID.length - 1) {
-                    statementGeneral += ";";
-                    // statementDetailedS += ";";
-                    // statementDetailedT += ";";
-                    myStat = statementGeneral;
-                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
-                }
-            } else {
-                statementGeneral += " OR RID = '" + transactionID[i] + "'";
-                // statementDetailedS += " OR transactionID = '" + transactionID[i] + "'";
-                // statementDetailedT += " OR transactionID = '" + transactionID[i] + "'";
-
-                if (i === transactionID.length - 1) {
-                    statementGeneral += ";";
-                    // statementDetailedS += ";";
-                    // statementDetailedT += ";";
-                    myStat = statementGeneral;
-                    updateDBNres(myStat, "", ErrMsg, targetURL, res);
-                }
-            }
-        }
-    }
-
-    function updateDBNres(SQLstatement, Value, ErrMsg, targetURL, res) {
-        res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
-        con_CS.query(SQLstatement, Value, function (err, rows) {
-            if (err) {
-                console.log(err);
-                res.json({"error": true, "message": ErrMsg});
-            } else {
-                res.json({"error": false, "message": targetURL});
-            }
-        })
-    }
+    // function updateDBNres(SQLstatement, Value, ErrMsg, targetURL, res) {
+    //     res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
+    //     con_CS.query(SQLstatement, Value, function (err, rows) {
+    //         if (err) {
+    //             console.log(err);
+    //             res.json({"error": true, "message": ErrMsg});
+    //         } else {
+    //             res.json({"error": false, "message": targetURL});
+    //         }
+    //     })
+    // }
 
     function updateDBNredir(SQLstatement, Value, ErrMsg, failURL, redirURL, res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
@@ -2174,31 +2253,88 @@ function QueryStat(myObj, sqlStat, res) {
             }
         });
     }
+
+
+    function copyXML(){
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); //the path of the source file
+        var today = new Date();//get the current date
+        var date = today.getFullYear()+ '_' +(today.getMonth()+1)+ '_' + today.getDate();
+        var time = today.getHours() + "_" + today.getMinutes()+'_' + today.getSeconds();
+        var dataStr = date + "_"+ time;
+        var downloadDis = 'config/geoCapacity/' + dataStr+ '.xml'; //define a file name
+
+        fsextra.copy(downloadDir, downloadDis) //copy the file and rename
+            .then(//if copy succeed, call pre-download XML function
+                console.log('copy successful'),
+                predownloadXml ()
+            )
+    }
+
     function predownloadXml () {
-        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml');
+        const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); // the path of the destination
+        // const timeout = 20000;
         const requestOptions = {
             uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
-            timeout: 3600000
+            timeout: download_interval
+            // timeout:timeout
         };
         let resXMLRequest;
+        console.log('predownloadXML was called');
 
         request.get(requestOptions)
-            .on('error',function(err){
+            .on('error',function(err){ //called when error
                 console.log(err.code);
+                console.log('predownloadXML error');
+                removeFile();
                 // process.exit(0)
             })
             .on('response', function (res) {
+                console.log('predownloadXML res');
                 resXMLRequest = res;
                 if (res.statusCode === 200){
                     res.pipe(fs.createWriteStream(downloadDir))
                 } else {
                     console.log("Respose with Error Code: " + res.statusCode);
+                    removeFile();
                     // process.exit(0)
                 }
             })
             .on('end', function () {
+                downloadFalse = false;
                 console.log("The End: " + resXMLRequest.statusCode);
+                removeFile();
                 // process.exit(0)
             })
     }
+
+    function removeFile() {
+        console.log('the remove function was called');
+
+        const dir = 'config/geoCapacity'; //the dir of the file that I am going to remove.
+
+        fs.readdir(dir, (err, files) => {
+            var fileLength = files.length; // the total name of the file in directory
+            console.log(fileLength);
+            var fileName = []; // create an empty array
+            fileName.push(files); //push the file name into the array
+
+            if(fileLength > num_backups){ //if there are more than 100 file in the directory
+                if(!downloadFalse){ //if download succeed, run the code below
+                    fs.unlink('config/geoCapacity/'+ fileName[0][0], (err) => { //delete the first (the oldest) file in the directory
+                        if (err) {throw err} else {
+                            downloadFalse = true; //change the value of "downloadFalse" to true
+                        }
+                        console.log('download and remove copy successfully');
+                    })
+                } else { //if download failed, run the code below
+                    fs.unlink('config/geoCapacity/'+ fileName[0][fileLength-1], (err) => { //then delete the last (the latest) file in the directory
+                        if (err) {throw err}
+                        console.log('download file failed, removed copy successfully')
+                    })
+                }
+            }
+        });
+    }
+
+
 };
