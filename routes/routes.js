@@ -18,6 +18,7 @@ const geoData_Dir = config.GeoData_Dir; //approve folder
 const Delete_Dir = config.Delete_Dir; //trash folder
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
+const uploadPath = config.Upload_Path;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
@@ -38,6 +39,7 @@ con_CS.query('USE ' + config.Login_db); // Locate Login DB
 module.exports = function (app, passport) {
 
     setInterval(predownloadXml, 3660000);
+    // setInterval(predownloadXml, 36000);
 
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
@@ -238,8 +240,8 @@ module.exports = function (app, passport) {
                         res.json({"error": true, 'message': 'Password reset token is invalid or has expired. Please contact Administrator.'});
                     } else {
                         let newPass = {
-                            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-                            ConfirmPassword: bcrypt.hashSync(req.body.Confirmpassword, null, null)
+                            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+                            confirmPassword: bcrypt.hashSync(req.body.Confirmpassword, null, null)
                         };
 
                         let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE resetPasswordToken = '" + req.params.token + "'";
@@ -523,7 +525,10 @@ module.exports = function (app, passport) {
     app.post('/checkpassword',function (req,res) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
         let password = req.body.pass;
-        let statement = "SELECT password FROM UserLogin WHERE username = '" + req.user.username + "';";
+        let statement = "SELECT password FROM UserLogin WHERE username = '" + req.body.username + "';";
+        console.log(password);
+        console.log(statement);
+        console.log(req.body.username);
         con_CS.query(statement,function (err,results) {
             res.json((!bcrypt.compareSync(password, results[0].password)));
         });
@@ -542,13 +547,13 @@ module.exports = function (app, passport) {
         let user = req.user;
         let newPass = {
             currentpassword: req.body.CurrentPassword,
-            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-            ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+            confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
         };
 
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
-        if (!!req.body.newpassword && passComp) {
+        if (!!req.body.NewPassword && passComp) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
@@ -622,13 +627,13 @@ module.exports = function (app, passport) {
             // firstname: req.body.usernameF,
             // lastname: req.body.usernameL,
             currentpassword: req.body.CurrentPassword,
-            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-            ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+            confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
         };
 
         let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
-        if (!!req.body.newpassword && passComp) {
+        if (!!req.body.NewPassword && passComp) {
             let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
 
             con_CS.query(passReset, function (err, rows) {
@@ -905,39 +910,78 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*"); // Allow cross domain header
 
         // new password (User Login)
-        let user = req.user;
-        let newPass = {
-            currentpassword: req.body.CurrentPassword,
-            Newpassword: bcrypt.hashSync(req.body.newpassword, null, null),
-            ConfirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
-        };
+        let user = req.body.Username;
+        //Converts array to string
+        let editingUser = req.user.username;
+        let editingUserPassword = req.user.password;
 
-        let passComp = bcrypt.compareSync(newPass.currentpassword, user.password);
 
-        if (!!req.body.newpassword && passComp) {
-            let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user.username + "'";
+        if(user === editingUser) {
+            let newEditPass = {
+                currentpassword: req.body.CurrentPassword,
+                Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+                confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            };
 
-            con_CS.query(passReset, function (err, rows) {
-                if (err) {
-                    console.log(err);
-                    res.json({"error": true, "message": "Fail !"});
-                } else {
-                    // res.json({"error": false, "message": "Success !"});
-                    basicInformation();
-                }
-            });
+
+            let passComp = bcrypt.compareSync(newEditPass.currentpassword, editingUserPassword);
+
+
+            if (!!req.body.NewPassword) {
+                let passAdminReset = "UPDATE UserLogin SET password = '" + newEditPass.Newpassword + "' WHERE username = '" + user + "'";
+
+                con_CS.query(passAdminReset, function (err, rows) {
+                    if (err) {
+                        console.log(err);
+                        res.json({"error": true, "message": "Fail !"});
+                    } else {
+                        // res.json({"error": false, "message": "Success !"});
+                        basicInformation();
+                    }
+                });
+            } else {
+                basicInformation();
+            }
         } else {
-            basicInformation();
+            let newPass = {
+                Newpassword: bcrypt.hashSync(req.body.NewPassword, null, null),
+                confirmPassword: bcrypt.hashSync(req.body.ConfirmNewPassword, null, null)
+            };
+
+
+            if (!!req.body.NewPassword) {
+                let passReset = "UPDATE UserLogin SET password = '" + newPass.Newpassword + "' WHERE username = '" + user + "'";
+
+                con_CS.query(passReset, function (err, rows) {
+                    if (err) {
+                        console.log(err);
+                        res.json({"error": true, "message": "Fail !"});
+                        res.json({"error": true, "message": err});
+                    } else {
+                        // res.json({"error": false, "message": "Success !"});
+                        basicInformation();
+                    }
+                });
+            } else {
+                basicInformation();
+            }
         }
+
+
+
 
         function basicInformation() {
             let result = Object.keys(req.body).map(function (key) {
                 return [String(key), req.body[key]];
             });
 
+
+
             // var update3 = " WHERE username = '" + req.user.username + "'";
             let statement1 = "UPDATE UserLogin SET userrole = '" + result[3][1] + "',   Status = '" + result[4][1] + "' WHERE username = '" + result[0][1]+ "';";
             let statement2 = "UPDATE UserProfile SET firstName = '" + result[1][1] + "', lastName = '" + result[2][1] + "' WHERE username = '" + result[0][1] + "';";
+
+
             con_CS.query(statement1 + statement2, function (err, result) {
                 if (err) throw err;
                 res.json(result);
@@ -956,6 +1000,10 @@ module.exports = function (app, passport) {
             // status: edit_status,
             message: req.flash('Data Entry Message')
         });
+        console.log("Request User")
+        console.log(req.user);
+        console.log("BodyUsername");
+        console.log(req.body.username);
     });
 
     app.post('/editUser', isLoggedIn, function (req, res) {
@@ -1141,7 +1189,7 @@ module.exports = function (app, passport) {
 
         let statement2 = "INSERT INTO Request_Form (" + name + ") VALUES (" + valueSubmit + ");";
         let statement = "UPDATE Request_Form SET ThirdLayer = '" + result[7][1] + "' WHERE RID = '" + result[1][1] + "';";
-
+        console.log(statement2 + statement);
         con_CS.query(statement2 + statement, function (err, result) {
             if (err) {
                 throw err;
