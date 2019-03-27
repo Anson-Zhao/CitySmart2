@@ -14,19 +14,20 @@ const rimraf = require("rimraf");
 const mkdirp = require("mkdirp");
 const multiparty = require('multiparty');
 const path    = require('path');
+// var exec = require('child_process').exec, child;
+
 const upload_Dir = config.Upload_Dir; //contains pending and rejected
 const geoData_Dir = config.GeoData_Dir; //approve folder
 const Delete_Dir = config.Delete_Dir; //trash folder
 const downloadPath = config.Download_Path;
 const con_CS = mysql.createConnection(config.commondb_connection);
-const uploadPath = config.Upload_Path;
 const num_backups = config.num_backups;
 const download_interval = config.download_interval;
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 
-let transactionID, myStat, myVal, myErrMsg, token, errCurrent_Status, mylogin;
+let transactionID, myStat, myVal, myErrMsg, token, errStatus, mylogin;
 let today, date2, date3, time2, time3, dateTime, tokenExpire;
 let downloadFalse = true;
 
@@ -113,6 +114,7 @@ module.exports = function (app, passport) {
                 res.json({"error": true, "message": "no result found!"});
             } else {
                 res.json(results);
+                // console.log("Results:");
                 // console.log(results);
             }
         });
@@ -388,6 +390,7 @@ module.exports = function (app, passport) {
 
     app.get('/recoverRow', isLoggedIn, function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
+        // del_recov("Approved", "Recovery failed!", "/userHome", req, res);
         let pictureStr = req.query.pictureStr.split(',');
         let transactionPrStatusStr = req.query.transactionStatusStr;
         console.log("tran:"+transactionPrStatusStr);
@@ -468,8 +471,8 @@ module.exports = function (app, passport) {
     });
 
     app.get('/filterQuery', isLoggedIn, function (req, res) {
-        console.log(req.query);
-        var scoutingStat = "SELECT UserProfile.firstName, UserProfile.lastName, Request_Form.* FROM Request_Form INNER JOIN UserProfile ON UserProfile.username = Request_Form.UID";
+        // console.log(req.query);
+        var sqlStat = "SELECT UserProfile.firstName, UserProfile.lastName, Request_Form.* FROM Request_Form INNER JOIN UserProfile ON UserProfile.username = Request_Form.UID";
         var myQueryObj = [ //change everything because we need to make sure it matches what we want to happen in client side
             {
                 fieldVal: req.query.firstName,
@@ -521,7 +524,7 @@ module.exports = function (app, passport) {
                 table: req.query.filter3
             }
         ];
-        QueryStat(myQueryObj, scoutingStat, res)
+        QueryStat(myQueryObj, sqlStat, res)
     });
 
     app.get('/layerReqQuery', isLoggedIn, function (req, res) {
@@ -1117,15 +1120,12 @@ module.exports = function (app, passport) {
         let username = req.query.usernameStr.split(","); //they receive the username string from client side
 
         myStat = "UPDATE UserLogin SET modifiedUser = '" + req.user.username + "', dateModified = '" + dateTime + "',  status = 'Suspended'";
-        // console.log(myStat);
 
         for (let i = 0; i < username.length; i++) {
             if (i === 0) {
                 myStat += " WHERE username = '" + username[i] + "'";
                 if (i === username.length - 1) {
                     updateDBNres(myStat, "", "Suspension failed!", "/userManagement", res);
-                    // console.log(myStat);
-
                 }
             } else {
                 myStat += " OR username = '" + username[i] + "'"; //is this assuming they don't try to suspend a faulty account more than twice?
@@ -1382,11 +1382,13 @@ module.exports = function (app, passport) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         let approveIDStr = req.query.tID;
         let approvepictureStr = req.query.LUN.split(',');
+        let format = req.query.lForm;
+        let fName = req.query.fName;
+        let layerName;
 
         let statement = "UPDATE Request_Form SET Current_Status = 'Approved' WHERE RID = '" + approveIDStr + "'";
 
         // mover folder
-        //this creates approved folder
         for(let i = 0; i < approvepictureStr.length; i++) {
             fs.rename(''+ upload_Dir +'/' + approvepictureStr[i] + '' , '' + geoData_Dir + '/' + approvepictureStr[i] + '',  function (err) {
                 if (err) {
@@ -1397,9 +1399,91 @@ module.exports = function (app, passport) {
             });
             con_CS.query(statement, function (err, results) {
                 if (err) throw err;
+                // console.log(results);
+
+                if (format === "Shapefile - ESRI(tm) Shapefiles (.shp)") {
+                    console.log("name of file: " + approvepictureStr[0]);
+                    var type = "Content-type: application/zip";
+                    var datastore = "datastore" + fName;
+
+                    var statement = "curl -u julia:123654 -v -XPUT -H '" + type + "' --data-binary @approvedfiles/" + approvepictureStr[0] + " http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/" + datastore +"/file.shp";
+
+                    child = exec(statement,
+                        function (error, stdout, stderr) {
+                            console.log(statement);
+                            console.log('stdout: ' + stdout);
+                            console.log('stderr: ' + stderr);
+                            if (error !== null) {
+                                console.log('exec error: ' + error);
+                            } else {
+                                var statement = "curl -u julia:123654 -v -XGET http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/" + datastore + "/featuretypes.json";
+                                var jsonF;
+                                child = exec(statement,
+                                    function (error, stdout, stderr) {
+                                        console.log(statement);
+                                        console.log('stdout: ' + stdout);
+                                        console.log('stderr: ' + stderr);
+
+                                        jsonF = JSON.parse(stdout);
+                                        if (error !== null) {
+
+                                            console.log('exec error: ' + error);
+                                        } else {
+                                            layerName = "Approved:" + jsonF.featureTypes.featureType[0].name;
+                                            console.log(layerName);
+                                        }
+                                    });
+                            }
+                        });
+                } else if (format === "GeoTIFF - Tagged Image File Format with Geographic information (.tif)") {
+                    console.log("geotiff file works :D");
+                }
+
+                // res.setHeader("Access-Control-Allow-Origin", "*");
+                //
+                // var type = "Content-type: application/zip";
+                //
+                // var statement = "curl -u julia:123654 -v -XPUT -H '" + type + "' --data-binary @approvedfiles/" + approvepictureStr[0] + " http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/datastore/file.shp";
+                //
+                // child = exec(statement,
+                //     function (error, stdout, stderr) {
+                //     console.log(statement);
+                //         console.log('stdout: ' + stdout);
+                //         console.log('stderr: ' + stderr);
+                //         if (error !== null) {
+                //             console.log('exec error: ' + error);
+                //         }
+                //     });
+
                 res.json(results[i]);
             });
         }
+    });
+
+    app.post('/testB', function (req, res) {
+        let result = Object.keys(req.body).map(function (key) {
+            return [String(key), req.body[key]];
+        });
+
+        console.log(result);
+
+        var statement = "curl -u julia:123654 -v -XGET http://cs.aworldbridgelabs.com:8080/geoserver/rest/workspaces/Approved/datastores/datastoresigh/featuretypes.json";
+        var jsonF;
+        child = exec(statement,
+            function (error, stdout, stderr) {
+                console.log(statement);
+                console.log('stdout: ' + stdout);
+                console.log('stderr: ' + stderr);
+
+                jsonF = JSON.parse(stdout);
+                if (error !== null) {
+
+                    console.log('exec error: ' + error);
+                } else {
+                    console.log(jsonF.featureTypes.featureType[0].name);
+                }
+            });
+
     });
 
     app.post('/replace', function (req, res) {
@@ -1412,6 +1496,11 @@ module.exports = function (app, passport) {
         var update1 = "UPDATE Request_Form SET " ;
         var update3 = " WHERE RID = '" + result[1][1] + "';";
         let update2 = "";
+        let layerName;
+        let datastore = "datastore" + result[7][1];
+
+        console.log(result);
+        console.log(datastore);
 
         for (let i = 0; i < result.length; i++) {
             if (i === result.length - 1) {
@@ -1428,7 +1517,7 @@ module.exports = function (app, passport) {
         let statement2 = "UPDATE Request_Form SET Layer_Uploader = '" + Layer_Uploader + "', Layer_Uploader_name = '" + Layer_Uploader_name + "' WHERE RID = '" + result[1][1] + "';";
         let statement3 = "UPDATE Request_Form SET ThirdLayer = '" + result[8][1] + "' WHERE RID = '" + result[1][1] + "';";
         if(result[3][1] === "other"){
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status, RID) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[4][1] + "','" + result[6][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved', '" + result[1][1] + "');";
             con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -1437,7 +1526,7 @@ module.exports = function (app, passport) {
                 }
             });
         }else{
-            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved');";
+            let statement = "INSERT INTO LayerMenu (LayerName, LayerType, FirstLayer, SecondLayer, ThirdLayer, ContinentName, CountryName, StateName, Status, RID) VALUES ('" + result[7][1] + "', 'Wmslayer', '" + result[3][1] + "','" + result[5][1] + "','" + result[8][1] + "','" + result[10][1] + "','" + result[8][1] + "','" + result[9][1] + "', 'Approved', '" + result[1][1] + "');";
            con_CS.query(statement1 + statement + statement2 + statement3, function (err, result) {
                 if (err) {
                     throw err;
@@ -2272,11 +2361,11 @@ function QueryStat(myObj, sqlStat, res) {
 
     function predownloadXml () {
         const downloadDir = path.resolve(__dirname, downloadPath, 'ows.xml'); // the path of the destination
-        // const timeout = 20000;
+        const timeout = 20000;
         const requestOptions = {
             uri: 'http://cs.aworldbridgelabs.com:8080/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities',
-            timeout: download_interval
-            // timeout:timeout
+            // timeout: download_interval
+            timeout:timeout
         };
         let resXMLRequest;
         console.log('predownloadXML was called');

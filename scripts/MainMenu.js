@@ -75,10 +75,9 @@ requirejs(['./WorldWindShim',
 
         function createWMSLayer (xmlDom) {
 
-            console.log(xmlDom);
+            // console.log(xmlDom);
             // Create a WmsCapabilities object from the XML DOM
             var wms = new WorldWind.WmsCapabilities(xmlDom);
-            // console.log(wms.getNamedLayer);
 
             // Retrieve a WmsLayerCapabilities object by the desired layer name
             for (var n = 0; n < preloadWMSLayerName.length; n++) {
@@ -94,7 +93,7 @@ requirejs(['./WorldWindShim',
                 // Create the WMS Layer from the configuration object
                 var wmsLayer = new WorldWind.WmsLayer(wmsConfig);
 
-                console.log(wmsLayer);
+                // console.log(wmsLayer);
                 // Add the layers to WorldWind and update the layer manager
                 globe.addLayer(wmsLayer);
                 layerManager.synchronizeLayerList();
@@ -441,6 +440,18 @@ requirejs(['./WorldWindShim',
                 }
             })
         };
+//
+        globe.addEventListener("mousemove", handlePick);
+
+// globe.addEventListener("click", sitePopUp);
+
+        globe.addEventListener("click", handleMouseCLK);
+
+
+        // Called if an error occurs during WMS Capabilities document retrieval
+        var logError = function (jqXhr, text, exception) {
+            console.log("There was a failure retrieving the capabilities document: " + text + " exception: " + exception);
+        };
 
         var buttonControl = function(allCheckedArray,layer1){
             if (alertVal){
@@ -520,7 +531,6 @@ requirejs(['./WorldWindShim',
             });
             var preloadLayerStr = preloadLayer + '';//change preloadLayer into a string
             preloadWMSLayerName = preloadLayerStr.split(",");//split preloadLayerStr with ","
-            console.log(preloadWMSLayerName);
 
             $.get("../config/ows.xml").done(createWMSLayer).fail(logError);// get the xml file of wmslayer and pass the file into  createLayer function.
 

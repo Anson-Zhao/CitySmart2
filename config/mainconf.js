@@ -40,6 +40,9 @@ var configGlobal = {
     // 'GeoData_Dir': '/usr/share/worldwind-geoserver-0.2.1/data_dir/data/USGS'
     'GeoData_Dir':'approvedfolder',
 
+    'D_store': 'datastore',
+    'C_store': 'coveragestore',
+
     //trashfolder file--trashfolder
     'Delete_Dir':'trashfolder',
 
